@@ -1,0 +1,12 @@
+{
+  "posts": [],
+  "lastUpdated": "2026-02-07T00:00:00.000Z"
+}
+```
+
+---
+
+## 📁 FILE 13: `data/posts/.gitkeep`
+```
+# This file keeps the posts directory in git
+# Delete this file after creating your first post
