@@ -1,0 +1,11 @@
+{
+  "paypal": {
+    "email": ""
+  },
+  "bank": {
+    "name": "",
+    "accountNumber": "",
+    "accountName": "",
+    "swift": ""
+  }
+}
