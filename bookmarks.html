@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarks - GitHub CMS</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>GitHub CMS</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Home</a>
+                <a href="search.html">Search</a>
+                <a href="bookmarks.html" class="active">Bookmarks</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Bookmarks Section -->
+    <main class="main">
+        <div class="container">
+            <div class="section-header">
+                <h2>My Bookmarks</h2>
+                <div class="bookmark-actions">
+                    <button id="export-btn" class="btn-secondary">Export</button>
+                    <button id="import-btn" class="btn-secondary">Import</button>
+                    <button id="clear-all-btn" class="btn-danger">Clear All</button>
+                </div>
+            </div>
+
+            <!-- Bookmarks Count -->
+            <div id="bookmarks-count" class="results-count"></div>
+
+            <!-- Bookmarks Grid -->
+            <div id="bookmarks-grid" class="posts-grid"></div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <h3>No bookmarks yet</h3>
+                <p>Start bookmarking your favorite posts!</p>
+                <a href="index.html" class="btn-primary">Browse Posts</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Import Modal -->
+    <div id="import-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Import Bookmarks</h3>
+            <textarea id="import-data" placeholder="Paste exported JSON here..."></textarea>
+            <div class="modal-actions">
+                <button id="import-confirm" class="btn-primary">Import</button>
+                <button id="import-cancel" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GitHub CMS. Built with ❤️ and GitHub Pages</p>
+        </div>
+    </footer>
+
+    <script src="js/github-api.js"></script>
+    <script>
+        let bookmarks = [];
+
+        function loadBookmarks() {
+            bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            displayBookmarks();
+        }
+
+        function displayBookmarks() {
+            const grid = document.getElementById('bookmarks-grid');
+            const emptyState = document.getElementById('empty-state');
+            const count = document.getElementById('bookmarks-count');
+
+            count.textContent = `${bookmarks.length} bookmark${bookmarks.length !== 1 ? 's' : ''}`;
+
+            if (bookmarks.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'flex';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            grid.innerHTML = bookmarks.map(post => `
+                <div class="post-card">
+                    <div class="post-card-image" onclick="window.location='post.html?id=${post.id}'">
+                        <img src="${post.thumbnail}" alt="${post.title}">
+                        <div class="post-card-overlay">
+                            <span class="category">${post.category}</span>
+                            <span class="rating">⭐ ${post.rating}</span>
+                        </div>
+                    </div>
+                    <div class="post-card-content">
+                        <h3 class="post-card-title" onclick="window.location='post.html?id=${post.id}'">${post.title}</h3>
+                        <div class="post-card-meta">
+                            <span>${post.year}</span>
+                        </div>
+                        <button class="btn-remove" onclick="removeBookmark('${post.id}')">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeBookmark(postId) {
+            bookmarks = bookmarks.filter(b => b.id !== postId);
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            loadBookmarks();
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to remove all bookmarks?')) {
+                localStorage.removeItem('bookmarks');
+                loadBookmarks();
+            }
+        }
+
+        function exportBookmarks() {
+            const data = JSON.stringify(bookmarks, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bookmarks.json';
+            a.click();
+        }
+
+        function showImportModal() {
+            document.getElementById('import-modal').style.display = 'flex';
+        }
+
+        function hideImportModal() {
+            document.getElementById('import-modal').style.display = 'none';
+            document.getElementById('import-data').value = '';
+        }
+
+        function importBookmarks() {
+            try {
+                const data = document.getElementById('import-data').value;
+                const imported = JSON.parse(data);
+                
+                if (!Array.isArray(imported)) {
+                    throw new Error('Invalid data format');
+                }
+
+                localStorage.setItem('bookmarks', JSON.stringify(imported));
+                loadBookmarks();
+                hideImportModal();
+                alert('Bookmarks imported successfully!');
+            } catch (error) {
+                alert('Error importing bookmarks. Please check the data format.');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('export-btn').addEventListener('click', exportBookmarks);
+        document.getElementById('import-btn').addEventListener('click', showImportModal);
+        document.getElementById('clear-all-btn').addEventListener('click', clearAll);
+        document.getElementById('import-confirm').addEventListener('click', importBookmarks);
+        document.getElementById('import-cancel').addEventListener('click', hideImportModal);
+
+        // Initialize
+        loadBookmarks();
+    </script>
+</body>
+</html>
