@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - GitHub CMS</title>
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-screen">
+        <div class="auth-container">
+            <h1>🔐 Admin Login</h1>
+            <p>Enter your GitHub Personal Access Token</p>
+            <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx">
+            <input type="text" id="repo-input" placeholder="username/repository">
+            <button id="login-btn" class="btn-primary">Login</button>
+            <div class="auth-help">
+                <a href="https://github.com/settings/tokens" target="_blank">Generate Token</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="admin-panel" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>GitHub CMS</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="posts">
+                    <span class="icon">📝</span>
+                    <span>Posts</span>
+                </a>
+                <a href="#" class="nav-item" data-page="pages">
+                    <span class="icon">📄</span>
+                    <span>Pages</span>
+                </a>
+                <a href="#" class="nav-item" data-page="media">
+                    <span class="icon">🖼️</span>
+                    <span>Media</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" id="logout-btn">
+                    <span class="icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="topbar-actions">
+                    <button id="sync-btn" class="btn-icon" title="Sync with GitHub">🔄</button>
+                    <a href="../index.html" target="_blank" class="btn-icon" title="View Site">🌐</a>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Page -->
+                <div id="dashboard-page" class="page active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-info">
+                                <h3 id="total-posts">0</h3>
+                                <p>Total Posts</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📄</div>
+                            <div class="stat-info">
+                                <h3 id="total-pages">0</h3>
+                                <p>Pages</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🖼️</div>
+                            <div class="stat-info">
+                                <h3 id="total-media">0</h3>
+                                <p>Media Files</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⭐</div>
+                            <div class="stat-info">
+                                <h3 id="avg-rating">0</h3>
+                                <p>Avg Rating</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div id="activity-list" class="activity-list"></div>
+                    </div>
+                </div>
+
+                <!-- Posts Page -->
+                <div id="posts-page" class="page">
+                    <div class="page-header">
+                        <button id="create-post-btn" class="btn-primary">+ Create New Post</button>
+                        <input type="text" id="posts-search" placeholder="Search posts...">
+                    </div>
+
+                    <div id="posts-list" class="data-table"></div>
+                </div>
+
+                <!-- Pages Page -->
+                <div id="pages-page" class="page">
+                    <div class="page-header">
+                        <button id="create-page-btn" class="btn-primary">+ Create New Page</button>
+                    </div>
+                    <div id="pages-list" class="data-table"></div>
+                </div>
+
+                <!-- Media Page -->
+                <div id="media-page" class="page">
+                    <div class="page-header">
+                        <button id="upload-media-btn" class="btn-primary">+ Upload Media</button>
+                        <input type="file" id="media-upload-input" accept="image/*" multiple style="display: none;">
+                    </div>
+                    <div id="media-grid" class="media-grid"></div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settings-page" class="page">
+                    <div class="settings-section">
+                        <h3>Site Settings</h3>
+                        <div class="form-group">
+                            <label>Site Name</label>
+                            <input type="text" id="site-name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Tagline</label>
+                            <input type="text" id="site-tagline" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Theme</label>
+                            <select id="site-theme" class="form-control">
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                            </select>
+                        </div>
+                        <button id="save-settings-btn" class="btn-primary">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Post Editor Modal -->
+    <div id="post-editor-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="editor-title">Create New Post</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="editor-layout">
+                    <div class="editor-form">
+                        <div class="form-group">
+                            <label>Title *</label>
+                            <input type="text" id="post-title" class="form-control" placeholder="Post title">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Category *</label>
+                                <select id="post-category" class="form-control">
+                                    <option>Action</option>
+                                    <option>Drama</option>
+                                    <option>Sci-Fi</option>
+                                    <option>Horror</option>
+                                    <option>Comedy</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Year *</label>
+                                <input type="number" id="post-year" class="form-control" value="2024">
+                            </div>
+                            <div class="form-group">
+                                <label>Rating *</label>
+                                <input type="number" id="post-rating" class="form-control" step="0.1" min="0" max="10" value="7.5">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tags (comma separated)</label>
+                            <input type="text" id="post-tags" class="form-control" placeholder="tag1, tag2, tag3">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Thumbnail URL</label>
+                            <input type="text" id="post-thumbnail" class="form-control" placeholder="https://...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Banner URL (optional)</label>
+                            <input type="text" id="post-banner" class="form-control" placeholder="https://...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Content *</label>
+                            <div class="editor-toolbar">
+                                <button type="button" class="toolbar-btn" onclick="insertHTML('<h2>', '</h2>')">H2</button>
+                                <button type="button" class="toolbar-btn" onclick="insertHTML('<h3>', '</h3>')">H3</button>
+                                <button type="button" class="toolbar-btn" onclick="insertHTML('<strong>', '</strong>')">B</button>
+                                <button type="button" class="toolbar-btn" onclick="insertHTML('<em>', '</em>')">I</button>
+                                <button type="button" class="toolbar-btn" onclick="insertHTML('<p>', '</p>')">P</button>
+                            </div>
+                            <textarea id="post-content" class="form-control editor-textarea" rows="15"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="post-published" checked>
+                                Published
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="editor-preview">
+                        <h4>Preview</h4>
+                        <div id="content-preview" class="preview-container"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-post-btn" class="btn-primary">Save Post</button>
+                <button class="btn-secondary modal-close">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/github-api.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
