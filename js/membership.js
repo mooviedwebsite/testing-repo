@@ -178,4 +178,21 @@ function getExpiryText(user) {
     return expiry.toLocaleDateString();
 }
 
-// Initialize o
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    if (UserAuth.currentUser) {
+        // Update current plan button
+        const currentPlan = UserAuth.currentUser.membership;
+        const buttons = document.querySelectorAll('.btn-plan');
+        
+        buttons.forEach(btn => {
+            const card = btn.closest('.plan-card');
+            const planName = card.querySelector('.plan-header h3').textContent.toLowerCase();
+            
+            if (planName === currentPlan) {
+                btn.textContent = 'Current Plan';
+                btn.disabled = true;
+            }
+        });
+    }
+});
