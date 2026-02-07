@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - GitHub CMS</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>GitHub CMS</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Home</a>
+                <a href="search.html" class="active">Search</a>
+                <a href="bookmarks.html">Bookmarks</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Search Section -->
+    <main class="main">
+        <div class="container">
+            <div class="search-header">
+                <h2>Search Posts</h2>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search by title, category, tags...">
+                    <button id="search-btn">Search</button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="search-filters">
+                <div class="filter-group">
+                    <label>Category:</label>
+                    <select id="filter-category">
+                        <option value="">All Categories</option>
+                        <option value="Action">Action</option>
+                        <option value="Drama">Drama</option>
+                        <option value="Sci-Fi">Sci-Fi</option>
+                        <option value="Horror">Horror</option>
+                        <option value="Comedy">Comedy</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Year:</label>
+                    <select id="filter-year">
+                        <option value="">All Years</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Rating:</label>
+                    <select id="filter-rating">
+                        <option value="">All Ratings</option>
+                        <option value="9">9+ Stars</option>
+                        <option value="8">8+ Stars</option>
+                        <option value="7">7+ Stars</option>
+                    </select>
+                </div>
+
+                <button id="clear-filters" class="btn-secondary">Clear Filters</button>
+            </div>
+
+            <!-- Results Count -->
+            <div id="results-count" class="results-count"></div>
+
+            <!-- Results Grid -->
+            <div id="search-results" class="posts-grid"></div>
+
+            <!-- No Results -->
+            <div id="no-results" class="no-results" style="display: none;">
+                <h3>No posts found</h3>
+                <p>Try adjusting your search or filters</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GitHub CMS. Built with ❤️ and GitHub Pages</p>
+        </div>
+    </footer>
+
+    <script src="js/github-api.js"></script>
+    <script>
+        let allPosts = [];
+        let filteredPosts = [];
+
+        async function init() {
+            allPosts = await GitHubAPI.getPosts();
+            filteredPosts = allPosts;
+
+            // Populate year filter
+            const years = [...new Set(allPosts.map(p => p.year))].sort((a, b) => b - a);
+            const yearSelect = document.getElementById('filter-year');
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+
+            displayResults();
+        }
+
+        function search() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const category = document.getElementById('filter-category').value;
+            const year = document.getElementById('filter-year').value;
+            const rating = document.getElementById('filter-rating').value;
+
+            filteredPosts = allPosts.filter(post => {
+                // Text search
+                const matchesQuery = !query || 
+                    post.title.toLowerCase().includes(query) ||
+                    post.category.toLowerCase().includes(query) ||
+                    post.tags.some(tag => tag.toLowerCase().includes(query));
+
+                // Category filter
+                const matchesCategory = !category || post.category === category;
+
+                // Year filter
+                const matchesYear = !year || post.year === parseInt(year);
+
+                // Rating filter
+                const matchesRating = !rating || post.rating >= parseFloat(rating);
+
+                return matchesQuery && matchesCategory && matchesYear && matchesRating;
+            });
+
+            displayResults();
+        }
+
+        function displayResults() {
+            const resultsContainer = document.getElementById('search-results');
+            const noResults = document.getElementById('no-results');
+            const resultsCount = document.getElementById('results-count');
+
+            resultsCount.textContent = `${filteredPosts.length} post${filteredPosts.length !== 1 ? 's' : ''} found`;
+
+            if (filteredPosts.length === 0) {
+                resultsContainer.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            resultsContainer.innerHTML = filteredPosts.map(post => `
+                <div class="post-card" onclick="window.location='post.html?id=${post.id}'">
+                    <div class="post-card-image">
+                        <img src="${post.thumbnail}" alt="${post.title}">
+                        <div class="post-card-overlay">
+                            <span class="category">${post.category}</span>
+                            <span class="rating">⭐ ${post.rating}</span>
+                        </div>
+                    </div>
+                    <div class="post-card-content">
+                        <h3 class="post-card-title">${post.title}</h3>
+                        <div class="post-card-meta">
+                            <span>${post.year}</span>
+                            <span>${post.tags.slice(0, 2).map(t => '#' + t).join(' ')}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-year').value = '';
+            document.getElementById('filter-rating').value = '';
+            filteredPosts = allPosts;
+            displayResults();
+        }
+
+        // Event listeners
+        document.getElementById('search-input').addEventListener('input', search);
+        document.getElementById('search-btn').addEventListener('click', search);
+        document.getElementById('filter-category').addEventListener('change', search);
+        document.getElementById('filter-year').addEventListener('change', search);
+        document.getElementById('filter-rating').addEventListener('change', search);
+        document.getElementById('clear-filters').addEventListener('click', clearFilters);
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
