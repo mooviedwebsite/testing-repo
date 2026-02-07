@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post - GitHub CMS</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>GitHub CMS</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Home</a>
+                <a href="search.html">Search</a>
+                <a href="bookmarks.html">Bookmarks</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Post Content -->
+    <main class="main">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading post...</p>
+        </div>
+
+        <!-- Post Container -->
+        <article id="post-container" class="post-container" style="display: none;">
+            <!-- Banner -->
+            <div class="post-banner">
+                <img id="post-banner" src="" alt="">
+                <div class="post-banner-overlay">
+                    <div class="container">
+                        <div class="post-meta-header">
+                            <span id="post-category" class="category-badge"></span>
+                            <span id="post-year" class="year-badge"></span>
+                            <span id="post-rating" class="rating-badge"></span>
+                        </div>
+                        <h1 id="post-title" class="post-title"></h1>
+                        <div id="post-tags" class="post-tags"></div>
+                        <button id="bookmark-btn" class="btn-bookmark">
+                            <span class="bookmark-icon">🔖</span>
+                            <span class="bookmark-text">Bookmark</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Body -->
+            <div class="container">
+                <div class="post-content">
+                    <div id="post-body" class="post-body"></div>
+                    
+                    <!-- Post Footer -->
+                    <div class="post-footer">
+                        <div class="post-date">
+                            Published: <span id="post-date"></span>
+                        </div>
+                        <div class="post-author">
+                            By: <span id="post-author"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Related Posts -->
+                <div class="related-posts">
+                    <h3>Related Posts</h3>
+                    <div id="related-posts-grid" class="posts-grid"></div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Error State -->
+        <div id="error-container" class="error-container" style="display: none;">
+            <h2>Post Not Found</h2>
+            <p>The post you're looking for doesn't exist.</p>
+            <a href="index.html" class="btn-primary">Go Home</a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GitHub CMS. Built with ❤️ and GitHub Pages</p>
+        </div>
+    </footer>
+
+    <script src="js/github-api.js"></script>
+    <script>
+        // Get post ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+        const postSlug = urlParams.get('slug');
+
+        let currentPost = null;
+
+        // Load post
+        async function loadPost() {
+            const loading = document.getElementById('loading');
+            const postContainer = document.getElementById('post-container');
+            const errorContainer = document.getElementById('error-container');
+
+            try {
+                // Get all posts
+                const posts = await GitHubAPI.getPosts();
+                
+                // Find post by ID or slug
+                currentPost = posts.find(p => p.id === postId || p.slug === postSlug);
+
+                if (!currentPost) {
+                    throw new Error('Post not found');
+                }
+
+                // Update page title
+                document.title = currentPost.title + ' - GitHub CMS';
+
+                // Display post
+                displayPost(currentPost);
+
+                // Load related posts
+                loadRelatedPosts(currentPost, posts);
+
+                // Check bookmark status
+                updateBookmarkButton();
+
+                loading.style.display = 'none';
+                postContainer.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading post:', error);
+                loading.style.display = 'none';
+                errorContainer.style.display = 'block';
+            }
+        }
+
+        function displayPost(post) {
+            document.getElementById('post-banner').src = post.banner || post.thumbnail;
+            document.getElementById('post-title').textContent = post.title;
+            document.getElementById('post-category').textContent = post.category;
+            document.getElementById('post-year').textContent = post.year;
+            document.getElementById('post-rating').textContent = '⭐ ' + post.rating;
+            document.getElementById('post-body').innerHTML = post.content;
+            document.getElementById('post-date').textContent = new Date(post.metadata.created).toLocaleDateString();
+            document.getElementById('post-author').textContent = post.metadata.author;
+
+            // Tags
+            const tagsContainer = document.getElementById('post-tags');
+            tagsContainer.innerHTML = post.tags.map(tag => 
+                `<span class="tag">#${tag}</span>`
+            ).join('');
+        }
+
+        function loadRelatedPosts(currentPost, allPosts) {
+            const related = allPosts
+                .filter(p => p.id !== currentPost.id && p.category === currentPost.category)
+                .slice(0, 3);
+
+            const grid = document.getElementById('related-posts-grid');
+            grid.innerHTML = related.map(post => createPostCard(post)).join('');
+        }
+
+        function createPostCard(post) {
+            return `
+                <div class="post-card" onclick="window.location='post.html?id=${post.id}'">
+                    <div class="post-card-image">
+                        <img src="${post.thumbnail}" alt="${post.title}">
+                        <div class="post-card-overlay">
+                            <span class="category">${post.category}</span>
+                            <span class="rating">⭐ ${post.rating}</span>
+                        </div>
+                    </div>
+                    <div class="post-card-content">
+                        <h3 class="post-card-title">${post.title}</h3>
+                        <div class="post-card-meta">
+                            <span>${post.year}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Bookmark functionality
+        const bookmarkBtn = document.getElementById('bookmark-btn');
+        bookmarkBtn.addEventListener('click', toggleBookmark);
+
+        function toggleBookmark() {
+            let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            const index = bookmarks.findIndex(b => b.id === currentPost.id);
+
+            if (index > -1) {
+                bookmarks.splice(index, 1);
+            } else {
+                bookmarks.push(currentPost);
+            }
+
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            updateBookmarkButton();
+        }
+
+        function updateBookmarkButton() {
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            const isBookmarked = bookmarks.some(b => b.id === currentPost.id);
+            
+            bookmarkBtn.classList.toggle('bookmarked', isBookmarked);
+            bookmarkBtn.querySelector('.bookmark-text').textContent = 
+                isBookmarked ? 'Bookmarked' : 'Bookmark';
+        }
+
+        // Load post on page load
+        loadPost();
+    </script>
+</body>
+</html>
