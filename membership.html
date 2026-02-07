@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Plans - GitHub CMS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/membership.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>GitHub CMS</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Home</a>
+                <a href="search.html">Search</a>
+                <a href="bookmarks.html">Bookmarks</a>
+                <div class="user-account" style="display: none;"></div>
+                <a href="auth.html" class="login-link admin-link">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="membership-hero">
+        <div class="container">
+            <h1>Choose Your Plan</h1>
+            <p>Unlock premium features and support our platform</p>
+        </div>
+    </section>
+
+    <!-- Plans Grid -->
+    <main class="main">
+        <div class="container">
+            <div class="plans-grid">
+                <!-- FREE Plan -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h3>Free</h3>
+                        <div class="plan-price">
+                            <span class="price">$0</span>
+                            <span class="period">/forever</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Access to all posts</li>
+                        <li>✓ Basic search</li>
+                        <li>✓ Bookmark posts</li>
+                        <li>✓ Comment on posts</li>
+                        <li>✗ Ads supported</li>
+                        <li>✗ No priority support</li>
+                    </ul>
+                    <button class="btn-plan" disabled>Current Plan</button>
+                </div>
+
+                <!-- PRO Plan -->
+                <div class="plan-card plan-featured">
+                    <div class="plan-badge">POPULAR</div>
+                    <div class="plan-header">
+                        <h3>Pro</h3>
+                        <div class="plan-price">
+                            <span class="price">$9.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Everything in Free</li>
+                        <li>✓ Ad-free experience</li>
+                        <li>✓ Advanced search</li>
+                        <li>✓ Priority support</li>
+                        <li>✓ Early access to features</li>
+                        <li>✓ Pro badge</li>
+                    </ul>
+                    <button class="btn-plan btn-primary" onclick="selectPlan('pro', 'monthly')">Choose Pro</button>
+                </div>
+
+                <!-- PREMIUM Plan -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h3>Premium</h3>
+                        <div class="plan-price">
+                            <span class="price">$19.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Everything in Pro</li>
+                        <li>✓ Exclusive content</li>
+                        <li>✓ Download posts offline</li>
+                        <li>✓ Custom themes</li>
+                        <li>✓ Premium badge</li>
+                        <li>✓ VIP support</li>
+                    </ul>
+                    <button class="btn-plan btn-primary" onclick="selectPlan('premium', 'monthly')">Choose Premium</button>
+                </div>
+
+                <!-- GOLD Plan -->
+                <div class="plan-card plan-gold">
+                    <div class="plan-badge">LIFETIME</div>
+                    <div class="plan-header">
+                        <h3>Gold</h3>
+                        <div class="plan-price">
+                            <span class="price">$299</span>
+                            <span class="period">/lifetime</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Everything in Premium</li>
+                        <li>✓ Lifetime access</li>
+                        <li>✓ All future features</li>
+                        <li>✓ Gold badge</li>
+                        <li>✓ Personal support</li>
+                        <li>✓ Influence roadmap</li>
+                    </ul>
+                    <button class="btn-plan btn-primary" onclick="selectPlan('gold', 'lifetime')">Choose Gold</button>
+                </div>
+            </div>
+
+            <!-- Payment Modal -->
+            <div id="payment-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Complete Payment</h2>
+                        <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="payment-summary" class="payment-summary"></div>
+                        
+                        <div class="payment-methods">
+                            <h3>Select Payment Method</h3>
+                            
+                            <div class="payment-method" onclick="selectPaymentMethod('paypal')">
+                                <input type="radio" name="payment" id="paypal-radio">
+                                <label for="paypal-radio">
+                                    <span class="payment-icon">💳</span>
+                                    <span>PayPal</span>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-method" onclick="selectPaymentMethod('bank')">
+                                <input type="radio" name="payment" id="bank-radio">
+                                <label for="bank-radio">
+                                    <span class="payment-icon">🏦</span>
+                                    <span>Bank Transfer</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PayPal Section -->
+                        <div id="paypal-section" class="payment-section" style="display: none;">
+                            <h4>PayPal Payment</h4>
+                            <p class="payment-note">📌 <strong>PayPal Email:</strong> <span id="paypal-email-display">[ADMIN WILL ADD]</span></p>
+                            <p>Click the button below to pay via PayPal:</p>
+                            <button class="btn-primary" onclick="processPayPalPayment()">Pay with PayPal</button>
+                        </div>
+
+                        <!-- Bank Transfer Section -->
+                        <div id="bank-section" class="payment-section" style="display: none;">
+                            <h4>Bank Transfer Details</h4>
+                            <div class="bank-details">
+                                <p>📌 <strong>Bank Name:</strong> <span id="bank-name-display">[ADMIN WILL ADD]</span></p>
+                                <p>📌 <strong>Account Number:</strong> <span id="bank-account-display">[ADMIN WILL ADD]</span></p>
+                                <p>📌 <strong>Account Name:</strong> <span id="bank-account-name-display">[ADMIN WILL ADD]</span></p>
+                                <p>📌 <strong>Swift/BIC:</strong> <span id="bank-swift-display">[ADMIN WILL ADD]</span></p>
+                            </div>
+                            <p class="payment-note">After transferring, please send proof to admin for manual activation.</p>
+                            <button class="btn-primary" onclick="submitBankTransfer()">I've Completed Transfer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GitHub CMS. Built with ❤️ and GitHub Pages</p>
+        </div>
+    </footer>
+
+    <script src="js/github-api.js"></script>
+    <script src="js/user-auth.js"></script>
+    <script src="js/membership.js"></script>
+</body>
+</html>
