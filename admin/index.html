@@ -152,7 +152,70 @@
             </div>
         </main>
     </div>
+<!-- Users Page -->
+<div id="users-page" class="page">
+    <div class="page-header">
+        <h2>All Users</h2>
+        <input type="text" id="users-search" placeholder="Search users...">
+    </div>
+    <div id="users-table" class="data-table"></div>
+</div>
 
+<!-- Payments Page -->
+<div id="payments-page" class="page">
+    <div class="page-header">
+        <h2>Pending Payments</h2>
+        <button id="refresh-payments" class="btn-secondary">Refresh</button>
+    </div>
+    <div id="payments-list" class="data-table"></div>
+</div>
+
+<!-- Activities Page -->
+<div id="activities-page" class="page">
+    <div class="page-header">
+        <h2>User Activities</h2>
+        <select id="activity-filter">
+            <option value="">All Activities</option>
+            <option value="login">Logins</option>
+            <option value="comment">Comments</option>
+            <option value="payment">Payments</option>
+        </select>
+    </div>
+    <div id="activities-list" class="activity-list"></div>
+</div>
+
+<!-- Payment Configuration Page -->
+<div id="payment-config-page" class="page">
+    <div class="settings-section">
+        <h3>Payment Configuration</h3>
+        
+        <h4>PayPal Settings</h4>
+        <div class="form-group">
+            <label>PayPal Email</label>
+            <input type="email" id="paypal-email" class="form-control" placeholder="your-paypal@email.com">
+        </div>
+
+        <h4>Bank Transfer Details</h4>
+        <div class="form-group">
+            <label>Bank Name</label>
+            <input type="text" id="bank-name" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" id="bank-account" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Account Name</label>
+            <input type="text" id="bank-account-name" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Swift/BIC Code</label>
+            <input type="text" id="bank-swift" class="form-control">
+        </div>
+
+        <button id="save-payment-config" class="btn-primary">Save Payment Settings</button>
+    </div>
+</div>
     <!-- Post Editor Modal -->
     <div id="post-editor-modal" class="modal">
         <div class="modal-content modal-large">
