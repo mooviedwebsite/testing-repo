@@ -1,0 +1,17 @@
+{
+  "site": {
+    "name": "My Cinema Blog",
+    "tagline": "Reviews & Recommendations",
+    "logo": "/assets/logo.png",
+    "theme": "dark"
+  },
+  "github": {
+    "repo": "username/repo-name",
+    "branch": "main"
+  },
+  "homepage": {
+    "layout": "cards",
+    "postsPerPage": 12,
+    "categories": ["Action", "Drama", "Sci-Fi", "Horror"]
+  }
+}
