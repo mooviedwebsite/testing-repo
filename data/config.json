@@ -1,0 +1,23 @@
+{
+  "site": {
+    "name": "GitHub CMS",
+    "tagline": "Powered by GitHub Pages",
+    "logo": "/assets/logo.png",
+    "theme": "dark"
+  },
+  "github": {
+    "repo": "username/repository",
+    "branch": "main"
+  },
+  "homepage": {
+    "layout": "cards",
+    "postsPerPage": 12,
+    "categories": ["Action", "Drama", "Sci-Fi", "Horror", "Comedy", "Thriller", "Romance", "Documentary"]
+  },
+  "features": {
+    "search": true,
+    "bookmarks": true,
+    "comments": false,
+    "analytics": false
+  }
+}
