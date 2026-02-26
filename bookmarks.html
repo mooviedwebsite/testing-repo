@@ -167,8 +167,13 @@
         document.getElementById('import-confirm').addEventListener('click', importBookmarks);
         document.getElementById('import-cancel').addEventListener('click', hideImportModal);
 
-        // Initialize
-        loadBookmarks();
+      <!-- Scripts - CORRECT ORDER -->
+    <script src="js/google-sheets-api.js"></script>
+    <script src="js/github-api.js"></script>
+    <script src="js/user-auth.js"></script>
+    <script>
+        let bookmarks = [];
+        // ... rest of the code
     </script>
 </body>
 </html>
