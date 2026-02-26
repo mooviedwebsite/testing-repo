@@ -213,6 +213,14 @@
 
         // Load post on page load
         loadPost();
+     <!-- Scripts - CORRECT ORDER -->
+    <script src="js/google-sheets-api.js"></script>
+    <script src="js/github-api.js"></script>
+    <script src="js/user-auth.js"></script>
+    <script>
+        // Get post ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        // ... rest of the code
     </script>
 </body>
 </html>
