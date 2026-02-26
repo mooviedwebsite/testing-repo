@@ -1,6 +1,6 @@
 /* ========================================
    USER AUTHENTICATION SYSTEM
-   Complete login, signup, membership
+   Using Google Sheets as backend
 ======================================== */
 
 const UserAuth = {
@@ -20,60 +20,42 @@ const UserAuth = {
     ADMIN_EMAIL: 'rawindunethsara93@gmail.com',
     ADMIN_PASSWORD: 'Rnd@12114',
 
-    // Get all users from GitHub
+    // Get all users from Google Sheets
     async getAllUsers() {
         try {
-            return await GitHubAPI.getJSON('data/users.json') || [];
+            const users = await GoogleSheetsAPI.getAllUsers();
+            return users;
         } catch (error) {
+            console.error('Failed to get users:', error);
             return [];
-        }
-    },
-
-    // Save users to GitHub
-    async saveUsers(users) {
-        const content = JSON.stringify(users, null, 2);
-        try {
-            const file = await GitHubAPI.getFile('data/users.json');
-            await GitHubAPI.createOrUpdateFile('data/users.json', content, 'Update users', file.sha);
-        } catch {
-            await GitHubAPI.createOrUpdateFile('data/users.json', content, 'Create users');
         }
     },
 
     // Sign up new user
     async signup(userData) {
         try {
-            const users = await this.getAllUsers();
-
             // Check if email exists
-            if (users.find(u => u.email === userData.email)) {
+            const existingUser = await GoogleSheetsAPI.getUserByEmail(userData.email);
+            if (existingUser) {
                 throw new Error('Email already registered');
             }
 
-            // Create new user
-            const newUser = {
-                id: 'user-' + Date.now(),
+            // Create new user in Google Sheets
+            await GoogleSheetsAPI.createUser({
                 fullName: userData.fullName,
                 email: userData.email,
-                password: userData.password, // In production, hash this!
+                password: userData.password,
                 membership: 'free',
-                membershipExpiry: null,
-                role: 'user',
-                createdAt: new Date().toISOString(),
-                lastLogin: new Date().toISOString(),
-                bookmarks: [],
-                comments: []
-            };
+                membershipExpiry: '',
+                role: 'user'
+            });
 
-            users.push(newUser);
-            await this.saveUsers(users);
+            // Get the created user
+            const newUser = await GoogleSheetsAPI.getUserByEmail(userData.email);
 
             // Auto login
             this.currentUser = newUser;
             localStorage.setItem('current_user', JSON.stringify(newUser));
-            
-            // Log activity
-            await this.logActivity(newUser.id, 'User registered');
 
             return newUser;
 
@@ -89,11 +71,12 @@ const UserAuth = {
             // Check if admin
             if (email === this.ADMIN_EMAIL && password === this.ADMIN_PASSWORD) {
                 const adminUser = {
-                    id: 'admin',
+                    userId: 'admin',
                     fullName: 'Administrator',
                     email: this.ADMIN_EMAIL,
                     role: 'admin',
                     membership: 'gold',
+                    membershipExpiry: null,
                     lastLogin: new Date().toISOString()
                 };
 
@@ -101,28 +84,20 @@ const UserAuth = {
                 localStorage.setItem('current_user', JSON.stringify(adminUser));
                 
                 // Log admin login
-                await this.logActivity('admin', 'Admin logged in');
+                await GoogleSheetsAPI.logActivity('admin', 'Admin logged in', this.ADMIN_EMAIL);
                 
                 return adminUser;
             }
 
-            // Regular user login
-            const users = await this.getAllUsers();
-            const user = users.find(u => u.email === email && u.password === password);
+            // Regular user login using Google Sheets
+            const user = await GoogleSheetsAPI.login(email, password);
 
             if (!user) {
                 throw new Error('Invalid email or password');
             }
 
-            // Update last login
-            user.lastLogin = new Date().toISOString();
-            await this.saveUsers(users);
-
             this.currentUser = user;
             localStorage.setItem('current_user', JSON.stringify(user));
-            
-            // Log activity
-            await this.logActivity(user.id, 'User logged in');
 
             return user;
 
@@ -235,33 +210,6 @@ const UserAuth = {
         return true;
     },
 
-    // Log user activity
-    async logActivity(userId, action) {
-        try {
-            let activities = await GitHubAPI.getJSON('data/user-activities.json') || [];
-            
-            activities.unshift({
-                userId: userId,
-                action: action,
-                timestamp: new Date().toISOString(),
-                ip: 'N/A' // Can't get real IP in static site
-            });
-
-            // Keep only last 1000 activities
-            activities = activities.slice(0, 1000);
-
-            const content = JSON.stringify(activities, null, 2);
-            try {
-                const file = await GitHubAPI.getFile('data/user-activities.json');
-                await GitHubAPI.createOrUpdateFile('data/user-activities.json', content, 'Update activities', file.sha);
-            } catch {
-                await GitHubAPI.createOrUpdateFile('data/user-activities.json', content, 'Create activities');
-            }
-        } catch (error) {
-            console.error('Failed to log activity:', error);
-        }
-    },
-
     // Add comment to post
     async addComment(postId, commentText) {
         if (!this.currentUser) {
@@ -269,39 +217,34 @@ const UserAuth = {
         }
 
         try {
-            let comments = await GitHubAPI.getJSON('data/comments.json') || {};
-            
-            if (!comments[postId]) {
-                comments[postId] = [];
-            }
-
-            const comment = {
-                id: 'comment-' + Date.now(),
-                userId: this.currentUser.id,
+            await GoogleSheetsAPI.addComment({
+                postId: postId,
+                userId: this.currentUser.userId,
                 userName: this.currentUser.fullName,
                 userMembership: this.currentUser.membership,
-                text: commentText,
-                timestamp: new Date().toISOString(),
-                likes: 0
-            };
-
-            comments[postId].unshift(comment);
-
-            const content = JSON.stringify(comments, null, 2);
-            try {
-                const file = await GitHubAPI.getFile('data/comments.json');
-                await GitHubAPI.createOrUpdateFile('data/comments.json', content, 'Add comment', file.sha);
-            } catch {
-                await GitHubAPI.createOrUpdateFile('data/comments.json', content, 'Create comments');
-            }
+                text: commentText
+            });
 
             // Log activity
-            await this.logActivity(this.currentUser.id, `Commented on post ${postId}`);
+            await GoogleSheetsAPI.logActivity(
+                this.currentUser.userId, 
+                `Commented on post ${postId}`,
+                this.currentUser.email
+            );
 
-            return comment;
         } catch (error) {
             console.error('Failed to add comment:', error);
             throw error;
+        }
+    },
+
+    // Get comments for post
+    async getComments(postId) {
+        try {
+            return await GoogleSheetsAPI.getComments(postId);
+        } catch (error) {
+            console.error('Failed to get comments:', error);
+            return [];
         }
     }
 };
@@ -309,7 +252,9 @@ const UserAuth = {
 // Toggle user dropdown
 function toggleUserDropdown() {
     const dropdown = document.getElementById('user-dropdown');
-    dropdown.classList.toggle('active');
+    if (dropdown) {
+        dropdown.classList.toggle('active');
+    }
 }
 
 // Close dropdown when clicking outside
