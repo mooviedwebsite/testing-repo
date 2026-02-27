@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Membership Plans - GitHub CMS</title>
+    <title>Choose Your Plan - GitHub CMS</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/membership.css">
 </head>
@@ -24,156 +24,266 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="membership-hero">
+    <!-- Main Content -->
+    <main class="membership-main">
         <div class="container">
-            <h1>Choose Your Plan</h1>
-            <p>Unlock premium features and support our platform</p>
-        </div>
-    </section>
+            <!-- Hero -->
+            <div class="membership-hero">
+                <h1>Choose Your Plan</h1>
+                <p>Unlock premium features and ad-free experience</p>
+            </div>
 
-    <!-- Plans Grid -->
-    <main class="main">
-        <div class="container">
-            <div class="plans-grid">
-                <!-- FREE Plan -->
-                <div class="plan-card">
+            <!-- Plans Grid -->
+            <div class="plans-grid" id="plans-grid">
+                <!-- FREE -->
+                <div class="plan-card" data-plan="free">
                     <div class="plan-header">
                         <h3>Free</h3>
                         <div class="plan-price">
-                            <span class="price">$0</span>
+                            <span class="currency">$</span>
+                            <span class="amount">0</span>
                             <span class="period">/forever</span>
                         </div>
                     </div>
                     <ul class="plan-features">
-                        <li>✓ Access to all posts</li>
-                        <li>✓ Basic search</li>
-                        <li>✓ Bookmark posts</li>
-                        <li>✓ Comment on posts</li>
-                        <li>✗ Ads supported</li>
-                        <li>✗ No priority support</li>
+                        <li><span class="check">✓</span> Access all posts</li>
+                        <li><span class="check">✓</span> Basic search</li>
+                        <li><span class="check">✓</span> Bookmark posts</li>
+                        <li><span class="check">✓</span> Comment on posts</li>
+                        <li><span class="cross">✗</span> Ads supported</li>
                     </ul>
-                    <button class="btn-plan" disabled>Current Plan</button>
+                    <button class="plan-btn" disabled>Current Plan</button>
                 </div>
 
-                <!-- PRO Plan -->
-                <div class="plan-card plan-featured">
-                    <div class="plan-badge">POPULAR</div>
+                <!-- PRO -->
+                <div class="plan-card plan-popular" data-plan="pro">
+                    <div class="plan-badge">Most Popular</div>
                     <div class="plan-header">
                         <h3>Pro</h3>
                         <div class="plan-price">
-                            <span class="price">$9.99</span>
+                            <span class="currency">$</span>
+                            <span class="amount">9.99</span>
                             <span class="period">/month</span>
                         </div>
                     </div>
                     <ul class="plan-features">
-                        <li>✓ Everything in Free</li>
-                        <li>✓ Ad-free experience</li>
-                        <li>✓ Advanced search</li>
-                        <li>✓ Priority support</li>
-                        <li>✓ Early access to features</li>
-                        <li>✓ Pro badge</li>
+                        <li><span class="check">✓</span> Everything in Free</li>
+                        <li><span class="check">✓</span> No ads</li>
+                        <li><span class="check">✓</span> Advanced search</li>
+                        <li><span class="check">✓</span> Priority support</li>
+                        <li><span class="check">✓</span> Pro badge</li>
                     </ul>
-                    <button class="btn-plan btn-primary" onclick="selectPlan('pro', 'monthly')">Choose Pro</button>
+                    <button class="plan-btn" onclick="openPaymentFlow('pro', 'monthly', 9.99)">Get Pro</button>
                 </div>
 
-                <!-- PREMIUM Plan -->
-                <div class="plan-card">
+                <!-- PREMIUM -->
+                <div class="plan-card" data-plan="premium">
                     <div class="plan-header">
                         <h3>Premium</h3>
                         <div class="plan-price">
-                            <span class="price">$19.99</span>
+                            <span class="currency">$</span>
+                            <span class="amount">19.99</span>
                             <span class="period">/month</span>
                         </div>
                     </div>
                     <ul class="plan-features">
-                        <li>✓ Everything in Pro</li>
-                        <li>✓ Exclusive content</li>
-                        <li>✓ Download posts offline</li>
-                        <li>✓ Custom themes</li>
-                        <li>✓ Premium badge</li>
-                        <li>✓ VIP support</li>
+                        <li><span class="check">✓</span> Everything in Pro</li>
+                        <li><span class="check">✓</span> Exclusive content</li>
+                        <li><span class="check">✓</span> Download offline</li>
+                        <li><span class="check">✓</span> Custom themes</li>
+                        <li><span class="check">✓</span> Premium badge</li>
                     </ul>
-                    <button class="btn-plan btn-primary" onclick="selectPlan('premium', 'monthly')">Choose Premium</button>
+                    <button class="plan-btn" onclick="openPaymentFlow('premium', 'monthly', 19.99)">Get Premium</button>
                 </div>
 
-                <!-- GOLD Plan -->
-                <div class="plan-card plan-gold">
-                    <div class="plan-badge">LIFETIME</div>
+                <!-- GOLD -->
+                <div class="plan-card plan-gold" data-plan="gold">
+                    <div class="plan-badge gold">Lifetime</div>
                     <div class="plan-header">
                         <h3>Gold</h3>
                         <div class="plan-price">
-                            <span class="price">$299</span>
+                            <span class="currency">$</span>
+                            <span class="amount">299</span>
                             <span class="period">/lifetime</span>
                         </div>
                     </div>
                     <ul class="plan-features">
-                        <li>✓ Everything in Premium</li>
-                        <li>✓ Lifetime access</li>
-                        <li>✓ All future features</li>
-                        <li>✓ Gold badge</li>
-                        <li>✓ Personal support</li>
-                        <li>✓ Influence roadmap</li>
+                        <li><span class="check">✓</span> Everything in Premium</li>
+                        <li><span class="check">✓</span> Lifetime access</li>
+                        <li><span class="check">✓</span> All future features</li>
+                        <li><span class="check">✓</span> Gold badge</li>
+                        <li><span class="check">✓</span> Personal support</li>
                     </ul>
-                    <button class="btn-plan btn-primary" onclick="selectPlan('gold', 'lifetime')">Choose Gold</button>
-                </div>
-            </div>
-
-            <!-- Payment Modal -->
-            <div id="payment-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Complete Payment</h2>
-                        <button class="modal-close" onclick="closePaymentModal()">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="payment-summary" class="payment-summary"></div>
-                        
-                        <div class="payment-methods">
-                            <h3>Select Payment Method</h3>
-                            
-                            <div class="payment-method" onclick="selectPaymentMethod('paypal')">
-                                <input type="radio" name="payment" id="paypal-radio">
-                                <label for="paypal-radio">
-                                    <span class="payment-icon">💳</span>
-                                    <span>PayPal</span>
-                                </label>
-                            </div>
-                            
-                            <div class="payment-method" onclick="selectPaymentMethod('bank')">
-                                <input type="radio" name="payment" id="bank-radio">
-                                <label for="bank-radio">
-                                    <span class="payment-icon">🏦</span>
-                                    <span>Bank Transfer</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- PayPal Section -->
-                        <div id="paypal-section" class="payment-section" style="display: none;">
-                            <h4>PayPal Payment</h4>
-                            <p class="payment-note">📌 <strong>PayPal Email:</strong> <span id="paypal-email-display">[ADMIN WILL ADD]</span></p>
-                            <p>Click the button below to pay via PayPal:</p>
-                            <button class="btn-primary" onclick="processPayPalPayment()">Pay with PayPal</button>
-                        </div>
-
-                        <!-- Bank Transfer Section -->
-                        <div id="bank-section" class="payment-section" style="display: none;">
-                            <h4>Bank Transfer Details</h4>
-                            <div class="bank-details">
-                                <p>📌 <strong>Bank Name:</strong> <span id="bank-name-display">[ADMIN WILL ADD]</span></p>
-                                <p>📌 <strong>Account Number:</strong> <span id="bank-account-display">[ADMIN WILL ADD]</span></p>
-                                <p>📌 <strong>Account Name:</strong> <span id="bank-account-name-display">[ADMIN WILL ADD]</span></p>
-                                <p>📌 <strong>Swift/BIC:</strong> <span id="bank-swift-display">[ADMIN WILL ADD]</span></p>
-                            </div>
-                            <p class="payment-note">After transferring, please send proof to admin for manual activation.</p>
-                            <button class="btn-primary" onclick="submitBankTransfer()">I've Completed Transfer</button>
-                        </div>
-                    </div>
+                    <button class="plan-btn" onclick="openPaymentFlow('gold', 'lifetime', 299)">Get Gold</button>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="payment-modal">
+        <div class="payment-container">
+            <button class="payment-close" onclick="closePaymentModal()">&times;</button>
+            
+            <!-- Step 1: Plan Summary -->
+            <div class="payment-step active" id="step-summary">
+                <h2>Confirm Your Plan</h2>
+                <div class="plan-summary">
+                    <div class="summary-item">
+                        <span>Plan:</span>
+                        <strong id="summary-plan"></strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Duration:</span>
+                        <strong id="summary-duration"></strong>
+                    </div>
+                    <div class="summary-item total">
+                        <span>Total:</span>
+                        <strong id="summary-amount"></strong>
+                    </div>
+                </div>
+                <button class="payment-next-btn" onclick="nextStep()">Continue to Payment</button>
+            </div>
+
+            <!-- Step 2: Payment Method -->
+            <div class="payment-step" id="step-method">
+                <h2>Choose Payment Method</h2>
+                
+                <div class="payment-methods">
+                    <div class="payment-method-card" onclick="selectPaymentMethod('paypal')">
+                        <input type="radio" name="payment-method" id="paypal-method">
+                        <label for="paypal-method">
+                            <div class="method-icon">💳</div>
+                            <div class="method-info">
+                                <strong>PayPal</strong>
+                                <p>Fast & secure payment</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="payment-method-card" onclick="selectPaymentMethod('bank')">
+                        <input type="radio" name="payment-method" id="bank-method">
+                        <label for="bank-method">
+                            <div class="method-icon">🏦</div>
+                            <div class="method-info">
+                                <strong>Bank Transfer</strong>
+                                <p>Direct bank payment</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="payment-next-btn" onclick="nextStep()" disabled id="method-next-btn">
+                    Continue to Details
+                </button>
+            </div>
+
+            <!-- Step 3: Payment Details -->
+            <div class="payment-step" id="step-details">
+                <!-- PayPal Details -->
+                <div id="paypal-details" class="payment-details" style="display: none;">
+                    <h2>Complete Payment via PayPal</h2>
+                    <div class="payment-info-box">
+                        <p><strong>PayPal Email:</strong></p>
+                        <div class="copy-box">
+                            <input type="text" id="paypal-email-display" readonly>
+                            <button onclick="copyToClipboard('paypal-email-display')">Copy</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Your Full Name *</label>
+                        <input type="text" id="payment-fullname" required placeholder="John Doe">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Your Email *</label>
+                        <input type="email" id="payment-email" required placeholder="john@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label>PayPal Transaction ID *</label>
+                        <input type="text" id="paypal-transaction-id" required placeholder="Enter transaction ID after payment">
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="paypal-confirm" required>
+                            I confirm that I have completed the PayPal payment
+                        </label>
+                    </div>
+
+                    <button class="payment-submit-btn" onclick="submitPayment()">
+                        Submit Payment Proof
+                    </button>
+                </div>
+
+                <!-- Bank Transfer Details -->
+                <div id="bank-details" class="payment-details" style="display: none;">
+                    <h2>Bank Transfer Information</h2>
+                    <div class="payment-info-box">
+                        <div class="bank-detail-item">
+                            <span>Bank Name:</span>
+                            <strong id="bank-name-display"></strong>
+                        </div>
+                        <div class="bank-detail-item">
+                            <span>Account Number:</span>
+                            <div class="copy-box">
+                                <input type="text" id="bank-account-display" readonly>
+                                <button onclick="copyToClipboard('bank-account-display')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="bank-detail-item">
+                            <span>Account Name:</span>
+                            <strong id="bank-account-name-display"></strong>
+                        </div>
+                        <div class="bank-detail-item">
+                            <span>Swift/BIC:</span>
+                            <strong id="bank-swift-display"></strong>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Your Full Name *</label>
+                        <input type="text" id="bank-fullname" required placeholder="John Doe">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Your Email *</label>
+                        <input type="email" id="bank-email" required placeholder="john@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bank Reference/Transaction Number *</label>
+                        <input type="text" id="bank-reference" required placeholder="Enter transaction reference">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Additional Notes (Optional)</label>
+                        <textarea id="bank-notes" rows="3" placeholder="Any additional information..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="bank-confirm" required>
+                            I confirm that I have completed the bank transfer
+                        </label>
+                    </div>
+
+                    <button class="payment-submit-btn" onclick="submitPayment()">
+                        Submit Payment Proof
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step Indicators -->
+            <div class="step-indicators">
+                <div class="step-indicator active" data-step="1">1</div>
+                <div class="step-indicator" data-step="2">2</div>
+                <div class="step-indicator" data-step="3">3</div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -182,9 +292,48 @@
         </div>
     </footer>
 
-     <script src="js/google-sheets-api.js"></script>
+    <script>
+    // Google Sheets API - Inline
+    const GoogleSheetsAPI = {
+        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyzbUhuw7iwRjNPFP-LxVdmgzf8OH_9_fvFOi4QG3IVsuaUNgJIKkmybEsh2_yNESnx/exec',
+        
+        async createPayment(paymentData) {
+            await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'createPayment',
+                    userId: paymentData.userId,
+                    userName: paymentData.userName,
+                    userEmail: paymentData.userEmail,
+                    plan: paymentData.plan,
+                    duration: paymentData.duration,
+                    amount: paymentData.amount,
+                    method: paymentData.method,
+                    transactionId: paymentData.transactionId || '',
+                    notes: paymentData.notes || '',
+                    status: 'pending'
+                })
+            });
+        },
+        
+        async logActivity(userId, action, email) {
+            await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'logActivity',
+                    userId: userId,
+                    activityAction: action,
+                    email: email,
+                    timestamp: new Date().toISOString()
+                })
+            });
+        }
+    };
+    </script>
     <script src="js/github-api.js"></script>
     <script src="js/user-auth.js"></script>
-    <script src="js/membership.js"></script>
+    <script src="js/membership-new.js"></script>
 </body>
 </html>
