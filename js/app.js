@@ -228,3 +228,77 @@ if ('IntersectionObserver' in window) {
     // Initial observation
     setTimeout(observeImages, 100);
 }
+
+// Create post card HTML - WITH BOOKMARK BUTTON
+function createPostCard(post) {
+    const isBookmarked = UserAuth.isBookmarked(post.id);
+    
+    return `
+        <div class="post-card">
+            <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
+                    onclick="handleBookmark(event, '${post.id}')"
+                    title="${isBookmarked ? 'Remove bookmark' : 'Add bookmark'}">
+            </button>
+            
+            <div class="post-card-image" onclick="navigateToPost('${post.id}', '${post.slug}')">
+                <img src="${post.thumbnail}" alt="${post.title}" loading="lazy">
+                <div class="post-card-overlay">
+                    <span class="category">${post.category}</span>
+                    <span class="rating">⭐ ${post.rating}</span>
+                </div>
+            </div>
+            <div class="post-card-content" onclick="navigateToPost('${post.id}', '${post.slug}')">
+                <h3 class="post-card-title">${post.title}</h3>
+                <div class="post-card-meta">
+                    <span>${post.year}</span>
+                    <span>${post.tags.slice(0, 2).map(t => '#' + t).join(' ')}</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Handle bookmark button click
+function handleBookmark(event, postId) {
+    event.stopPropagation(); // Prevent card click
+    
+    if (!UserAuth.currentUser) {
+        alert('Please login to bookmark posts');
+        window.location.href = 'auth.html';
+        return;
+    }
+
+    // Find the post
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    // Toggle bookmark
+    const isBookmarked = UserAuth.toggleBookmark(post);
+    
+    // Update button
+    const btn = event.target.closest('.bookmark-btn');
+    if (isBookmarked) {
+        btn.classList.add('bookmarked');
+        btn.title = 'Remove bookmark';
+    } else {
+        btn.classList.remove('bookmarked');
+        btn.title = 'Add bookmark';
+    }
+
+    // Show toast notification
+    showToast(isBookmarked ? 'Added to bookmarks' : 'Removed from bookmarks');
+}
+
+// Toast notification
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
