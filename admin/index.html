@@ -7,21 +7,55 @@
     <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body>
-    <!-- Auth Screen -->
+    <!-- Auth Screen with Tabs -->
     <div id="auth-screen" class="auth-screen">
         <div class="auth-container">
-            <h1>🔐 Admin Login</h1>
-            <p>Enter your GitHub Personal Access Token</p>
-            <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx">
-            <input type="text" id="repo-input" placeholder="username/repository">
-            <button id="login-btn" class="btn-primary">Login</button>
-            <div class="auth-help">
-                <a href="https://github.com/settings/tokens" target="_blank">Generate Token</a>
+            <h1>🔐 Admin Panel Login</h1>
+            
+            <!-- Login Tabs -->
+            <div class="login-tabs">
+                <button class="tab-btn active" onclick="switchLoginTab('github')">GitHub Token</button>
+                <button class="tab-btn" onclick="switchLoginTab('credentials')">Email/Password</button>
+            </div>
+
+            <!-- GitHub Token Login -->
+            <div id="github-login-tab" class="login-tab active">
+                <p>Enter your GitHub Personal Access Token</p>
+                <form onsubmit="handleGitHubLogin(event)">
+                    <div class="form-group">
+                        <label>GitHub Token</label>
+                        <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Repository</label>
+                        <input type="text" id="repo-input" placeholder="username/repository" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Login with GitHub</button>
+                </form>
+                <div class="auth-help">
+                    <a href="https://github.com/settings/tokens" target="_blank">Generate Token</a>
+                </div>
+            </div>
+
+            <!-- Email/Password Login -->
+            <div id="credentials-login-tab" class="login-tab">
+                <p>Login with admin credentials</p>
+                <form onsubmit="handleCredentialsLogin(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="admin-email" placeholder="rawindunethsara93@gmail.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="admin-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Login as Admin</button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Admin Panel -->
+    <!-- Admin Panel (Same as before) -->
     <div id="admin-panel" class="admin-panel" style="display: none;">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -29,22 +63,42 @@
                 <h2>GitHub CMS</h2>
             </div>
             <nav class="sidebar-nav">
-              <a href="#" class="nav-item" data-page="users">
-    <span class="icon">👥</span>
-    <span>Users</span>
-</a>
-<a href="#" class="nav-item" data-page="payments">
-    <span class="icon">💳</span>
-    <span>Payments</span>
-</a>
-<a href="#" class="nav-item" data-page="activities">
-    <span class="icon">📊</span>
-    <span>Activities</span>
-</a>
-<a href="#" class="nav-item" data-page="payment-config">
-    <span class="icon">⚙️</span>
-    <span>Payment Setup</span>
-</a>
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="posts">
+                    <span class="icon">📝</span>
+                    <span>Posts</span>
+                </a>
+                <a href="#" class="nav-item" data-page="users">
+                    <span class="icon">👥</span>
+                    <span>Users</span>
+                </a>
+                <a href="#" class="nav-item" data-page="payments">
+                    <span class="icon">💳</span>
+                    <span>Payments</span>
+                </a>
+                <a href="#" class="nav-item" data-page="activities">
+                    <span class="icon">📊</span>
+                    <span>Activities</span>
+                </a>
+                <a href="#" class="nav-item" data-page="media">
+                    <span class="icon">🖼️</span>
+                    <span>Media</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" data-page="payment-config">
+                    <span class="icon">💰</span>
+                    <span>Payment Setup</span>
+                </a>
+                <a href="#" class="nav-item" id="logout-btn">
+                    <span class="icon">🚪</span>
+                    <span>Logout</span>
+                </a>
             </nav>
         </aside>
 
@@ -54,6 +108,7 @@
             <header class="topbar">
                 <h1 id="page-title">Dashboard</h1>
                 <div class="topbar-actions">
+                    <span id="admin-user-name" style="margin-right: 1rem; color: var(--admin-text-muted);"></span>
                     <button id="sync-btn" class="btn-icon" title="Sync with GitHub">🔄</button>
                     <a href="../index.html" target="_blank" class="btn-icon" title="View Site">🌐</a>
                 </div>
@@ -72,17 +127,17 @@
                             </div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-icon">📄</div>
+                            <div class="stat-icon">👥</div>
                             <div class="stat-info">
-                                <h3 id="total-pages">0</h3>
-                                <p>Pages</p>
+                                <h3 id="total-users">0</h3>
+                                <p>Total Users</p>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-icon">🖼️</div>
+                            <div class="stat-icon">💳</div>
                             <div class="stat-info">
-                                <h3 id="total-media">0</h3>
-                                <p>Media Files</p>
+                                <h3 id="pending-payments">0</h3>
+                                <p>Pending Payments</p>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -106,16 +161,39 @@
                         <button id="create-post-btn" class="btn-primary">+ Create New Post</button>
                         <input type="text" id="posts-search" placeholder="Search posts...">
                     </div>
-
                     <div id="posts-list" class="data-table"></div>
                 </div>
 
-                <!-- Pages Page -->
-                <div id="pages-page" class="page">
+                <!-- Users Page -->
+                <div id="users-page" class="page">
                     <div class="page-header">
-                        <button id="create-page-btn" class="btn-primary">+ Create New Page</button>
+                        <h2>All Users</h2>
+                        <input type="text" id="users-search" placeholder="Search users...">
                     </div>
-                    <div id="pages-list" class="data-table"></div>
+                    <div id="users-table" class="data-table"></div>
+                </div>
+
+                <!-- Payments Page -->
+                <div id="payments-page" class="page">
+                    <div class="page-header">
+                        <h2>Pending Payments</h2>
+                        <button id="refresh-payments" class="btn-secondary">Refresh</button>
+                    </div>
+                    <div id="payments-list" class="data-table"></div>
+                </div>
+
+                <!-- Activities Page -->
+                <div id="activities-page" class="page">
+                    <div class="page-header">
+                        <h2>User Activities</h2>
+                        <select id="activity-filter">
+                            <option value="">All Activities</option>
+                            <option value="login">Logins</option>
+                            <option value="comment">Comments</option>
+                            <option value="payment">Payments</option>
+                        </select>
+                    </div>
+                    <div id="activities-list" class="activity-list"></div>
                 </div>
 
                 <!-- Media Page -->
@@ -149,74 +227,44 @@
                         <button id="save-settings-btn" class="btn-primary">Save Settings</button>
                     </div>
                 </div>
+
+                <!-- Payment Configuration Page -->
+                <div id="payment-config-page" class="page">
+                    <div class="settings-section">
+                        <h3>Payment Configuration</h3>
+                        
+                        <h4>PayPal Settings</h4>
+                        <div class="form-group">
+                            <label>PayPal Email</label>
+                            <input type="email" id="paypal-email" class="form-control" placeholder="your-paypal@email.com">
+                        </div>
+
+                        <h4>Bank Transfer Details</h4>
+                        <div class="form-group">
+                            <label>Bank Name</label>
+                            <input type="text" id="bank-name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Account Number</label>
+                            <input type="text" id="bank-account" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Account Name</label>
+                            <input type="text" id="bank-account-name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Swift/BIC Code</label>
+                            <input type="text" id="bank-swift" class="form-control">
+                        </div>
+
+                        <button id="save-payment-config" class="btn-primary">Save Payment Settings</button>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
-<!-- Users Page -->
-<div id="users-page" class="page">
-    <div class="page-header">
-        <h2>All Users</h2>
-        <input type="text" id="users-search" placeholder="Search users...">
-    </div>
-    <div id="users-table" class="data-table"></div>
-</div>
 
-<!-- Payments Page -->
-<div id="payments-page" class="page">
-    <div class="page-header">
-        <h2>Pending Payments</h2>
-        <button id="refresh-payments" class="btn-secondary">Refresh</button>
-    </div>
-    <div id="payments-list" class="data-table"></div>
-</div>
-
-<!-- Activities Page -->
-<div id="activities-page" class="page">
-    <div class="page-header">
-        <h2>User Activities</h2>
-        <select id="activity-filter">
-            <option value="">All Activities</option>
-            <option value="login">Logins</option>
-            <option value="comment">Comments</option>
-            <option value="payment">Payments</option>
-        </select>
-    </div>
-    <div id="activities-list" class="activity-list"></div>
-</div>
-
-<!-- Payment Configuration Page -->
-<div id="payment-config-page" class="page">
-    <div class="settings-section">
-        <h3>Payment Configuration</h3>
-        
-        <h4>PayPal Settings</h4>
-        <div class="form-group">
-            <label>PayPal Email</label>
-            <input type="email" id="paypal-email" class="form-control" placeholder="your-paypal@email.com">
-        </div>
-
-        <h4>Bank Transfer Details</h4>
-        <div class="form-group">
-            <label>Bank Name</label>
-            <input type="text" id="bank-name" class="form-control">
-        </div>
-        <div class="form-group">
-            <label>Account Number</label>
-            <input type="text" id="bank-account" class="form-control">
-        </div>
-        <div class="form-group">
-            <label>Account Name</label>
-            <input type="text" id="bank-account-name" class="form-control">
-        </div>
-        <div class="form-group">
-            <label>Swift/BIC Code</label>
-            <input type="text" id="bank-swift" class="form-control">
-        </div>
-
-        <button id="save-payment-config" class="btn-primary">Save Payment Settings</button>
-    </div>
-</div>
-    <!-- Post Editor Modal -->
+    <!-- Post Editor Modal (Same as before) -->
     <div id="post-editor-modal" class="modal">
         <div class="modal-content modal-large">
             <div class="modal-header">
@@ -300,10 +348,150 @@
         </div>
     </div>
 
-     <!-- Scripts - CORRECT ORDER -->
-    <script src="../js/google-sheets-api.js"></script>
+    <script>
+    // Google Sheets API - Inline
+    const GoogleSheetsAPI = {
+        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyzbUhuw7iwRjNPFP-LxVdmgzf8OH_9_fvFOi4QG3IVsuaUNgJIKkmybEsh2_yNESnx/exec',
+        
+        async getAllUsers() {
+            try {
+                const response = await fetch(`${this.SCRIPT_URL}?action=getAllUsers`);
+                const data = await response.json();
+                return data.users || [];
+            } catch (error) {
+                console.error('Failed to get users:', error);
+                return [];
+            }
+        },
+        
+        async login(email, password) {
+            try {
+                const response = await fetch(`${this.SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
+                const data = await response.json();
+                return data.success ? data.user : null;
+            } catch (error) {
+                console.error('Login failed:', error);
+                return null;
+            }
+        },
+
+        async getAllPayments() {
+            try {
+                const response = await fetch(`${this.SCRIPT_URL}?action=getAllPayments`);
+                const data = await response.json();
+                return data.payments || [];
+            } catch (error) {
+                console.error('Failed to get payments:', error);
+                return [];
+            }
+        },
+
+        async getActivities(userId = '') {
+            try {
+                const response = await fetch(`${this.SCRIPT_URL}?action=getActivities&userId=${userId}`);
+                const data = await response.json();
+                return data.activities || [];
+            } catch (error) {
+                console.error('Failed to get activities:', error);
+                return [];
+            }
+        },
+
+        async getStats() {
+            try {
+                const response = await fetch(`${this.SCRIPT_URL}?action=getStats`);
+                const data = await response.json();
+                return data.stats || {
+                    totalUsers: 0,
+                    activeUsers: 0,
+                    totalPayments: 0,
+                    pendingPayments: 0
+                };
+            } catch (error) {
+                console.error('Failed to get stats:', error);
+                return {
+                    totalUsers: 0,
+                    activeUsers: 0,
+                    totalPayments: 0,
+                    pendingPayments: 0
+                };
+            }
+        },
+
+        async updateUser(userId, userData) {
+            try {
+                await fetch(this.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'updateUser',
+                        userId: userId,
+                        ...userData
+                    })
+                });
+                return { success: true };
+            } catch (error) {
+                console.error('Failed to update user:', error);
+                throw error;
+            }
+        },
+
+        async deleteUser(userId) {
+            try {
+                await fetch(this.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'deleteUser',
+                        userId: userId
+                    })
+                });
+                return { success: true };
+            } catch (error) {
+                console.error('Failed to delete user:', error);
+                throw error;
+            }
+        },
+
+        async updatePayment(paymentId, status) {
+            try {
+                await fetch(this.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'updatePayment',
+                        paymentId: paymentId,
+                        status: status
+                    })
+                });
+                return { success: true };
+            } catch (error) {
+                console.error('Failed to update payment:', error);
+                throw error;
+            }
+        },
+
+        async logActivity(userId, action, email) {
+            try {
+                await fetch(this.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'logActivity',
+                        userId: userId,
+                        activityAction: action,
+                        email: email,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                return { success: true };
+            } catch (error) {
+                console.error('Failed to log activity:', error);
+            }
+        }
+    };
+    </script>
     <script src="../js/github-api.js"></script>
-    <script src="../js/user-auth.js"></script>
-    <script src="../js/admin.js"></script>
+    <script src="../js/admin-new.js"></script>
 </body>
 </html>
