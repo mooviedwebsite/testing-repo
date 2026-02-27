@@ -1,14 +1,16 @@
 /* ========================================
-   USER AUTHENTICATION SYSTEM
-   Using Google Sheets as backend
+   USER AUTHENTICATION SYSTEM - FIXED
 ======================================== */
 
 const UserAuth = {
     currentUser: null,
 
+    // Admin credentials (hardcoded)
+    ADMIN_EMAIL: 'rawindunethsara93@gmail.com',
+    ADMIN_PASSWORD: 'Rnd@12114',
+
     // Initialize
     init() {
-        // Check if user is logged in
         const savedUser = localStorage.getItem('current_user');
         if (savedUser) {
             this.currentUser = JSON.parse(savedUser);
@@ -16,15 +18,10 @@ const UserAuth = {
         }
     },
 
-    // Admin credentials (hardcoded)
-    ADMIN_EMAIL: 'rawindunethsara93@gmail.com',
-    ADMIN_PASSWORD: 'Rnd@12114',
-
-    // Get all users from Google Sheets
+    // Get all users
     async getAllUsers() {
         try {
-            const users = await GoogleSheetsAPI.getAllUsers();
-            return users;
+            return await GoogleSheetsAPI.getAllUsers();
         } catch (error) {
             console.error('Failed to get users:', error);
             return [];
@@ -34,13 +31,11 @@ const UserAuth = {
     // Sign up new user
     async signup(userData) {
         try {
-            // Check if email exists
             const existingUser = await GoogleSheetsAPI.getUserByEmail(userData.email);
             if (existingUser) {
                 throw new Error('Email already registered');
             }
 
-            // Create new user in Google Sheets
             await GoogleSheetsAPI.createUser({
                 fullName: userData.fullName,
                 email: userData.email,
@@ -50,26 +45,26 @@ const UserAuth = {
                 role: 'user'
             });
 
-            // Get the created user
             const newUser = await GoogleSheetsAPI.getUserByEmail(userData.email);
-
-            // Auto login
             this.currentUser = newUser;
             localStorage.setItem('current_user', JSON.stringify(newUser));
 
             return newUser;
-
         } catch (error) {
             console.error('Signup failed:', error);
             throw error;
         }
     },
 
-    // Login
+    // Login - FIXED ADMIN CHECK
     async login(email, password) {
         try {
-            // Check if admin
+            console.log('Attempting login:', email);
+
+            // ADMIN CHECK FIRST
             if (email === this.ADMIN_EMAIL && password === this.ADMIN_PASSWORD) {
+                console.log('Admin login detected');
+                
                 const adminUser = {
                     userId: 'admin',
                     fullName: 'Administrator',
@@ -77,19 +72,20 @@ const UserAuth = {
                     role: 'admin',
                     membership: 'gold',
                     membershipExpiry: null,
+                    createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString()
                 };
 
                 this.currentUser = adminUser;
                 localStorage.setItem('current_user', JSON.stringify(adminUser));
                 
-                // Log admin login
                 await GoogleSheetsAPI.logActivity('admin', 'Admin logged in', this.ADMIN_EMAIL);
                 
                 return adminUser;
             }
 
-            // Regular user login using Google Sheets
+            // Regular user login
+            console.log('Checking regular user login');
             const user = await GoogleSheetsAPI.login(email, password);
 
             if (!user) {
@@ -114,44 +110,59 @@ const UserAuth = {
         window.location.href = 'index.html';
     },
 
-    // Update UI based on login state
+    // Update UI - IMPROVED
     updateUI() {
         const loginLinks = document.querySelectorAll('.login-link');
         const userAccountIcons = document.querySelectorAll('.user-account');
 
         if (this.currentUser) {
-            // Hide login links
             loginLinks.forEach(link => link.style.display = 'none');
-
-            // Show user account icon
             userAccountIcons.forEach(icon => {
                 icon.style.display = 'block';
                 icon.innerHTML = this.getUserIconHTML();
             });
         } else {
-            // Show login links
             loginLinks.forEach(link => link.style.display = 'block');
-
-            // Hide user account icon
             userAccountIcons.forEach(icon => icon.style.display = 'none');
         }
     },
 
-    // Get user icon HTML
+    // Get user icon HTML - SIMPLIFIED
     getUserIconHTML() {
         const initial = this.currentUser.fullName.charAt(0).toUpperCase();
-        const membershipBadge = this.getMembershipBadge(this.currentUser.membership);
+        const membershipClass = `badge-${this.currentUser.membership}`;
+        
+        // Get bookmark count
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+        const bookmarkCount = bookmarks.length;
 
         return `
             <div class="user-icon" onclick="toggleUserDropdown()">
-                ${initial}
+                <span class="user-initial">${initial}</span>
+                <span class="user-membership-indicator ${membershipClass}"></span>
             </div>
             <div class="user-dropdown" id="user-dropdown">
                 <div class="user-dropdown-header">
-                    <strong>${this.currentUser.fullName}</strong>
-                    ${membershipBadge}
-                    <p>${this.currentUser.email}</p>
+                    <div class="user-avatar-large">${initial}</div>
+                    <div class="user-info">
+                        <strong>${this.currentUser.fullName}</strong>
+                        <span class="membership-badge ${membershipClass}">
+                            ${this.currentUser.membership.toUpperCase()}
+                        </span>
+                    </div>
                 </div>
+                
+                <div class="user-stats">
+                    <div class="stat">
+                        <span class="stat-value">${bookmarkCount}</span>
+                        <span class="stat-label">Bookmarks</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">${this.currentUser.totalComments || 0}</span>
+                        <span class="stat-label">Comments</span>
+                    </div>
+                </div>
+
                 ${this.currentUser.role === 'admin' ? `
                     <a href="admin/index.html" class="user-dropdown-item">
                         <span class="icon">⚙️</span>
@@ -168,9 +179,11 @@ const UserAuth = {
                 </a>
                 <a href="bookmarks.html" class="user-dropdown-item">
                     <span class="icon">🔖</span>
-                    <span>Bookmarks</span>
+                    <span>My Bookmarks</span>
+                    ${bookmarkCount > 0 ? `<span class="badge">${bookmarkCount}</span>` : ''}
                 </a>
-                <div class="user-dropdown-item" onclick="UserAuth.logout()">
+                <div class="user-dropdown-divider"></div>
+                <div class="user-dropdown-item logout-item" onclick="UserAuth.logout()">
                     <span class="icon">🚪</span>
                     <span>Logout</span>
                 </div>
@@ -189,7 +202,7 @@ const UserAuth = {
         return badges[membership] || badges.free;
     },
 
-    // Check if user has active membership
+    // Check active membership
     hasActiveMembership(level) {
         if (!this.currentUser) return false;
         
@@ -199,58 +212,45 @@ const UserAuth = {
 
         if (currentLevel < requiredLevel) return false;
 
-        // Check expiry
         if (this.currentUser.membershipExpiry) {
             const expiry = new Date(this.currentUser.membershipExpiry);
-            if (expiry < new Date()) {
-                return false;
-            }
+            if (expiry < new Date()) return false;
         }
 
         return true;
     },
 
-    // Add comment to post
-    async addComment(postId, commentText) {
-        if (!this.currentUser) {
-            throw new Error('Please login to comment');
+    // Add/Remove bookmark
+    toggleBookmark(post) {
+        let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+        const index = bookmarks.findIndex(b => b.id === post.id);
+
+        if (index > -1) {
+            bookmarks.splice(index, 1);
+        } else {
+            bookmarks.push(post);
         }
 
-        try {
-            await GoogleSheetsAPI.addComment({
-                postId: postId,
-                userId: this.currentUser.userId,
-                userName: this.currentUser.fullName,
-                userMembership: this.currentUser.membership,
-                text: commentText
-            });
-
-            // Log activity
-            await GoogleSheetsAPI.logActivity(
-                this.currentUser.userId, 
-                `Commented on post ${postId}`,
-                this.currentUser.email
-            );
-
-        } catch (error) {
-            console.error('Failed to add comment:', error);
-            throw error;
+        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+        
+        // Update UI if user dropdown is open
+        if (this.currentUser) {
+            this.updateUI();
         }
+
+        return index === -1; // Return true if bookmarked, false if removed
     },
 
-    // Get comments for post
-    async getComments(postId) {
-        try {
-            return await GoogleSheetsAPI.getComments(postId);
-        } catch (error) {
-            console.error('Failed to get comments:', error);
-            return [];
-        }
+    // Check if post is bookmarked
+    isBookmarked(postId) {
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+        return bookmarks.some(b => b.id === postId);
     }
 };
 
 // Toggle user dropdown
-function toggleUserDropdown() {
+function toggleUserDropdown(event) {
+    if (event) event.stopPropagation();
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.toggle('active');
@@ -267,24 +267,35 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Handle login form
+// Handle login form - FIXED
 async function handleLogin(event) {
     event.preventDefault();
     
-    const email = document.getElementById('login-email').value;
+    const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
 
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Logging in...';
+    submitBtn.disabled = true;
+
     try {
-        await UserAuth.login(email, password);
+        console.log('Login attempt for:', email);
+        const user = await UserAuth.login(email, password);
+        
+        console.log('Login successful:', user);
         
         // Redirect based on role
-        if (UserAuth.currentUser.role === 'admin') {
+        if (user.role === 'admin') {
             window.location.href = 'admin/index.html';
         } else {
             window.location.href = 'index.html';
         }
     } catch (error) {
-        alert(error.message);
+        console.error('Login error:', error);
+        alert(error.message || 'Login failed. Please check your credentials.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     }
 }
 
@@ -292,8 +303,8 @@ async function handleLogin(event) {
 async function handleSignup(event) {
     event.preventDefault();
     
-    const fullName = document.getElementById('signup-fullname').value;
-    const email = document.getElementById('signup-email').value;
+    const fullName = document.getElementById('signup-fullname').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
     const confirmPassword = document.getElementById('signup-confirm-password').value;
 
@@ -302,11 +313,23 @@ async function handleSignup(event) {
         return;
     }
 
+    if (password.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+    }
+
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Creating account...';
+    submitBtn.disabled = true;
+
     try {
         await UserAuth.signup({ fullName, email, password });
         window.location.href = 'index.html';
     } catch (error) {
-        alert(error.message);
+        alert(error.message || 'Signup failed');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     }
 }
 
@@ -321,7 +344,7 @@ function switchToLogin() {
     document.getElementById('login-form').classList.add('active');
 }
 
-// Initialize on page load
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     UserAuth.init();
 });
