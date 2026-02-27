@@ -1043,3 +1043,124 @@ body {
         left: 1rem;
     }
 }
+/* ========================================
+   RESPONSIVE DESIGN - MOBILE, TABLET, PC
+======================================== */
+
+/* Mobile First - Base styles above already mobile-optimized */
+
+/* Small Mobile (320px - 480px) */
+@media (max-width: 480px) {
+    .header .container {
+        padding: 0 1rem;
+    }
+
+    .logo h1 {
+        font-size: 1.25rem;
+    }
+
+    .nav {
+        gap: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .nav a {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .hero-title {
+        font-size: 1.75rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .posts-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .post-card-title {
+        font-size: 1rem;
+    }
+
+    .user-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .user-initial {
+        font-size: 1rem;
+    }
+}
+
+/* Tablet Portrait (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .posts-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .container {
+        padding: 0 1.5rem;
+    }
+}
+
+/* Tablet Landscape (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .posts-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .container {
+        max-width: 960px;
+    }
+}
+
+/* Desktop (1025px - 1440px) */
+@media (min-width: 1025px) and (max-width: 1440px) {
+    .posts-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .container {
+        max-width: 1200px;
+    }
+}
+
+/* Large Desktop (1441px+) */
+@media (min-width: 1441px) {
+    .posts-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .container {
+        max-width: 1400px;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .bookmark-btn {
+        opacity: 1; /* Always show on touch devices */
+    }
+
+    .post-card:hover {
+        transform: none; /* Disable hover transform on touch */
+    }
+
+    .user-dropdown {
+        /* Adjust for better mobile touch experience */
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+}
