@@ -18,20 +18,22 @@
         "published": true
       }
     },
+   {
+  "posts": [
     {
       "id": "inception-2010",
       "slug": "inception-2010",
       "title": "Inception",
-      "thumbnail": "https://via.placeholder.com/400x600/8b0000/ffffff?text=Inception",
-      "banner": "https://via.placeholder.com/1200x600/8b0000/ffffff?text=Inception",
+      "thumbnail": "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",
+      "banner": "https://image.tmdb.org/t/p/original/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
       "category": "Sci-Fi",
       "year": 2010,
       "rating": 8.8,
-      "tags": ["thriller", "mind-bending", "nolan", "dreams"],
+      "tags": ["thriller", "mind-bending", "christopher-nolan", "dreams"],
       "file": "posts/inception-2010.html",
       "metadata": {
-        "created": "2024-02-27T10:00:00Z",
-        "updated": "2024-02-27T10:00:00Z",
+        "created": "2024-02-28T10:00:00Z",
+        "updated": "2024-02-28T10:00:00Z",
         "author": "admin",
         "published": true
       }
