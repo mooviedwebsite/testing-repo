@@ -302,3 +302,43 @@ function showToast(message) {
         setTimeout(() => toast.remove(), 300);
     }, 2000);
 }
+// Load manual posts from registry
+async function loadManualPosts() {
+    try {
+        const response = await fetch('data/posts-registry.json');
+        const data = await response.json();
+        return data.posts || [];
+    } catch (error) {
+        console.error('Failed to load posts registry:', error);
+        return [];
+    }
+}
+
+// Update init function
+async function init() {
+    showLoading();
+    
+    try {
+        // Load manual posts from registry
+        const manualPosts = await loadManualPosts();
+        
+        // Combine with GitHub posts if available
+        try {
+            const githubPosts = await GitHubAPI.getPosts();
+            allPosts = [...manualPosts, ...githubPosts];
+        } catch {
+            allPosts = manualPosts;
+        }
+        
+        // Sort by date
+        allPosts.sort((a, b) => new Date(b.metadata.created) - new Date(a.metadata.created));
+        
+        filteredPosts = allPosts;
+        displayPosts();
+        hideLoading();
+    } catch (error) {
+        console.error('Failed to load posts:', error);
+        hideLoading();
+        showError();
+    }
+}
