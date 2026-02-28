@@ -1,6 +1,6 @@
 /* ========================================
    PUBLIC SITE APPLICATION LOGIC
-   Handles homepage, filtering, loading
+   Loads posts from registry + GitHub
 ======================================== */
 
 // State
@@ -15,13 +15,22 @@ let currentFilter = 'all';
 async function init() {
     showLoading();
     
-    // Try to load posts from demo data first, then from GitHub
     try {
-        allPosts = await loadDemoPosts();
+        // Load posts from registry
+        allPosts = await loadPostsFromRegistry();
         
-        // If no demo posts, try GitHub
         if (allPosts.length === 0) {
-            allPosts = await GitHubAPI.getPosts();
+            // Fallback: Try to load from GitHub
+            try {
+                allPosts = await GitHubAPI.getPosts();
+            } catch (error) {
+                console.log('No GitHub posts available');
+            }
+        }
+        
+        // If still no posts, show demo posts
+        if (allPosts.length === 0) {
+            allPosts = getDemoPosts();
         }
         
         filteredPosts = allPosts;
@@ -34,31 +43,56 @@ async function init() {
     }
 }
 
-// Load demo posts (fallback for initial setup)
-async function loadDemoPosts() {
-    // Check if we have demo data
+// Load posts from registry
+async function loadPostsFromRegistry() {
     try {
-        const response = await fetch('data/posts/demo-post-1.json');
-        if (response.ok) {
-            return await GitHubAPI.getPosts();
+        const response = await fetch('data/posts-registry.json');
+        
+        if (!response.ok) {
+            throw new Error('Registry not found');
         }
+        
+        const data = await response.json();
+        console.log('Loaded posts from registry:', data.posts.length);
+        return data.posts || [];
     } catch (error) {
-        // No demo data available
+        console.error('Failed to load posts registry:', error);
+        return [];
     }
-    
-    // Return sample posts for demonstration
+}
+
+// Demo posts (fallback)
+function getDemoPosts() {
     return [
         {
-            id: 'demo-1',
+            id: 'inception-2010',
+            slug: 'inception-2010',
+            title: 'Inception',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg',
+            banner: 'https://image.tmdb.org/t/p/original/s3TBrRGB1iav7gFOCNx3H31MoES.jpg',
+            category: 'Sci-Fi',
+            year: 2010,
+            rating: 8.8,
+            tags: ['thriller', 'mind-bending', 'nolan'],
+            file: 'posts/inception-2010',
+            metadata: {
+                created: new Date().toISOString(),
+                updated: new Date().toISOString(),
+                author: 'admin',
+                published: true
+            }
+        },
+        {
+            id: 'demo-getting-started',
             slug: 'getting-started',
             title: 'Getting Started with GitHub CMS',
-            thumbnail: 'https://via.placeholder.com/400x225/6366f1/ffffff?text=Getting+Started',
+            thumbnail: 'https://via.placeholder.com/400x600/6366f1/ffffff?text=Getting+Started',
             banner: 'https://via.placeholder.com/1200x600/6366f1/ffffff?text=Getting+Started',
             category: 'Tutorial',
             year: 2026,
             rating: 9.0,
             tags: ['tutorial', 'setup', 'beginner'],
-            content: '<h2>Welcome to GitHub CMS!</h2><p>This is a demo post to help you get started. To begin creating your own content:</p><ol><li>Go to the Admin Panel</li><li>Login with your GitHub token</li><li>Create your first post</li></ol><p>Enjoy building your blog!</p>',
+            file: 'post.html?id=demo-getting-started',
             metadata: {
                 created: new Date().toISOString(),
                 updated: new Date().toISOString(),
@@ -73,13 +107,31 @@ async function loadDemoPosts() {
 function displayPosts() {
     const postsGrid = document.getElementById('posts-grid');
     
+    if (!postsGrid) {
+        console.error('Posts grid not found');
+        return;
+    }
+    
     // Calculate posts to display
     const startIndex = 0;
     const endIndex = currentPage * postsPerPage;
     displayedPosts = filteredPosts.slice(startIndex, endIndex);
     
+    console.log('Displaying posts:', displayedPosts.length);
+    
     // Render posts
-    postsGrid.innerHTML = displayedPosts.map(post => createPostCard(post)).join('');
+    if (displayedPosts.length === 0) {
+        postsGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                <h3>No posts found</h3>
+                <p style="color: var(--text-secondary); margin: 1rem 0;">
+                    ${currentFilter === 'all' ? 'No posts available yet.' : 'Try a different category.'}
+                </p>
+            </div>
+        `;
+    } else {
+        postsGrid.innerHTML = displayedPosts.map(post => createPostCard(post)).join('');
+    }
     
     // Update load more button
     updateLoadMoreButton();
@@ -87,16 +139,34 @@ function displayPosts() {
 
 // Create post card HTML
 function createPostCard(post) {
+    const isBookmarked = UserAuth.currentUser ? UserAuth.isBookmarked(post.id) : false;
+    
+    // Determine post link
+    let postLink = post.file || `post.html?id=${post.id}&slug=${post.slug}`;
+    
+    // If file doesn't have protocol or starts with /, make it relative
+    if (post.file && !post.file.startsWith('http') && !post.file.startsWith('/')) {
+        postLink = post.file;
+    }
+    
     return `
-        <div class="post-card" onclick="navigateToPost('${post.id}', '${post.slug}')">
-            <div class="post-card-image">
-                <img src="${post.thumbnail}" alt="${post.title}" loading="lazy">
+        <div class="post-card">
+            ${UserAuth.currentUser ? `
+                <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
+                        onclick="handleBookmark(event, '${post.id}')"
+                        title="${isBookmarked ? 'Remove bookmark' : 'Add bookmark'}">
+                </button>
+            ` : ''}
+            
+            <div class="post-card-image" onclick="window.location='${postLink}'">
+                <img src="${post.thumbnail}" alt="${post.title}" loading="lazy" 
+                     onerror="this.src='https://via.placeholder.com/400x600/333/fff?text=No+Image'">
                 <div class="post-card-overlay">
                     <span class="category">${post.category}</span>
                     <span class="rating">⭐ ${post.rating}</span>
                 </div>
             </div>
-            <div class="post-card-content">
+            <div class="post-card-content" onclick="window.location='${postLink}'">
                 <h3 class="post-card-title">${post.title}</h3>
                 <div class="post-card-meta">
                     <span>${post.year}</span>
@@ -153,6 +223,50 @@ function updateLoadMoreButton() {
     container.style.display = hasMore ? 'block' : 'none';
 }
 
+// Handle bookmark button click
+function handleBookmark(event, postId) {
+    event.stopPropagation();
+    
+    if (!UserAuth.currentUser) {
+        alert('Please login to bookmark posts');
+        window.location.href = 'auth.html';
+        return;
+    }
+
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    const isBookmarked = UserAuth.toggleBookmark(post);
+    
+    const btn = event.target.closest('.bookmark-btn');
+    if (isBookmarked) {
+        btn.classList.add('bookmarked');
+        btn.title = 'Remove bookmark';
+        showToast('✅ Added to bookmarks');
+    } else {
+        btn.classList.remove('bookmarked');
+        btn.title = 'Add bookmark';
+        showToast('❌ Removed from bookmarks');
+    }
+}
+
+// Toast notification
+function showToast(message) {
+    // Remove existing toasts
+    document.querySelectorAll('.toast').forEach(t => t.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+
 // Show/Hide loading
 function showLoading() {
     const loading = document.getElementById('loading');
@@ -187,6 +301,8 @@ function showError() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Initializing homepage...');
+    
     // Initialize
     init();
     
@@ -218,131 +334,11 @@ if ('IntersectionObserver' in window) {
         });
     });
 
-    // Observe images when they're added to DOM
     const observeImages = () => {
         document.querySelectorAll('img[loading="lazy"]').forEach(img => {
             imageObserver.observe(img);
         });
     };
 
-    // Initial observation
     setTimeout(observeImages, 100);
-}
-
-// Create post card HTML - FIXED LINKS
-function createPostCard(post) {
-    const isBookmarked = UserAuth.isBookmarked ? UserAuth.isBookmarked(post.id) : false;
-    
-    // Check if it's a manual post (has file property)
-    const postLink = post.file ? post.file : `post.html?id=${post.id}&slug=${post.slug}`;
-    
-    return `
-        <div class="post-card">
-            ${UserAuth.currentUser ? `
-                <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
-                        onclick="handleBookmark(event, '${post.id}')"
-                        title="${isBookmarked ? 'Remove bookmark' : 'Add bookmark'}">
-                </button>
-            ` : ''}
-            
-            <div class="post-card-image" onclick="window.location='${postLink}'">
-                <img src="${post.thumbnail}" alt="${post.title}" loading="lazy">
-                <div class="post-card-overlay">
-                    <span class="category">${post.category}</span>
-                    <span class="rating">⭐ ${post.rating}</span>
-                </div>
-            </div>
-            <div class="post-card-content" onclick="window.location='${postLink}'">
-                <h3 class="post-card-title">${post.title}</h3>
-                <div class="post-card-meta">
-                    <span>${post.year}</span>
-                    <span>${post.tags.slice(0, 2).map(t => '#' + t).join(' ')}</span>
-                </div>
-            </div>
-        </div>
-    `;
-}
-// Handle bookmark button click
-function handleBookmark(event, postId) {
-    event.stopPropagation(); // Prevent card click
-    
-    if (!UserAuth.currentUser) {
-        alert('Please login to bookmark posts');
-        window.location.href = 'auth.html';
-        return;
-    }
-
-    // Find the post
-    const post = allPosts.find(p => p.id === postId);
-    if (!post) return;
-
-    // Toggle bookmark
-    const isBookmarked = UserAuth.toggleBookmark(post);
-    
-    // Update button
-    const btn = event.target.closest('.bookmark-btn');
-    if (isBookmarked) {
-        btn.classList.add('bookmarked');
-        btn.title = 'Remove bookmark';
-    } else {
-        btn.classList.remove('bookmarked');
-        btn.title = 'Add bookmark';
-    }
-
-    // Show toast notification
-    showToast(isBookmarked ? 'Added to bookmarks' : 'Removed from bookmarks');
-}
-
-// Toast notification
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => toast.classList.add('show'), 100);
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 2000);
-}
-// Load manual posts from registry
-async function loadManualPosts() {
-    try {
-        const response = await fetch('data/posts-registry.json');
-        const data = await response.json();
-        return data.posts || [];
-    } catch (error) {
-        console.error('Failed to load posts registry:', error);
-        return [];
-    }
-}
-
-// Update init function
-async function init() {
-    showLoading();
-    
-    try {
-        // Load manual posts from registry
-        const manualPosts = await loadManualPosts();
-        
-        // Combine with GitHub posts if available
-        try {
-            const githubPosts = await GitHubAPI.getPosts();
-            allPosts = [...manualPosts, ...githubPosts];
-        } catch {
-            allPosts = manualPosts;
-        }
-        
-        // Sort by date
-        allPosts.sort((a, b) => new Date(b.metadata.created) - new Date(a.metadata.created));
-        
-        filteredPosts = allPosts;
-        displayPosts();
-        hideLoading();
-    } catch (error) {
-        console.error('Failed to load posts:', error);
-        hideLoading();
-        showError();
-    }
 }
