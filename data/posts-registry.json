@@ -1,26 +1,6 @@
 {
   "posts": [
     {
-      "id": "avatar-the-way-of-water-2025",
-      "slug": "avatar-the-way-of-water-2025",
-      "title": "Avatar: The Way of Water",
-      "thumbnail": "https://via.placeholder.com/400x600/0080ff/ffffff?text=Avatar+2",
-      "banner": "https://via.placeholder.com/1200x600/0080ff/ffffff?text=Avatar+Banner",
-      "category": "Sci-Fi",
-      "year": 2025,
-      "rating": 8.9,
-      "tags": ["action", "adventure", "sci-fi", "james-cameron"],
-      "file": "posts/avatar-the-way-of-water-2025.html",
-      "metadata": {
-        "created": "2024-02-28T10:00:00Z",
-        "updated": "2024-02-28T10:00:00Z",
-        "author": "admin",
-        "published": true
-      }
-    },
-   {
-  "posts": [
-    {
       "id": "inception-2010",
       "slug": "inception-2010",
       "title": "Inception",
@@ -30,10 +10,28 @@
       "year": 2010,
       "rating": 8.8,
       "tags": ["thriller", "mind-bending", "christopher-nolan", "dreams"],
-      "file": "posts/inception-2010.html",
+      "file": "posts/inception-2010",
       "metadata": {
         "created": "2024-02-28T10:00:00Z",
         "updated": "2024-02-28T10:00:00Z",
+        "author": "admin",
+        "published": true
+      }
+    },
+    {
+      "id": "avatar-2025",
+      "slug": "avatar-the-way-of-water",
+      "title": "Avatar: The Way of Water",
+      "thumbnail": "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
+      "banner": "https://image.tmdb.org/t/p/original/198vrF8k7mfQ4FjDJsBmdQcaiyq.jpg",
+      "category": "Sci-Fi",
+      "year": 2025,
+      "rating": 8.9,
+      "tags": ["action", "adventure", "sci-fi", "james-cameron"],
+      "file": "posts/avatar-the-way-of-water",
+      "metadata": {
+        "created": "2024-02-27T10:00:00Z",
+        "updated": "2024-02-27T10:00:00Z",
         "author": "admin",
         "published": true
       }
@@ -41,3 +39,25 @@
   ],
   "lastUpdated": "2024-02-28T10:00:00Z"
 }
+```
+
+---
+
+## 📁 FILE 3: Rename Post Files (NO .html extension in URL)
+
+**Rename your files:**
+```
+OLD: posts/inception-2010.html
+NEW: posts/inception-2010/index.html
+
+OLD: posts/avatar-2025.html
+NEW: posts/avatar-the-way-of-water/index.html
+```
+
+**New folder structure:**
+```
+posts/
+├── inception-2010/
+│   └── index.html
+└── avatar-the-way-of-water/
+    └── index.html
