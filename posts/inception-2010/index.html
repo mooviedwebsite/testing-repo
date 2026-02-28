@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inception (2010) - Full Movie Review & Analysis</title>
+    <meta name="description" content="Complete review and analysis of Christopher Nolan's Inception (2010). Cast, plot summary, and where to watch.">
+    
+    <!-- POST DATA -->
+    <script>
+        const POST_DATA = {
+            id: 'inception-2010',
+            slug: 'inception-2010',
+            title: 'Inception',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg',
+            banner: 'https://image.tmdb.org/t/p/original/s3TBrRGB1iav7gFOCNx3H31MoES.jpg',
+            category: 'Sci-Fi',
+            year: 2010,
+            rating: 8.8,
+            tags: ['thriller', 'mind-bending', 'christopher-nolan', 'dreams'],
+            metadata: {
+                created: '2024-02-28T10:00:00Z',
+                updated: '2024-02-28T10:00:00Z',
+                author: 'admin',
+                published: true
+            }
+        };
+    </script>
+    
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/post-page.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="../../index.html"><h1>GitHub CMS</h1></a>
+            </div>
+            <nav class="nav">
+                <a href="../../index.html">Home</a>
+                <a href="../../search.html">Search</a>
+                <a href="../../bookmarks.html">Bookmarks</a>
+                <div class="user-account" style="display: none;"></div>
+                <a href="../../auth.html" class="login-link admin-link">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Loading Indicator -->
+    <div id="page-loading" style="display: flex; align-items: center; justify-content: center; min-height: 50vh;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Main Content (Hidden until loaded) -->
+    <div id="post-main-content" style="display: none;">
+        <!-- Banner -->
+        <div class="post-banner">
+            <img id="post-banner-img" src="" alt="">
+            <div class="post-banner-overlay">
+                <div class="container">
+                    <div class="post-meta-header">
+                        <span id="post-category-badge" class="category-badge"></span>
+                        <span id="post-year-badge" class="year-badge"></span>
+                        <span id="post-rating-badge" class="rating-badge"></span>
+                    </div>
+                    <h1 id="post-title-display" class="post-title"></h1>
+                    <div id="post-tags-display" class="post-tags"></div>
+                    <button id="bookmark-btn-top" class="btn-bookmark">
+                        <span class="bookmark-icon">🔖</span>
+                        <span class="bookmark-text">Bookmark</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Content -->
+        <main class="main">
+            <div class="container">
+                <article class="post-content">
+                    
+                    <div class="post-body">
+                        
+                        <h2>About Inception</h2>
+                        <p>
+                            Inception is a 2010 science fiction action film written and directed by Christopher Nolan. 
+                            The film stars Leonardo DiCaprio as a professional thief who steals information by 
+                            infiltrating the subconscious of his targets.
+                        </p>
+
+                        <img src="https://image.tmdb.org/t/p/original/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg" 
+                             alt="Inception Scene" 
+                             style="width: 100%; border-radius: 12px; margin: 2rem 0;">
+
+                        <h2>Plot Summary</h2>
+                        <p>
+                            Dom Cobb is a skilled thief, the best in the dangerous art of extraction, stealing 
+                            valuable secrets from deep within the subconscious during the dream state. Cobb's 
+                            rare ability has made him a player in corporate espionage, but it has also cost him 
+                            everything he loves.
+                        </p>
+
+                        <h3>Main Cast</h3>
+                        <ul>
+                            <li><strong>Leonardo DiCaprio</strong> as Dom Cobb</li>
+                            <li><strong>Joseph Gordon-Levitt</strong> as Arthur</li>
+                            <li><strong>Elliot Page</strong> as Ariadne</li>
+                            <li><strong>Tom Hardy</strong> as Eames</li>
+                            <li><strong>Marion Cotillard</strong> as Mal</li>
+                        </ul>
+
+                        <h2>Why You Should Watch</h2>
+                        <p>
+                            Inception is not just a movie—it's an experience. Christopher Nolan masterfully 
+                            blends action, emotion, and intellect into a cinematic masterpiece that keeps you 
+                            thinking long after the credits roll.
+                        </p>
+
+                        <div class="rating-box">
+                            <h3>Our Rating</h3>
+                            <div class="rating-stars">⭐⭐⭐⭐⭐ 8.8/10</div>
+                            <p style="margin-top: 1rem;">A mind-bending masterpiece!</p>
+                        </div>
+
+                        <h2>Stream Now</h2>
+                        <p>
+                            Watch Inception on Netflix, Amazon Prime Video, or rent it on YouTube, Google Play, 
+                            and iTunes.
+                        </p>
+
+                        <iframe width="100%" height="450" 
+                                src="https://www.youtube.com/embed/YoHD9XEInc0" 
+                                frameborder="0" 
+                                allowfullscreen 
+                                style="border-radius: 12px; margin: 2rem 0;">
+                        </iframe>
+
+                    </div>
+
+                    <!-- Post Footer -->
+                    <div class="post-footer">
+                        <div class="post-date">
+                            Published: <span id="post-date-display"></span>
+                        </div>
+                        <div class="post-author">
+                            By: <span id="post-author-display"></span>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section" id="comments-section">
+                        <h3>Comments (<span id="comments-count">0</span>)</h3>
+                        
+                        <div class="add-comment" id="add-comment-form">
+                            <textarea id="comment-input" placeholder="Write a comment..." rows="3"></textarea>
+                            <button onclick="submitComment()" class="btn-primary">Post Comment</button>
+                        </div>
+
+                        <div id="comments-list" class="comments-list"></div>
+                    </div>
+
+                    <!-- Related Posts -->
+                    <div class="related-posts">
+                        <h3>Related Posts</h3>
+                        <div id="related-posts-grid" class="posts-grid"></div>
+                    </div>
+                </article>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GitHub CMS. Built with ❤️ and GitHub Pages</p>
+        </div>
+    </footer>
+
+    <script>
+    const GoogleSheetsAPI = {
+        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyzbUhuw7iwRjNPFP-LxVdmgzf8OH_9_fvFOi4QG3IVsuaUNgJIKkmybEsh2_yNESnx/exec',
+        async getComments(postId) {
+            try {
+                const response = await fetch(`${this.SCRIPT_URL}?action=getComments&postId=${postId}`);
+                const data = await response.json();
+                return data.comments || [];
+            } catch (error) { return []; }
+        },
+        async addComment(commentData) {
+            await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'addComment',
+                    postId: commentData.postId,
+                    userId: commentData.userId,
+                    userName: commentData.userName,
+                    userMembership: commentData.userMembership,
+                    text: commentData.text
+                })
+            });
+        }
+    };
+    </script>
+    <script src="../../js/github-api.js"></script>
+    <script src="../../js/user-auth.js"></script>
+    <script>
+    // Faster loading - Initialize immediately
+    (function() {
+        // Load post data
+        if (typeof POST_DATA !== 'undefined') {
+            document.getElementById('post-banner-img').src = POST_DATA.banner;
+            document.getElementById('post-category-badge').textContent = POST_DATA.category;
+            document.getElementById('post-year-badge').textContent = POST_DATA.year;
+            document.getElementById('post-rating-badge').textContent = '⭐ ' + POST_DATA.rating;
+            document.getElementById('post-title-display').textContent = POST_DATA.title;
+            document.getElementById('post-date-display').textContent = new Date(POST_DATA.metadata.created).toLocaleDateString();
+            document.getElementById('post-author-display').textContent = POST_DATA.metadata.author;
+
+            const tagsContainer = document.getElementById('post-tags-display');
+            tagsContainer.innerHTML = POST_DATA.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+
+            // Show content, hide loading
+            document.getElementById('page-loading').style.display = 'none';
+            document.getElementById('post-main-content').style.display = 'block';
+
+            // Save to recent posts
+            let recentPosts = JSON.parse(localStorage.getItem('recent_posts') || '[]');
+            recentPosts = recentPosts.filter(p => p.id !== POST_DATA.id);
+            recentPosts.unshift(POST_DATA);
+            recentPosts = recentPosts.slice(0, 20);
+            localStorage.setItem('recent_posts', JSON.stringify(recentPosts));
+        }
+
+        // Bookmark button
+        const bookmarkBtn = document.getElementById('bookmark-btn-top');
+        if (bookmarkBtn) {
+            bookmarkBtn.onclick = function() {
+                if (!UserAuth || !UserAuth.currentUser) {
+                    alert('Please login to bookmark posts');
+                    window.location.href = '../../auth.html';
+                    return;
+                }
+
+                let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+                const index = bookmarks.findIndex(b => b.id === POST_DATA.id);
+
+                if (index > -1) {
+                    bookmarks.splice(index, 1);
+                    bookmarkBtn.classList.remove('bookmarked');
+                    bookmarkBtn.querySelector('.bookmark-text').textContent = 'Bookmark';
+                    showToast('❌ Removed from bookmarks');
+                } else {
+                    bookmarks.push(POST_DATA);
+                    bookmarkBtn.classList.add('bookmarked');
+                    bookmarkBtn.querySelector('.bookmark-text').textContent = 'Bookmarked';
+                    showToast('✅ Added to bookmarks');
+                }
+
+                localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            };
+
+            // Check if bookmarked
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            if (bookmarks.some(b => b.id === POST_DATA.id)) {
+                bookmarkBtn.classList.add('bookmarked');
+                bookmarkBtn.querySelector('.bookmark-text').textContent = 'Bookmarked';
+            }
+        }
+
+        // Load comments
+        async function loadComments() {
+            try {
+                const comments = await GoogleSheetsAPI.getComments(POST_DATA.id);
+                document.getElementById('comments-count').textContent = comments.length;
+                
+                const commentsList = document.getElementById('comments-list');
+                if (comments.length === 0) {
+                    commentsList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No comments yet. Be the first!</p>';
+                    return;
+                }
+
+                commentsList.innerHTML = comments.map(comment => `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-avatar">${comment.userName.charAt(0).toUpperCase()}</div>
+                            <div class="comment-user">
+                                <div class="comment-user-name">
+                                    ${comment.userName}
+                                    ${comment.userMembership !== 'free' ? `
+                                        <span class="comment-badge badge-${comment.userMembership}">
+                                            ${comment.userMembership.toUpperCase()}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                <div class="comment-time">${new Date(comment.timestamp).toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="comment-text">${comment.text}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load comments:', error);
+            }
+        }
+
+        // Submit comment
+        window.submitComment = async function() {
+            if (!UserAuth || !UserAuth.currentUser) {
+                alert('Please login to comment');
+                window.location.href = '../../auth.html';
+                return;
+            }
+
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+
+            if (!text) {
+                alert('Please write a comment');
+                return;
+            }
+
+            try {
+                await GoogleSheetsAPI.addComment({
+                    postId: POST_DATA.id,
+                    userId: UserAuth.currentUser.userId,
+                    userName: UserAuth.currentUser.fullName,
+                    userMembership: UserAuth.currentUser.membership,
+                    text: text
+                });
+
+                input.value = '';
+                loadComments();
+                showToast('✅ Comment posted!');
+            } catch (error) {
+                console.error('Failed to post comment:', error);
+                alert('Failed to post comment');
+            }
+        };
+
+        // Load related posts
+        async function loadRelatedPosts() {
+            try {
+                const response = await fetch('../../data/posts-registry.json');
+                const data = await response.json();
+                
+                const related = data.posts
+                    .filter(p => p.id !== POST_DATA.id && p.category === POST_DATA.category)
+                    .slice(0, 3);
+
+                const grid = document.getElementById('related-posts-grid');
+                
+                if (related.length === 0) {
+                    grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No related posts found.</p>';
+                    return;
+                }
+
+                grid.innerHTML = related.map(post => `
+                    <div class="post-card" onclick="window.location='../../${post.file}'">
+                        <div class="post-card-image">
+                            <img src="${post.thumbnail}" alt="${post.title}">
+                            <div class="post-card-overlay">
+                                <span class="category">${post.category}</span>
+                                <span class="rating">⭐ ${post.rating}</span>
+                            </div>
+                        </div>
+                        <div class="post-card-content">
+                            <h3 class="post-card-title">${post.title}</h3>
+                            <div class="post-card-meta">
+                                <span>${post.year}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load related posts:', error);
+            }
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // Load everything
+        setTimeout(() => {
+            loadComments();
+            loadRelatedPosts();
+        }, 500);
+    })();
+    </script>
+</body>
+</html>
+```
+
+---
+
+## 🎯 FINAL URLS (PROFESSIONAL):
+```
+✅ Homepage:
+https://mooviedwebsite.github.io/testing-repo/
+
+✅ Post (Clean URL):
+https://mooviedwebsite.github.io/testing-repo/posts/inception-2010
+
+✅ Another Post:
+https://mooviedwebsite.github.io/testing-repo/posts/avatar-the-way-of-water
+```
+
+**NO MORE `.html` or `?id=` in URLs!**
+
+---
+
+## 📂 YOUR FOLDER STRUCTURE:
+```
+testing-repo/
+├── index.html
+├── search.html
+├── auth.html
+│
+├── css/
+│   ├── style.css
+│   ├── admin.css
+│   └── post-page.css
+│
+├── js/
+│   ├── app.js
+│   ├── user-auth.js
+│   └── github-api.js
+│
+├── data/
+│   └── posts-registry.json
+│
+└── posts/
+    ├── inception-2010/
+    │   └── index.html
+    └── avatar-the-way-of-water/
+        └── index.html
