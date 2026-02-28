@@ -35,29 +35,25 @@
         "author": "admin",
         "published": true
       }
+    },
+    {
+      "id": "interstellar-2014",
+      "slug": "interstellar-2014",
+      "title": "Interstellar",
+      "thumbnail": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+      "banner": "https://image.tmdb.org/t/p/original/xJHokMbljvjADYdit5fK5VQsXEG.jpg",
+      "category": "Sci-Fi",
+      "year": 2014,
+      "rating": 8.7,
+      "tags": ["space", "time", "nolan", "adventure"],
+      "file": "posts/interstellar-2014",
+      "metadata": {
+        "created": "2024-02-26T10:00:00Z",
+        "updated": "2024-02-26T10:00:00Z",
+        "author": "admin",
+        "published": true
+      }
     }
   ],
   "lastUpdated": "2024-02-28T10:00:00Z"
 }
-```
-
----
-
-## 📁 FILE 3: Rename Post Files (NO .html extension in URL)
-
-**Rename your files:**
-```
-OLD: posts/inception-2010.html
-NEW: posts/inception-2010/index.html
-
-OLD: posts/avatar-2025.html
-NEW: posts/avatar-the-way-of-water/index.html
-```
-
-**New folder structure:**
-```
-posts/
-├── inception-2010/
-│   └── index.html
-└── avatar-the-way-of-water/
-    └── index.html
