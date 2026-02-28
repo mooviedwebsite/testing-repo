@@ -229,25 +229,30 @@ if ('IntersectionObserver' in window) {
     setTimeout(observeImages, 100);
 }
 
-// Create post card HTML - WITH BOOKMARK BUTTON
+// Create post card HTML - FIXED LINKS
 function createPostCard(post) {
-    const isBookmarked = UserAuth.isBookmarked(post.id);
+    const isBookmarked = UserAuth.isBookmarked ? UserAuth.isBookmarked(post.id) : false;
+    
+    // Check if it's a manual post (has file property)
+    const postLink = post.file ? post.file : `post.html?id=${post.id}&slug=${post.slug}`;
     
     return `
         <div class="post-card">
-            <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
-                    onclick="handleBookmark(event, '${post.id}')"
-                    title="${isBookmarked ? 'Remove bookmark' : 'Add bookmark'}">
-            </button>
+            ${UserAuth.currentUser ? `
+                <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
+                        onclick="handleBookmark(event, '${post.id}')"
+                        title="${isBookmarked ? 'Remove bookmark' : 'Add bookmark'}">
+                </button>
+            ` : ''}
             
-            <div class="post-card-image" onclick="navigateToPost('${post.id}', '${post.slug}')">
+            <div class="post-card-image" onclick="window.location='${postLink}'">
                 <img src="${post.thumbnail}" alt="${post.title}" loading="lazy">
                 <div class="post-card-overlay">
                     <span class="category">${post.category}</span>
                     <span class="rating">⭐ ${post.rating}</span>
                 </div>
             </div>
-            <div class="post-card-content" onclick="navigateToPost('${post.id}', '${post.slug}')">
+            <div class="post-card-content" onclick="window.location='${postLink}'">
                 <h3 class="post-card-title">${post.title}</h3>
                 <div class="post-card-meta">
                     <span>${post.year}</span>
@@ -257,7 +262,6 @@ function createPostCard(post) {
         </div>
     `;
 }
-
 // Handle bookmark button click
 function handleBookmark(event, postId) {
     event.stopPropagation(); // Prevent card click
