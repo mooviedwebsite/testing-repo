@@ -1,0 +1,41 @@
+{
+  "posts": [
+    {
+      "id": "avatar-the-way-of-water-2025",
+      "slug": "avatar-the-way-of-water-2025",
+      "title": "Avatar: The Way of Water",
+      "thumbnail": "https://via.placeholder.com/400x600/0080ff/ffffff?text=Avatar+2",
+      "banner": "https://via.placeholder.com/1200x600/0080ff/ffffff?text=Avatar+Banner",
+      "category": "Sci-Fi",
+      "year": 2025,
+      "rating": 8.9,
+      "tags": ["action", "adventure", "sci-fi", "james-cameron"],
+      "file": "posts/avatar-the-way-of-water-2025.html",
+      "metadata": {
+        "created": "2024-02-28T10:00:00Z",
+        "updated": "2024-02-28T10:00:00Z",
+        "author": "admin",
+        "published": true
+      }
+    },
+    {
+      "id": "inception-2010",
+      "slug": "inception-2010",
+      "title": "Inception",
+      "thumbnail": "https://via.placeholder.com/400x600/8b0000/ffffff?text=Inception",
+      "banner": "https://via.placeholder.com/1200x600/8b0000/ffffff?text=Inception",
+      "category": "Sci-Fi",
+      "year": 2010,
+      "rating": 8.8,
+      "tags": ["thriller", "mind-bending", "nolan", "dreams"],
+      "file": "posts/inception-2010.html",
+      "metadata": {
+        "created": "2024-02-27T10:00:00Z",
+        "updated": "2024-02-27T10:00:00Z",
+        "author": "admin",
+        "published": true
+      }
+    }
+  ],
+  "lastUpdated": "2024-02-28T10:00:00Z"
+}
