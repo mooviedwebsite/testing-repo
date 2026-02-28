@@ -1,1 +1,228 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- ============================================
+         EDIT THESE META TAGS FOR EACH POST
+    ============================================ -->
+    <title>Avatar: The Way of Water (2025) - Full Movie Review</title>
+    <meta name="description" content="Watch Avatar: The Way of Water (2025) full movie review, analysis, and streaming guide.">
+    
+    <!-- Post Data (EDIT THIS) -->
+    <script>
+        const POST_DATA = {
+            id: 'avatar-the-way-of-water-2025',
+            slug: 'avatar-the-way-of-water-2025',
+            title: 'Avatar: The Way of Water',
+            thumbnail: 'https://via.placeholder.com/400x600/0080ff/ffffff?text=Avatar+2',
+            banner: 'https://via.placeholder.com/1200x600/0080ff/ffffff?text=Avatar+Banner',
+            category: 'Sci-Fi',
+            year: 2025,
+            rating: 8.9,
+            tags: ['action', 'adventure', 'sci-fi', 'james-cameron'],
+            metadata: {
+                created: '2024-02-28T10:00:00Z',
+                updated: '2024-02-28T10:00:00Z',
+                author: 'admin',
+                published: true
+            }
+        };
+    </script>
+    
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/post-page.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="../index.html">
+                    <h1>GitHub CMS</h1>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="../index.html">Home</a>
+                <a href="../search.html">Search</a>
+                <a href="../bookmarks.html">Bookmarks</a>
+                <div class="user-account" style="display: none;"></div>
+                <a href="../auth.html" class="login-link admin-link">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Post Banner -->
+    <div class="post-banner">
+        <img id="post-banner-img" src="" alt="">
+        <div class="post-banner-overlay">
+            <div class="container">
+                <div class="post-meta-header">
+                    <span id="post-category-badge" class="category-badge"></span>
+                    <span id="post-year-badge" class="year-badge"></span>
+                    <span id="post-rating-badge" class="rating-badge"></span>
+                </div>
+                <h1 id="post-title-display" class="post-title"></h1>
+                <div id="post-tags-display" class="post-tags"></div>
+                <button id="bookmark-btn-top" class="btn-bookmark">
+                    <span class="bookmark-icon">🔖</span>
+                    <span class="bookmark-text">Bookmark</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Content -->
+    <main class="main">
+        <div class="container">
+            <article class="post-content">
+                <!-- ============================================
+                     YOUR CUSTOM POST CONTENT GOES HERE
+                     Write HTML, add images, videos, etc.
+                ============================================ -->
+                
+                <div class="post-body">
+                    <h2>About the Movie</h2>
+                    <p>
+                        Avatar: The Way of Water is a 2025 epic science fiction film directed by James Cameron. 
+                        Set more than a decade after the events of the first film, it follows Jake Sully and 
+                        Neytiri as they explore the oceans of Pandora.
+                    </p>
+
+                    <h2>Plot Summary</h2>
+                    <p>
+                        Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. 
+                        Once a familiar threat returns to finish what was previously started, Jake must 
+                        work with Neytiri and the army of the Na'vi race to protect their home.
+                    </p>
+
+                    <h3>Key Features</h3>
+                    <ul>
+                        <li>Stunning underwater visual effects</li>
+                        <li>Revolutionary motion capture technology</li>
+                        <li>Epic world-building and storytelling</li>
+                        <li>Emotional character development</li>
+                    </ul>
+
+                    <h2>Cast & Crew</h2>
+                    <p>
+                        <strong>Director:</strong> James Cameron<br>
+                        <strong>Starring:</strong> Sam Worthington, Zoe Saldana, Sigourney Weaver, Kate Winslet<br>
+                        <strong>Genre:</strong> Sci-Fi, Action, Adventure<br>
+                        <strong>Runtime:</strong> 192 minutes
+                    </p>
+
+                    <h2>Where to Watch</h2>
+                    <p>
+                        Avatar: The Way of Water is available in theaters and select streaming platforms. 
+                        Check your local listings for showtimes and availability.
+                    </p>
+
+                    <!-- Add Images -->
+                    <img src="https://via.placeholder.com/800x450/0080ff/ffffff?text=Scene+1" 
+                         alt="Avatar Scene" 
+                         style="width: 100%; border-radius: 12px; margin: 2rem 0;">
+
+                    <h2>Final Verdict</h2>
+                    <p>
+                        Avatar: The Way of Water is a visual masterpiece that pushes the boundaries of cinema. 
+                        Cameron delivers an emotionally resonant story with breathtaking visuals that must be 
+                        seen on the big screen.
+                    </p>
+
+                    <div class="rating-box">
+                        <h3>Our Rating</h3>
+                        <div class="rating-stars">⭐⭐⭐⭐⭐ 8.9/10</div>
+                    </div>
+
+                    <!-- Add Video (Optional) -->
+                    <!-- <iframe width="100%" height="450" src="https://www.youtube.com/embed/VIDEO_ID" 
+                            frameborder="0" allowfullscreen style="border-radius: 12px; margin: 2rem 0;"></iframe> -->
+
+                </div>
+
+                <!-- Post Footer -->
+                <div class="post-footer">
+                    <div class="post-date">
+                        Published: <span id="post-date-display"></span>
+                    </div>
+                    <div class="post-author">
+                        By: <span id="post-author-display"></span>
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="comments-section" id="comments-section">
+                    <h3>Comments (<span id="comments-count">0</span>)</h3>
+                    
+                    <!-- Add Comment Form -->
+                    <div class="add-comment" id="add-comment-form">
+                        <textarea id="comment-input" placeholder="Write a comment..." rows="3"></textarea>
+                        <button onclick="submitComment()" class="btn-primary">Post Comment</button>
+                    </div>
+
+                    <!-- Comments List -->
+                    <div id="comments-list" class="comments-list"></div>
+                </div>
+
+                <!-- Related Posts -->
+                <div class="related-posts">
+                    <h3>Related Posts</h3>
+                    <div id="related-posts-grid" class="posts-grid"></div>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GitHub CMS. Built with ❤️ and GitHub Pages</p>
+        </div>
+    </footer>
+
+    <script>
+    // Google Sheets API - Inline
+    const GoogleSheetsAPI = {
+        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyzbUhuw7iwRjNPFP-LxVdmgzf8OH_9_fvFOi4QG3IVsuaUNgJIKkmybEsh2_yNESnx/exec',
+        
+        async getComments(postId) {
+            try {
+                const response = await fetch(`${this.SCRIPT_URL}?action=getComments&postId=${postId}`);
+                const data = await response.json();
+                return data.comments || [];
+            } catch (error) {
+                console.error('Failed to get comments:', error);
+                return [];
+            }
+        },
+
+        async addComment(commentData) {
+            try {
+                await fetch(this.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'addComment',
+                        postId: commentData.postId,
+                        userId: commentData.userId,
+                        userName: commentData.userName,
+                        userMembership: commentData.userMembership,
+                        text: commentData.text
+                    })
+                });
+            } catch (error) {
+                console.error('Failed to add comment:', error);
+                throw error;
+            }
+        }
+    };
+    </script>
+    <script src="../js/github-api.js"></script>
+    <script src="../js/google-sheets-api.js"></script>
+    <script src="../js/user-auth.js"></script>
+    <script src="../js/manual-post.js"></script>
+</body>
+</html>
