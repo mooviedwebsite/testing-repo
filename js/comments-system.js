@@ -1,10 +1,9 @@
 /* ========================================
-   POWERFUL COMMENT SYSTEM
-   Real-time, reliable, with retry logic
+   POWERFUL COMMENT SYSTEM WITH EDIT & DELETE
 ======================================== */
 
 const CommentSystem = {
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxj2BdW32wwiA_A6W5onNWAYVG6uX4Px5qvni1QZxHJL2m-nS3fSzefatS470EbIV_S/exec',
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyzbUhuw7iwRjNPFP-LxVdmgzf8OH_9_fvFOi4QG3IVsuaUNgJIKkmybEsh2_yNESnx/exec',
     
     // Add comment with retry logic
     async addComment(postId, userId, userName, userMembership, text) {
@@ -14,9 +13,7 @@ const CommentSystem = {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 console.log(`[Comment System] Attempt ${attempt}/${maxRetries}`);
-                console.log('[Comment System] Data:', { postId, userId, userName, userMembership, text });
 
-                // Method 1: URL-encoded POST
                 const formData = new URLSearchParams();
                 formData.append('action', 'addComment');
                 formData.append('postId', postId);
@@ -34,16 +31,11 @@ const CommentSystem = {
                     mode: 'cors'
                 });
 
-                console.log('[Comment System] Response status:', response.status);
-
-                // Try to parse response
                 let result;
                 try {
                     const responseText = await response.text();
-                    console.log('[Comment System] Response text:', responseText);
                     result = JSON.parse(responseText);
                 } catch (parseError) {
-                    console.warn('[Comment System] Could not parse response, assuming success');
                     result = { success: true };
                 }
 
@@ -53,20 +45,87 @@ const CommentSystem = {
                 }
 
                 lastError = result.error || 'Unknown error';
-                console.warn(`[Comment System] Attempt ${attempt} failed:`, lastError);
 
             } catch (error) {
                 lastError = error.message;
                 console.error(`[Comment System] Attempt ${attempt} error:`, error);
             }
 
-            // Wait before retry
             if (attempt < maxRetries) {
                 await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
             }
         }
 
-        throw new Error(lastError || 'Failed to post comment after retries');
+        throw new Error(lastError || 'Failed to post comment');
+    },
+
+    // Edit comment
+    async editComment(commentId, userId, newText) {
+        try {
+            console.log('[Comment System] Editing comment:', commentId);
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'editComment');
+            formData.append('commentId', commentId);
+            formData.append('userId', userId);
+            formData.append('text', newText);
+
+            const response = await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString(),
+                mode: 'cors'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                console.log('[Comment System] ✅ Comment edited successfully');
+                return { success: true };
+            } else {
+                throw new Error(result.error || 'Failed to edit comment');
+            }
+
+        } catch (error) {
+            console.error('[Comment System] Edit failed:', error);
+            throw error;
+        }
+    },
+
+    // Delete comment
+    async deleteComment(commentId, userId) {
+        try {
+            console.log('[Comment System] Deleting comment:', commentId);
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'deleteComment');
+            formData.append('commentId', commentId);
+            formData.append('userId', userId);
+
+            const response = await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString(),
+                mode: 'cors'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                console.log('[Comment System] ✅ Comment deleted successfully');
+                return { success: true };
+            } else {
+                throw new Error(result.error || 'Failed to delete comment');
+            }
+
+        } catch (error) {
+            console.error('[Comment System] Delete failed:', error);
+            throw error;
+        }
     },
 
     // Get comments with caching
@@ -75,7 +134,6 @@ const CommentSystem = {
             const cacheKey = `comments_${postId}`;
             const cacheTime = 30000; // 30 seconds
 
-            // Check cache
             if (useCache) {
                 const cached = this.getFromCache(cacheKey, cacheTime);
                 if (cached) {
@@ -87,19 +145,26 @@ const CommentSystem = {
             console.log('[Comment System] Fetching comments for:', postId);
 
             const response = await fetch(`${this.SCRIPT_URL}?action=getComments&postId=${encodeURIComponent(postId)}`);
-            
             const result = await response.json();
-            console.log('[Comment System] Comments response:', result);
-
             const comments = result.comments || [];
             
-            // Cache the results
             this.saveToCache(cacheKey, comments);
-
             return comments;
 
         } catch (error) {
             console.error('[Comment System] Failed to get comments:', error);
+            return [];
+        }
+    },
+
+    // Get all comments (for admin)
+    async getAllComments() {
+        try {
+            const response = await fetch(`${this.SCRIPT_URL}?action=getAllComments`);
+            const result = await response.json();
+            return result.comments || [];
+        } catch (error) {
+            console.error('[Comment System] Failed to get all comments:', error);
             return [];
         }
     },
@@ -145,7 +210,6 @@ const CommentSystem = {
     }
 };
 
-// Export for use
 if (typeof window !== 'undefined') {
     window.CommentSystem = CommentSystem;
 }
