@@ -174,54 +174,12 @@
         </div>
     </footer>
 
-   <script>
-    const GoogleSheetsAPI = {
-        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyzbUhuw7iwRjNPFP-LxVdmgzf8OH_9_fvFOi4QG3IVsuaUNgJIKkmybEsh2_yNESnx/exec',
-        
-        async getComments(postId) {
-            try {
-                const response = await fetch(`${this.SCRIPT_URL}?action=getComments&postId=${postId}`);
-                const data = await response.json();
-                console.log('Comments loaded:', data.comments?.length || 0);
-                return data.comments || [];
-            } catch (error) {
-                console.error('Failed to get comments:', error);
-                return [];
-            }
-        },
-        
-        async addComment(commentData) {
-            try {
-                console.log('Posting comment:', commentData);
-                
-                const response = await fetch(this.SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        action: 'addComment',
-                        postId: commentData.postId,
-                        userId: commentData.userId,
-                        userName: commentData.userName,
-                        userMembership: commentData.userMembership,
-                        text: commentData.text
-                    })
-                });
-                
-                console.log('Comment response:', response);
-                return { success: true };
-            } catch (error) {
-                console.error('Failed to add comment:', error);
-                throw error;
-            }
-        }
-    };
-    </script>
+ <!-- POWERFUL COMMENT SYSTEM -->
+    <script src="../../js/comments-system.js"></script>
     <script src="../../js/github-api.js"></script>
     <script src="../../js/user-auth.js"></script>
     <script>
-    // Initialize page immediately
+    // Initialize page
     (function() {
         // Load post data
         if (typeof POST_DATA !== 'undefined') {
@@ -281,15 +239,26 @@
             }
         }
 
-        // Load comments
+        // Load comments - POWERFUL VERSION
         async function loadComments() {
             try {
-                const comments = await GoogleSheetsAPI.getComments(POST_DATA.id);
+                console.log('[Page] Loading comments for:', POST_DATA.id);
+                
+                const comments = await CommentSystem.getComments(POST_DATA.id);
+                
+                console.log('[Page] Loaded comments:', comments.length);
+                
                 document.getElementById('comments-count').textContent = comments.length;
                 
                 const commentsList = document.getElementById('comments-list');
+                
                 if (comments.length === 0) {
-                    commentsList.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No comments yet. Be the first!</p>';
+                    commentsList.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            <p style="font-size: 1.125rem; margin-bottom: 0.5rem;">💬 No comments yet</p>
+                            <p>Be the first to share your thoughts!</p>
+                        </div>
+                    `;
                     return;
                 }
 
@@ -306,20 +275,27 @@
                                         </span>
                                     ` : ''}
                                 </div>
-                                <div class="comment-time">${new Date(comment.timestamp).toLocaleString()}</div>
+                                <div class="comment-time">${timeAgo(comment.timestamp)}</div>
                             </div>
                         </div>
-                        <div class="comment-text">${comment.text}</div>
+                        <div class="comment-text">${escapeHtml(comment.text)}</div>
                     </div>
                 `).join('');
+                
             } catch (error) {
-                console.error('Failed to load comments:', error);
+                console.error('[Page] Failed to load comments:', error);
+                document.getElementById('comments-list').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <p>Failed to load comments</p>
+                        <button onclick="loadComments()" class="btn-secondary" style="margin-top: 1rem;">Retry</button>
+                    </div>
+                `;
             }
         }
 
-        // Submit comment - FIXED
+        // Submit comment - POWERFUL VERSION
         window.submitComment = async function() {
-            console.log('Submit comment clicked');
+            console.log('[Page] Submit comment clicked');
             
             if (!UserAuth || !UserAuth.currentUser) {
                 alert('Please login to comment');
@@ -335,30 +311,71 @@
                 return;
             }
 
-            try {
-                console.log('Submitting comment for user:', UserAuth.currentUser);
-                
-                await GoogleSheetsAPI.addComment({
-                    postId: POST_DATA.id,
-                    userId: UserAuth.currentUser.userId,
-                    userName: UserAuth.currentUser.fullName,
-                    userMembership: UserAuth.currentUser.membership,
-                    text: text
-                });
+            if (text.length > 1000) {
+                alert('Comment is too long (max 1000 characters)');
+                return;
+            }
 
-                input.value = '';
-                showToast('✅ Comment posted!');
+            // Show loading
+            const submitBtn = event.target;
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Posting...';
+            submitBtn.disabled = true;
+
+            try {
+                console.log('[Page] Posting comment...');
                 
-                // Reload comments after 1 second
-                setTimeout(() => {
-                    loadComments();
-                }, 1000);
+                await CommentSystem.addComment(
+                    POST_DATA.id,
+                    UserAuth.currentUser.userId,
+                    UserAuth.currentUser.fullName,
+                    UserAuth.currentUser.membership,
+                    text
+                );
+
+                console.log('[Page] ✅ Comment posted successfully!');
+                
+                input.value = '';
+                showToast('✅ Comment posted successfully!');
+                
+                // Clear cache and reload
+                CommentSystem.clearCache(POST_DATA.id);
+                await loadComments();
                 
             } catch (error) {
-                console.error('Failed to post comment:', error);
-                alert('Failed to post comment. Please try again.');
+                console.error('[Page] ❌ Failed to post comment:', error);
+                alert('Failed to post comment: ' + error.message);
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
             }
         };
+
+        // Helper: Time ago
+        function timeAgo(timestamp) {
+            const now = new Date();
+            const past = new Date(timestamp);
+            const diffMs = now - past;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+            
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            
+            const diffDays = Math.floor(diffHours / 24);
+            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            
+            return past.toLocaleDateString();
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         // Load related posts
         async function loadRelatedPosts() {
@@ -410,6 +427,9 @@
                 setTimeout(() => toast.remove(), 300);
             }, 2000);
         }
+
+        // Make loadComments global
+        window.loadComments = loadComments;
 
         // Load everything
         setTimeout(() => {
