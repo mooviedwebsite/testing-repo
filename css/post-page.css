@@ -357,3 +357,40 @@
         text-align: center;
     }
 }
+/* Comment Actions */
+.comment-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.comment-action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.comment-action-btn:hover {
+    background: var(--accent);
+    transform: scale(1.1);
+}
+
+.comment-action-btn.delete:hover {
+    background: var(--danger);
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
