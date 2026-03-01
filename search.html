@@ -17,6 +17,8 @@
                 <a href="index.html">Home</a>
                 <a href="search.html" class="active">Search</a>
                 <a href="bookmarks.html">Bookmarks</a>
+                <div class="user-account" style="display: none;"></div>
+                <a href="auth.html" class="login-link admin-link">Login</a>
             </nav>
         </div>
     </header>
@@ -66,11 +68,17 @@
                 <button id="clear-filters" class="btn-secondary">Clear Filters</button>
             </div>
 
+            <!-- Loading -->
+            <div id="loading" class="loading" style="display: flex;">
+                <div class="spinner"></div>
+                <p>Loading posts...</p>
+            </div>
+
             <!-- Results Count -->
-            <div id="results-count" class="results-count"></div>
+            <div id="results-count" class="results-count" style="display: none;"></div>
 
             <!-- Results Grid -->
-            <div id="search-results" class="posts-grid"></div>
+            <div id="search-results" class="posts-grid" style="display: none;"></div>
 
             <!-- No Results -->
             <div id="no-results" class="no-results" style="display: none;">
@@ -88,25 +96,41 @@
     </footer>
 
     <script src="js/github-api.js"></script>
+    <script src="js/google-sheets-api.js"></script>
+    <script src="js/user-auth.js"></script>
     <script>
         let allPosts = [];
         let filteredPosts = [];
 
         async function init() {
-            allPosts = await GitHubAPI.getPosts();
-            filteredPosts = allPosts;
+            try {
+                // Load from registry
+                const response = await fetch('data/posts-registry.json');
+                const data = await response.json();
+                allPosts = data.posts || [];
+                
+                console.log('Loaded posts for search:', allPosts.length);
+                
+                filteredPosts = allPosts;
 
-            // Populate year filter
-            const years = [...new Set(allPosts.map(p => p.year))].sort((a, b) => b - a);
-            const yearSelect = document.getElementById('filter-year');
-            years.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                yearSelect.appendChild(option);
-            });
+                // Populate year filter
+                const years = [...new Set(allPosts.map(p => p.year))].sort((a, b) => b - a);
+                const yearSelect = document.getElementById('filter-year');
+                years.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearSelect.appendChild(option);
+                });
 
-            displayResults();
+                displayResults();
+                document.getElementById('loading').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Failed to load posts:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('no-results').style.display = 'block';
+            }
         }
 
         function search() {
@@ -116,19 +140,13 @@
             const rating = document.getElementById('filter-rating').value;
 
             filteredPosts = allPosts.filter(post => {
-                // Text search
                 const matchesQuery = !query || 
                     post.title.toLowerCase().includes(query) ||
                     post.category.toLowerCase().includes(query) ||
                     post.tags.some(tag => tag.toLowerCase().includes(query));
 
-                // Category filter
                 const matchesCategory = !category || post.category === category;
-
-                // Year filter
                 const matchesYear = !year || post.year === parseInt(year);
-
-                // Rating filter
                 const matchesRating = !rating || post.rating >= parseFloat(rating);
 
                 return matchesQuery && matchesCategory && matchesYear && matchesRating;
@@ -142,33 +160,75 @@
             const noResults = document.getElementById('no-results');
             const resultsCount = document.getElementById('results-count');
 
+            resultsCount.style.display = 'block';
             resultsCount.textContent = `${filteredPosts.length} post${filteredPosts.length !== 1 ? 's' : ''} found`;
 
             if (filteredPosts.length === 0) {
-                resultsContainer.innerHTML = '';
+                resultsContainer.style.display = 'none';
                 noResults.style.display = 'block';
                 return;
             }
 
             noResults.style.display = 'none';
-            resultsContainer.innerHTML = filteredPosts.map(post => `
-                <div class="post-card" onclick="window.location='post.html?id=${post.id}'">
-                    <div class="post-card-image">
-                        <img src="${post.thumbnail}" alt="${post.title}">
-                        <div class="post-card-overlay">
-                            <span class="category">${post.category}</span>
-                            <span class="rating">⭐ ${post.rating}</span>
+            resultsContainer.style.display = 'grid';
+            
+            resultsContainer.innerHTML = filteredPosts.map(post => {
+                const isBookmarked = UserAuth.currentUser ? UserAuth.isBookmarked(post.id) : false;
+                const postLink = post.file || `post.html?id=${post.id}`;
+                
+                return `
+                    <div class="post-card">
+                        ${UserAuth.currentUser ? `
+                            <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
+                                    onclick="handleBookmark(event, '${post.id}')"
+                                    title="${isBookmarked ? 'Remove bookmark' : 'Add bookmark'}">
+                            </button>
+                        ` : ''}
+                        
+                        <div class="post-card-image" onclick="window.location='${postLink}'">
+                            <img src="${post.thumbnail}" alt="${post.title}">
+                            <div class="post-card-overlay">
+                                <span class="category">${post.category}</span>
+                                <span class="rating">⭐ ${post.rating}</span>
+                            </div>
+                        </div>
+                        <div class="post-card-content" onclick="window.location='${postLink}'">
+                            <h3 class="post-card-title">${post.title}</h3>
+                            <div class="post-card-meta">
+                                <span>${post.year}</span>
+                                <span>${post.tags.slice(0, 2).map(t => '#' + t).join(' ')}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="post-card-content">
-                        <h3 class="post-card-title">${post.title}</h3>
-                        <div class="post-card-meta">
-                            <span>${post.year}</span>
-                            <span>${post.tags.slice(0, 2).map(t => '#' + t).join(' ')}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        function handleBookmark(event, postId) {
+            event.stopPropagation();
+            
+            if (!UserAuth.currentUser) {
+                alert('Please login to bookmark posts');
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            const isBookmarked = UserAuth.toggleBookmark(post);
+            
+            const btn = event.target.closest('.bookmark-btn');
+            if (isBookmarked) {
+                btn.classList.add('bookmarked');
+                btn.title = 'Remove bookmark';
+            } else {
+                btn.classList.remove('bookmarked');
+                btn.title = 'Add bookmark';
+            }
+
+            // Refresh display to update all bookmark buttons
+            displayResults();
         }
 
         function clearFilters() {
@@ -190,13 +250,6 @@
 
         // Initialize
         init();
-      <!-- Scripts - CORRECT ORDER -->
-    <script src="js/google-sheets-api.js"></script>
-    <script src="js/github-api.js"></script>
-    <script src="js/user-auth.js"></script>
-    <script>
-        let allPosts = [];
-        // ... rest of the code
     </script>
 </body>
 </html>
