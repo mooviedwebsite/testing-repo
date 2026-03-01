@@ -17,6 +17,8 @@
                 <a href="index.html">Home</a>
                 <a href="search.html">Search</a>
                 <a href="bookmarks.html" class="active">Bookmarks</a>
+                <div class="user-account" style="display: none;"></div>
+                <a href="auth.html" class="login-link admin-link">Login</a>
             </nav>
         </div>
     </header>
@@ -68,11 +70,14 @@
     </footer>
 
     <script src="js/github-api.js"></script>
+    <script src="js/google-sheets-api.js"></script>
+    <script src="js/user-auth.js"></script>
     <script>
         let bookmarks = [];
 
         function loadBookmarks() {
             bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            console.log('Loaded bookmarks:', bookmarks.length);
             displayBookmarks();
         }
 
@@ -85,29 +90,36 @@
 
             if (bookmarks.length === 0) {
                 grid.innerHTML = '';
+                grid.style.display = 'none';
                 emptyState.style.display = 'flex';
                 return;
             }
 
             emptyState.style.display = 'none';
-            grid.innerHTML = bookmarks.map(post => `
-                <div class="post-card">
-                    <div class="post-card-image" onclick="window.location='post.html?id=${post.id}'">
-                        <img src="${post.thumbnail}" alt="${post.title}">
-                        <div class="post-card-overlay">
-                            <span class="category">${post.category}</span>
-                            <span class="rating">⭐ ${post.rating}</span>
+            grid.style.display = 'grid';
+            
+            grid.innerHTML = bookmarks.map(post => {
+                const postLink = post.file || `post.html?id=${post.id}`;
+                
+                return `
+                    <div class="post-card">
+                        <div class="post-card-image" onclick="window.location='${postLink}'">
+                            <img src="${post.thumbnail}" alt="${post.title}">
+                            <div class="post-card-overlay">
+                                <span class="category">${post.category}</span>
+                                <span class="rating">⭐ ${post.rating}</span>
+                            </div>
+                        </div>
+                        <div class="post-card-content">
+                            <h3 class="post-card-title" onclick="window.location='${postLink}'">${post.title}</h3>
+                            <div class="post-card-meta">
+                                <span>${post.year}</span>
+                            </div>
+                            <button class="btn-remove" onclick="removeBookmark('${post.id}')">Remove</button>
                         </div>
                     </div>
-                    <div class="post-card-content">
-                        <h3 class="post-card-title" onclick="window.location='post.html?id=${post.id}'">${post.title}</h3>
-                        <div class="post-card-meta">
-                            <span>${post.year}</span>
-                        </div>
-                        <button class="btn-remove" onclick="removeBookmark('${post.id}')">Remove</button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function removeBookmark(postId) {
@@ -167,13 +179,8 @@
         document.getElementById('import-confirm').addEventListener('click', importBookmarks);
         document.getElementById('import-cancel').addEventListener('click', hideImportModal);
 
-      <!-- Scripts - CORRECT ORDER -->
-    <script src="js/google-sheets-api.js"></script>
-    <script src="js/github-api.js"></script>
-    <script src="js/user-auth.js"></script>
-    <script>
-        let bookmarks = [];
-        // ... rest of the code
+        // Initialize
+        loadBookmarks();
     </script>
 </body>
 </html>
