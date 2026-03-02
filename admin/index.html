@@ -5,95 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - GitHub CMS</title>
     <link rel="stylesheet" href="../css/admin.css">
+    <style>
+        /* Additional Netflix-Style Admin CSS */
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .stat-card:nth-child(2) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .stat-card:nth-child(3) {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .stat-card:nth-child(4) {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <!-- Auth Screen with Tabs -->
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Login Screen -->
     <div id="auth-screen" class="auth-screen">
         <div class="auth-container">
             <h1>🔐 Admin Panel Login</h1>
+            <p>Login with your admin credentials</p>
             
-            <!-- Login Tabs -->
-            <div class="login-tabs">
-                <button class="tab-btn active" onclick="switchLoginTab('github')">GitHub Token</button>
-                <button class="tab-btn" onclick="switchLoginTab('credentials')">Email/Password</button>
-            </div>
-
-            <!-- GitHub Token Login -->
-            <div id="github-login-tab" class="login-tab active">
-                <p>Enter your GitHub Personal Access Token</p>
-                <form onsubmit="handleGitHubLogin(event)">
-                    <div class="form-group">
-                        <label>GitHub Token</label>
-                        <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Repository</label>
-                        <input type="text" id="repo-input" placeholder="username/repository" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Login with GitHub</button>
-                </form>
-                <div class="auth-help">
-                    <a href="https://github.com/settings/tokens" target="_blank">Generate Token</a>
+            <form onsubmit="handleAdminLogin(event)" id="admin-login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="admin-email" required placeholder="rawindunethsara93@gmail.com" autocomplete="email">
                 </div>
-            </div>
-
-            <!-- Email/Password Login -->
-            <div id="credentials-login-tab" class="login-tab">
-                <p>Login with admin credentials</p>
-                <form onsubmit="handleCredentialsLogin(event)">
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="admin-email" placeholder="rawindunethsara93@gmail.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="admin-password" placeholder="••••••••" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Login as Admin</button>
-                </form>
-            </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="admin-password" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="btn-primary" id="login-btn">Login</button>
+            </form>
         </div>
     </div>
 
-    <!-- Admin Panel (Same as before) -->
+    <!-- Admin Panel -->
     <div id="admin-panel" class="admin-panel" style="display: none;">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2>GitHub CMS</h2>
+                <p id="admin-user-name" style="font-size: 0.875rem; color: var(--admin-text-muted);"></p>
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-page="dashboard">
                     <span class="icon">📊</span>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="nav-item" data-page="posts">
-                    <span class="icon">📝</span>
-                    <span>Posts</span>
-                </a>
                 <a href="#" class="nav-item" data-page="users">
                     <span class="icon">👥</span>
                     <span>Users</span>
+                    <span class="nav-badge" id="users-badge">0</span>
                 </a>
                 <a href="#" class="nav-item" data-page="payments">
                     <span class="icon">💳</span>
                     <span>Payments</span>
+                    <span class="nav-badge pending" id="payments-badge">0</span>
+                </a>
+                <a href="#" class="nav-item" data-page="comments">
+                    <span class="icon">💬</span>
+                    <span>Comments</span>
+                    <span class="nav-badge" id="comments-badge">0</span>
                 </a>
                 <a href="#" class="nav-item" data-page="activities">
-                    <span class="icon">📊</span>
+                    <span class="icon">📋</span>
                     <span>Activities</span>
-                </a>
-                <a href="#" class="nav-item" data-page="media">
-                    <span class="icon">🖼️</span>
-                    <span>Media</span>
-                </a>
-                <a href="#" class="nav-item" data-page="settings">
-                    <span class="icon">⚙️</span>
-                    <span>Settings</span>
-                </a>
-                <a href="#" class="nav-item" data-page="payment-config">
-                    <span class="icon">💰</span>
-                    <span>Payment Setup</span>
                 </a>
                 <a href="#" class="nav-item" id="logout-btn">
                     <span class="icon">🚪</span>
@@ -108,8 +115,7 @@
             <header class="topbar">
                 <h1 id="page-title">Dashboard</h1>
                 <div class="topbar-actions">
-                    <span id="admin-user-name" style="margin-right: 1rem; color: var(--admin-text-muted);"></span>
-                    <button id="sync-btn" class="btn-icon" title="Sync with GitHub">🔄</button>
+                    <button id="refresh-btn" class="btn-icon" title="Refresh Data">🔄</button>
                     <a href="../index.html" target="_blank" class="btn-icon" title="View Site">🌐</a>
                 </div>
             </header>
@@ -120,17 +126,17 @@
                 <div id="dashboard-page" class="page active">
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <div class="stat-icon">📝</div>
-                            <div class="stat-info">
-                                <h3 id="total-posts">0</h3>
-                                <p>Total Posts</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
                             <div class="stat-icon">👥</div>
                             <div class="stat-info">
                                 <h3 id="total-users">0</h3>
                                 <p>Total Users</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-info">
+                                <h3 id="total-revenue">$0</h3>
+                                <p>Total Revenue</p>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -141,34 +147,31 @@
                             </div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-icon">⭐</div>
+                            <div class="stat-icon">💬</div>
                             <div class="stat-info">
-                                <h3 id="avg-rating">0</h3>
-                                <p>Avg Rating</p>
+                                <h3 id="total-comments">0</h3>
+                                <p>Total Comments</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="recent-activity">
-                        <h3>Recent Activity</h3>
-                        <div id="activity-list" class="activity-list"></div>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h3>Recent Users</h3>
+                            <div id="recent-users-list"></div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Recent Activities</h3>
+                            <div id="recent-activities-list"></div>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Posts Page -->
-                <div id="posts-page" class="page">
-                    <div class="page-header">
-                        <button id="create-post-btn" class="btn-primary">+ Create New Post</button>
-                        <input type="text" id="posts-search" placeholder="Search posts...">
-                    </div>
-                    <div id="posts-list" class="data-table"></div>
                 </div>
 
                 <!-- Users Page -->
                 <div id="users-page" class="page">
                     <div class="page-header">
                         <h2>All Users</h2>
-                        <input type="text" id="users-search" placeholder="Search users...">
+                        <input type="text" id="users-search" placeholder="Search users..." class="search-input">
                     </div>
                     <div id="users-table" class="data-table"></div>
                 </div>
@@ -182,11 +185,20 @@
                     <div id="payments-list" class="data-table"></div>
                 </div>
 
+                <!-- Comments Page -->
+                <div id="comments-page" class="page">
+                    <div class="page-header">
+                        <h2>All Comments</h2>
+                        <button id="refresh-comments" class="btn-secondary">Refresh</button>
+                    </div>
+                    <div id="comments-list" class="data-table"></div>
+                </div>
+
                 <!-- Activities Page -->
                 <div id="activities-page" class="page">
                     <div class="page-header">
                         <h2>User Activities</h2>
-                        <select id="activity-filter">
+                        <select id="activity-filter" class="filter-select">
                             <option value="">All Activities</option>
                             <option value="login">Logins</option>
                             <option value="comment">Comments</option>
@@ -195,312 +207,527 @@
                     </div>
                     <div id="activities-list" class="activity-list"></div>
                 </div>
-
-                <!-- Media Page -->
-                <div id="media-page" class="page">
-                    <div class="page-header">
-                        <button id="upload-media-btn" class="btn-primary">+ Upload Media</button>
-                        <input type="file" id="media-upload-input" accept="image/*" multiple style="display: none;">
-                    </div>
-                    <div id="media-grid" class="media-grid"></div>
-                </div>
-
-                <!-- Settings Page -->
-                <div id="settings-page" class="page">
-                    <div class="settings-section">
-                        <h3>Site Settings</h3>
-                        <div class="form-group">
-                            <label>Site Name</label>
-                            <input type="text" id="site-name" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Tagline</label>
-                            <input type="text" id="site-tagline" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Theme</label>
-                            <select id="site-theme" class="form-control">
-                                <option value="dark">Dark</option>
-                                <option value="light">Light</option>
-                            </select>
-                        </div>
-                        <button id="save-settings-btn" class="btn-primary">Save Settings</button>
-                    </div>
-                </div>
-
-                <!-- Payment Configuration Page -->
-                <div id="payment-config-page" class="page">
-                    <div class="settings-section">
-                        <h3>Payment Configuration</h3>
-                        
-                        <h4>PayPal Settings</h4>
-                        <div class="form-group">
-                            <label>PayPal Email</label>
-                            <input type="email" id="paypal-email" class="form-control" placeholder="your-paypal@email.com">
-                        </div>
-
-                        <h4>Bank Transfer Details</h4>
-                        <div class="form-group">
-                            <label>Bank Name</label>
-                            <input type="text" id="bank-name" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Account Number</label>
-                            <input type="text" id="bank-account" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Account Name</label>
-                            <input type="text" id="bank-account-name" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Swift/BIC Code</label>
-                            <input type="text" id="bank-swift" class="form-control">
-                        </div>
-
-                        <button id="save-payment-config" class="btn-primary">Save Payment Settings</button>
-                    </div>
-                </div>
             </div>
         </main>
     </div>
 
-    <!-- Post Editor Modal (Same as before) -->
-    <div id="post-editor-modal" class="modal">
-        <div class="modal-content modal-large">
-            <div class="modal-header">
-                <h2 id="editor-title">Create New Post</h2>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="editor-layout">
-                    <div class="editor-form">
-                        <div class="form-group">
-                            <label>Title *</label>
-                            <input type="text" id="post-title" class="form-control" placeholder="Post title">
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Category *</label>
-                                <select id="post-category" class="form-control">
-                                    <option>Action</option>
-                                    <option>Drama</option>
-                                    <option>Sci-Fi</option>
-                                    <option>Horror</option>
-                                    <option>Comedy</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Year *</label>
-                                <input type="number" id="post-year" class="form-control" value="2024">
-                            </div>
-                            <div class="form-group">
-                                <label>Rating *</label>
-                                <input type="number" id="post-rating" class="form-control" step="0.1" min="0" max="10" value="7.5">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Tags (comma separated)</label>
-                            <input type="text" id="post-tags" class="form-control" placeholder="tag1, tag2, tag3">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Thumbnail URL</label>
-                            <input type="text" id="post-thumbnail" class="form-control" placeholder="https://...">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Banner URL (optional)</label>
-                            <input type="text" id="post-banner" class="form-control" placeholder="https://...">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Content *</label>
-                            <div class="editor-toolbar">
-                                <button type="button" class="toolbar-btn" onclick="insertHTML('<h2>', '</h2>')">H2</button>
-                                <button type="button" class="toolbar-btn" onclick="insertHTML('<h3>', '</h3>')">H3</button>
-                                <button type="button" class="toolbar-btn" onclick="insertHTML('<strong>', '</strong>')">B</button>
-                                <button type="button" class="toolbar-btn" onclick="insertHTML('<em>', '</em>')">I</button>
-                                <button type="button" class="toolbar-btn" onclick="insertHTML('<p>', '</p>')">P</button>
-                            </div>
-                            <textarea id="post-content" class="form-control editor-textarea" rows="15"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="post-published" checked>
-                                Published
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="editor-preview">
-                        <h4>Preview</h4>
-                        <div id="content-preview" class="preview-container"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="save-post-btn" class="btn-primary">Save Post</button>
-                <button class="btn-secondary modal-close">Cancel</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Admin API -->
     <script>
-    // Google Sheets API for admin
-const CommentSystem = {
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
-    
-    async logActivity(userId, action, email) {
-        try {
+    const AdminAPI = {
+        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
+        ADMIN_EMAIL: 'rawindunethsara93@gmail.com',
+        ADMIN_PASSWORD: 'Rnd@12114',
+
+        showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        },
+
+        hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        },
+
+        async getAllUsers() {
+            const response = await fetch(`${this.SCRIPT_URL}?action=getAllUsers`);
+            const data = await response.json();
+            return data.users || [];
+        },
+
+        async getAllPayments() {
+            const response = await fetch(`${this.SCRIPT_URL}?action=getAllPayments`);
+            const data = await response.json();
+            return data.payments || [];
+        },
+
+        async getAllComments() {
+            const response = await fetch(`${this.SCRIPT_URL}?action=getAllComments`);
+            const data = await response.json();
+            return data.comments || [];
+        },
+
+        async getActivities() {
+            const response = await fetch(`${this.SCRIPT_URL}?action=getActivities`);
+            const data = await response.json();
+            return data.activities || [];
+        },
+
+        async getStats() {
+            const response = await fetch(`${this.SCRIPT_URL}?action=getStats`);
+            const data = await response.json();
+            return data.stats || {};
+        },
+
+        async updateUser(userId, updates) {
             const formData = new URLSearchParams();
-            formData.append('action', 'logActivity');
+            formData.append('action', 'updateUser');
             formData.append('userId', userId);
-            formData.append('activityAction', action);
-            formData.append('email', email);
-            formData.append('timestamp', new Date().toISOString());
-            
+            Object.keys(updates).forEach(key => {
+                formData.append(key, updates[key]);
+            });
+
             await fetch(this.SCRIPT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: formData.toString()
             });
-        } catch (error) {
-            console.error('Failed to log activity:', error);
-        }
-    }
-};
-        
-        async login(email, password) {
-            try {
-                const response = await fetch(`${this.SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
-                const data = await response.json();
-                return data.success ? data.user : null;
-            } catch (error) {
-                console.error('Login failed:', error);
-                return null;
-            }
-        },
-
-        async getAllPayments() {
-            try {
-                const response = await fetch(`${this.SCRIPT_URL}?action=getAllPayments`);
-                const data = await response.json();
-                return data.payments || [];
-            } catch (error) {
-                console.error('Failed to get payments:', error);
-                return [];
-            }
-        },
-
-        async getActivities(userId = '') {
-            try {
-                const response = await fetch(`${this.SCRIPT_URL}?action=getActivities&userId=${userId}`);
-                const data = await response.json();
-                return data.activities || [];
-            } catch (error) {
-                console.error('Failed to get activities:', error);
-                return [];
-            }
-        },
-
-        async getStats() {
-            try {
-                const response = await fetch(`${this.SCRIPT_URL}?action=getStats`);
-                const data = await response.json();
-                return data.stats || {
-                    totalUsers: 0,
-                    activeUsers: 0,
-                    totalPayments: 0,
-                    pendingPayments: 0
-                };
-            } catch (error) {
-                console.error('Failed to get stats:', error);
-                return {
-                    totalUsers: 0,
-                    activeUsers: 0,
-                    totalPayments: 0,
-                    pendingPayments: 0
-                };
-            }
-        },
-
-        async updateUser(userId, userData) {
-            try {
-                await fetch(this.SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        action: 'updateUser',
-                        userId: userId,
-                        ...userData
-                    })
-                });
-                return { success: true };
-            } catch (error) {
-                console.error('Failed to update user:', error);
-                throw error;
-            }
         },
 
         async deleteUser(userId) {
-            try {
-                await fetch(this.SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        action: 'deleteUser',
-                        userId: userId
-                    })
-                });
-                return { success: true };
-            } catch (error) {
-                console.error('Failed to delete user:', error);
-                throw error;
-            }
+            const formData = new URLSearchParams();
+            formData.append('action', 'deleteUser');
+            formData.append('userId', userId);
+
+            await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
         },
 
         async updatePayment(paymentId, status) {
-            try {
-                await fetch(this.SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        action: 'updatePayment',
-                        paymentId: paymentId,
-                        status: status
-                    })
-                });
-                return { success: true };
-            } catch (error) {
-                console.error('Failed to update payment:', error);
-                throw error;
-            }
+            const formData = new URLSearchParams();
+            formData.append('action', 'updatePayment');
+            formData.append('paymentId', paymentId);
+            formData.append('status', status);
+
+            await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
         },
 
-        async logActivity(userId, action, email) {
-            try {
-                await fetch(this.SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        action: 'logActivity',
-                        userId: userId,
-                        activityAction: action,
-                        email: email,
-                        timestamp: new Date().toISOString()
-                    })
-                });
-                return { success: true };
-            } catch (error) {
-                console.error('Failed to log activity:', error);
-            }
+        async deleteComment(commentId) {
+            const formData = new URLSearchParams();
+            formData.append('action', 'deleteComment');
+            formData.append('commentId', commentId);
+            formData.append('userId', 'admin');
+
+            await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
         }
     };
+
+    let currentPage = 'dashboard';
+    let allUsers = [];
+    let allPayments = [];
+    let allComments = [];
+    let allActivities = [];
+
+    // Handle Admin Login
+    async function handleAdminLogin(event) {
+        event.preventDefault();
+        
+        const email = document.getElementById('admin-email').value.trim();
+        const password = document.getElementById('admin-password').value;
+        const loginBtn = document.getElementById('login-btn');
+
+        if (email !== AdminAPI.ADMIN_EMAIL || password !== AdminAPI.ADMIN_PASSWORD) {
+            alert('❌ Invalid credentials');
+            return;
+        }
+
+        loginBtn.textContent = 'Logging in...';
+        loginBtn.disabled = true;
+
+        try {
+            const adminUser = {
+                userId: 'admin',
+                fullName: 'Administrator',
+                email: AdminAPI.ADMIN_EMAIL,
+                role: 'admin'
+            };
+
+            localStorage.setItem('admin_user', JSON.stringify(adminUser));
+            
+            showAdminPanel();
+            await loadAllData();
+        } catch (error) {
+            alert('Login failed: ' + error.message);
+            loginBtn.textContent = 'Login';
+            loginBtn.disabled = false;
+        }
+    }
+
+    function showAdminPanel() {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'flex';
+        
+        const adminUser = JSON.parse(localStorage.getItem('admin_user'));
+        if (adminUser) {
+            document.getElementById('admin-user-name').textContent = adminUser.email;
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('admin_user');
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('admin-login-form').reset();
+    }
+
+    async function loadAllData() {
+        try {
+            AdminAPI.showLoading();
+
+            const [users, payments, comments, activities, stats] = await Promise.all([
+                AdminAPI.getAllUsers(),
+                AdminAPI.getAllPayments(),
+                AdminAPI.getAllComments(),
+                AdminAPI.getActivities(),
+                AdminAPI.getStats()
+            ]);
+
+            allUsers = users;
+            allPayments = payments;
+            allComments = comments;
+            allActivities = activities;
+
+            updateDashboard(users, payments, comments, activities, stats);
+            updateBadges(users, payments, comments);
+
+            AdminAPI.hideLoading();
+        } catch (error) {
+            console.error('Failed to load data:', error);
+            AdminAPI.hideLoading();
+            alert('Failed to load data. Please refresh.');
+        }
+    }
+
+    function updateDashboard(users, payments, comments, activities, stats) {
+        // Update stats
+        document.getElementById('total-users').textContent = users.length;
+        
+        const totalRevenue = payments
+            .filter(p => p.status === 'approved')
+            .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+        document.getElementById('total-revenue').textContent = '$' + totalRevenue.toFixed(2);
+        
+        document.getElementById('pending-payments').textContent = payments.filter(p => p.status === 'pending').length;
+        document.getElementById('total-comments').textContent = comments.length;
+
+        // Recent users
+        const recentUsers = users.slice(0, 5);
+        document.getElementById('recent-users-list').innerHTML = recentUsers.length ? recentUsers.map(user => `
+            <div class="list-item">
+                <div>
+                    <strong>${user.fullName}</strong><br>
+                    <small>${user.email}</small>
+                </div>
+                <span class="membership-badge badge-${user.membership}">${user.membership.toUpperCase()}</span>
+            </div>
+        `).join('') : '<p style="padding: 1rem; text-align: center; color: #888;">No users yet</p>';
+
+        // Recent activities
+        const recentActivities = activities.slice(0, 10);
+        document.getElementById('recent-activities-list').innerHTML = recentActivities.length ? recentActivities.map(activity => `
+            <div class="list-item">
+                <small>${activity.action}</small><br>
+                <small style="color: #888;">${new Date(activity.timestamp).toLocaleString()}</small>
+            </div>
+        `).join('') : '<p style="padding: 1rem; text-align: center; color: #888;">No activities yet</p>';
+    }
+
+    function updateBadges(users, payments, comments) {
+        document.getElementById('users-badge').textContent = users.length;
+        document.getElementById('payments-badge').textContent = payments.filter(p => p.status === 'pending').length;
+        document.getElementById('comments-badge').textContent = comments.length;
+    }
+
+    function loadUsersPage() {
+        const usersTable = document.getElementById('users-table');
+
+        if (allUsers.length === 0) {
+            usersTable.innerHTML = '<p style="padding: 2rem; text-align: center;">No users yet</p>';
+            return;
+        }
+
+        usersTable.innerHTML = `
+            <div class="table-row table-header">
+                <div>User</div>
+                <div>Email</div>
+                <div>Password</div>
+                <div>Membership</div>
+                <div>Joined</div>
+                <div>Actions</div>
+            </div>
+            ${allUsers.map(user => `
+                <div class="table-row">
+                    <div class="table-cell">
+                        <strong>${user.fullName}</strong><br>
+                        <small style="color: #888;">ID: ${user.userId}</small>
+                    </div>
+                    <div class="table-cell">${user.email}</div>
+                    <div class="table-cell">
+                        <code style="background: rgba(255,255,255,0.1); padding: 0.25rem 0.5rem; border-radius: 4px;">
+                            ${user.password}
+                        </code>
+                    </div>
+                    <div class="table-cell">
+                        <span class="membership-badge badge-${user.membership}">${user.membership.toUpperCase()}</span>
+                    </div>
+                    <div class="table-cell">${new Date(user.createdAt).toLocaleDateString()}</div>
+                    <div class="table-cell table-actions">
+                        <button class="btn-sm btn-secondary" onclick="editUserMembership('${user.userId}')">Edit Plan</button>
+                        ${user.role !== 'admin' ? `<button class="btn-sm btn-danger" onclick="deleteUser('${user.userId}')">Delete</button>` : ''}
+                    </div>
+                </div>
+            `).join('')}
+        `;
+    }
+
+    async function editUserMembership(userId) {
+        const plan = prompt('Enter membership plan:\n\nfree\npro\npremium\ngold');
+        if (!plan || !['free', 'pro', 'premium', 'gold'].includes(plan)) return;
+
+        const duration = prompt('Enter duration:\n\n30days\n1year\n5years\nlifetime');
+        if (!duration || !['30days', '1year', '5years', 'lifetime'].includes(duration)) return;
+
+        try {
+            AdminAPI.showLoading();
+
+            let expiry = '';
+            if (duration !== 'lifetime') {
+                const now = new Date();
+                if (duration === '30days') now.setDate(now.getDate() + 30);
+                else if (duration === '1year') now.setFullYear(now.getFullYear() + 1);
+                else if (duration === '5years') now.setFullYear(now.getFullYear() + 5);
+                expiry = now.toISOString();
+            }
+
+            await AdminAPI.updateUser(userId, {
+                membership: plan,
+                membershipExpiry: expiry
+            });
+
+            await loadAllData();
+            navigateTo('users');
+            alert('✅ Membership updated!');
+        } catch (error) {
+            AdminAPI.hideLoading();
+            alert('Failed to update membership');
+        }
+    }
+
+    async function deleteUser(userId) {
+        if (!confirm('⚠️ Delete this user permanently?')) return;
+
+        try {
+            AdminAPI.showLoading();
+            await AdminAPI.deleteUser(userId);
+            await loadAllData();
+            navigateTo('users');
+            alert('✅ User deleted');
+        } catch (error) {
+            AdminAPI.hideLoading();
+            alert('Failed to delete user');
+        }
+    }
+
+    function loadPaymentsPage() {
+        const paymentsList = document.getElementById('payments-list');
+        const pending = allPayments.filter(p => p.status === 'pending');
+
+        if (pending.length === 0) {
+            paymentsList.innerHTML = '<p style="padding: 2rem; text-align: center;">No pending payments</p>';
+            return;
+        }
+
+        paymentsList.innerHTML = `
+            <div class="table-row table-header">
+                <div>User</div>
+                <div>Plan</div>
+                <div>Amount</div>
+                <div>Method</div>
+                <div>Date</div>
+                <div>Actions</div>
+            </div>
+            ${pending.map(payment => `
+                <div class="table-row">
+                    <div class="table-cell">
+                        <strong>${payment.userName}</strong><br>
+                        <small>${payment.userEmail}</small>
+                    </div>
+                    <div class="table-cell">
+                        ${payment.plan.toUpperCase()}<br>
+                        <small>${payment.duration}</small>
+                    </div>
+                    <div class="table-cell"><strong>$${parseFloat(payment.amount).toFixed(2)}</strong></div>
+                    <div class="table-cell">${payment.method.toUpperCase()}</div>
+                    <div class="table-cell">${new Date(payment.createdAt).toLocaleDateString()}</div>
+                    <div class="table-cell table-actions">
+                        <button class="btn-sm btn-primary" onclick="approvePayment('${payment.paymentId}', '${payment.userId}', '${payment.plan}', '${payment.duration}')">✓ Approve</button>
+                        <button class="btn-sm btn-danger" onclick="rejectPayment('${payment.paymentId}')">✗ Reject</button>
+                    </div>
+                </div>
+            `).join('')}
+        `;
+    }
+
+    async function approvePayment(paymentId, userId, plan, duration) {
+        if (!confirm('✅ Approve this payment?')) return;
+
+        try {
+            AdminAPI.showLoading();
+
+            let expiry = '';
+            if (duration !== 'lifetime') {
+                const now = new Date();
+                if (duration === 'monthly') now.setMonth(now.getMonth() + 1);
+                else if (duration === 'yearly') now.setFullYear(now.getFullYear() + 1);
+                expiry = now.toISOString();
+            }
+
+            await AdminAPI.updateUser(userId, {
+                membership: plan,
+                membershipExpiry: expiry
+            });
+
+            await AdminAPI.updatePayment(paymentId, 'approved');
+
+            await loadAllData();
+            navigateTo('payments');
+            alert('✅ Payment approved!');
+        } catch (error) {
+            AdminAPI.hideLoading();
+            alert('Failed to approve payment');
+        }
+    }
+
+    async function rejectPayment(paymentId) {
+        if (!confirm('❌ Reject this payment?')) return;
+
+        try {
+            AdminAPI.showLoading();
+            await AdminAPI.updatePayment(paymentId, 'rejected');
+            await loadAllData();
+            navigateTo('payments');
+            alert('❌ Payment rejected');
+        } catch (error) {
+            AdminAPI.hideLoading();
+            alert('Failed to reject payment');
+        }
+    }
+
+    function loadCommentsPage() {
+        const commentsList = document.getElementById('comments-list');
+
+        if (allComments.length === 0) {
+            commentsList.innerHTML = '<p style="padding: 2rem; text-align: center;">No comments yet</p>';
+            return;
+        }
+
+        commentsList.innerHTML = `
+            <div class="table-row table-header">
+                <div>User</div>
+                <div>Post ID</div>
+                <div>Comment</div>
+                <div>Date</div>
+                <div>Actions</div>
+            </div>
+            ${allComments.map(comment => `
+                <div class="table-row">
+                    <div class="table-cell">
+                        <strong>${comment.userName}</strong>
+                        <span class="membership-badge badge-${comment.userMembership}">${comment.userMembership.toUpperCase()}</span>
+                    </div>
+                    <div class="table-cell"><code style="font-size: 0.75rem;">${comment.postId}</code></div>
+                    <div class="table-cell" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${comment.text}</div>
+                    <div class="table-cell">${new Date(comment.timestamp).toLocaleDateString()}</div>
+                    <div class="table-cell table-actions">
+                        <button class="btn-sm btn-danger" onclick="deleteComment('${comment.commentId}')">Delete</button>
+                    </div>
+                </div>
+            `).join('')}
+        `;
+    }
+
+    async function deleteComment(commentId) {
+        if (!confirm('Delete this comment?')) return;
+
+        try {
+            AdminAPI.showLoading();
+            await AdminAPI.deleteComment(commentId);
+            await loadAllData();
+            navigateTo('comments');
+            alert('✅ Comment deleted');
+        } catch (error) {
+            AdminAPI.hideLoading();
+            alert('Failed to delete comment');
+        }
+    }
+
+    function loadActivitiesPage() {
+        const activitiesList = document.getElementById('activities-list');
+
+        if (allActivities.length === 0) {
+            activitiesList.innerHTML = '<p style="padding: 2rem; text-align: center;">No activities yet</p>';
+            return;
+        }
+
+        activitiesList.innerHTML = allActivities.slice(0, 100).map(activity => `
+            <div class="activity-item">
+                <strong>${activity.userId === 'admin' ? '🔐 Admin' : '👤 ' + (activity.email || 'User')}</strong>: ${activity.action}<br>
+                <small style="color: #888;">🕐 ${new Date(activity.timestamp).toLocaleString()}</small>
+            </div>
+        `).join('');
+    }
+
+    function navigateTo(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(`${page}-page`).classList.add('active');
+        
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
+        
+        const titles = {
+            dashboard: 'Dashboard',
+            users: 'Users Management',
+            payments: 'Pending Payments',
+            comments: 'Comments Management',
+            activities: 'User Activities'
+        };
+        document.getElementById('page-title').textContent = titles[page] || 'Admin Panel';
+        
+        currentPage = page;
+        
+        if (page === 'users') loadUsersPage();
+        else if (page === 'payments') loadPaymentsPage();
+        else if (page === 'comments') loadCommentsPage();
+        else if (page === 'activities') loadActivitiesPage();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        const adminUser = localStorage.getItem('admin_user');
+        
+        if (adminUser) {
+            showAdminPanel();
+            loadAllData();
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+
+        document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateTo(item.getAttribute('data-page'));
+            });
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', loadAllData);
+        document.getElementById('refresh-payments')?.addEventListener('click', () => {
+            loadAllData().then(() => navigateTo('payments'));
+        });
+        document.getElementById('refresh-comments')?.addEventListener('click', () => {
+            loadAllData().then(() => navigateTo('comments'));
+        });
+    });
     </script>
-    <script src="../js/github-api.js"></script>
-    <script src="../js/admin-new.js"></script>
 </body>
 </html>
