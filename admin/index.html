@@ -349,20 +349,29 @@
     </div>
 
     <script>
-    // Google Sheets API - Inline
-    const GoogleSheetsAPI = {
-        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyzbUhuw7iwRjNPFP-LxVdmgzf8OH_9_fvFOi4QG3IVsuaUNgJIKkmybEsh2_yNESnx/exec',
-        
-        async getAllUsers() {
-            try {
-                const response = await fetch(`${this.SCRIPT_URL}?action=getAllUsers`);
-                const data = await response.json();
-                return data.users || [];
-            } catch (error) {
-                console.error('Failed to get users:', error);
-                return [];
-            }
-        },
+    // Google Sheets API for admin
+const CommentSystem = {
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxj2BdW32wwiA_A6W5onNWAYVG6uX4Px5qvni1QZxHJL2m-nS3fSzefatS470EbIV_S/exec',
+    
+    async logActivity(userId, action, email) {
+        try {
+            const formData = new URLSearchParams();
+            formData.append('action', 'logActivity');
+            formData.append('userId', userId);
+            formData.append('activityAction', action);
+            formData.append('email', email);
+            formData.append('timestamp', new Date().toISOString());
+            
+            await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
+        } catch (error) {
+            console.error('Failed to log activity:', error);
+        }
+    }
+};
         
         async login(email, password) {
             try {
