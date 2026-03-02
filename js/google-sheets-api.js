@@ -5,7 +5,7 @@
 
 const GoogleSheetsAPI = {
     // Your Google Apps Script Web App URL
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxj2BdW32wwiA_A6W5onNWAYVG6uX4Px5qvni1QZxHJL2m-nS3fSzefatS470EbIV_S/exec',
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
     
     // Spreadsheet ID (extracted from your URL)
     SPREADSHEET_ID: '1si2VC7we2EvO9udgEjPT6wd4yml_Ufd4lABx2_bk85w',
