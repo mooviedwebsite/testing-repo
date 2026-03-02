@@ -8,94 +8,205 @@
     <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="logo">
-                <h1>GitHub CMS</h1>
-            </div>
-            <nav class="nav">
-                <a href="index.html">Home</a>
-                <a href="search.html">Search</a>
-            </nav>
-        </div>
-    </header>
-
-    <!-- Auth Container -->
-    <main class="auth-main">
-        <div class="auth-container">
+    <div class="auth-container">
+        <div class="auth-box">
+            <h1 class="auth-title">GitHub CMS</h1>
+            
             <!-- Login Form -->
             <div id="login-form" class="auth-form active">
                 <h2>Welcome Back</h2>
-                <p class="auth-subtitle">Login to your account</p>
-                
                 <form onsubmit="handleLogin(event)">
                     <div class="form-group">
                         <label>Email</label>
                         <input type="email" id="login-email" required placeholder="your@email.com">
                     </div>
-                    
                     <div class="form-group">
                         <label>Password</label>
                         <input type="password" id="login-password" required placeholder="••••••••">
                     </div>
-                    
-                    <button type="submit" class="btn-primary btn-block">Login</button>
+                    <button type="submit" class="btn-primary">Login</button>
                 </form>
-                
                 <p class="auth-switch">
-                    Don't have an account? 
-                    <a href="#" onclick="switchToSignup()">Sign Up</a>
+                    Don't have an account? <a href="#" onclick="switchToSignup()">Sign Up</a>
                 </p>
             </div>
 
             <!-- Signup Form -->
             <div id="signup-form" class="auth-form">
                 <h2>Create Account</h2>
-                <p class="auth-subtitle">Join our community today</p>
-                
                 <form onsubmit="handleSignup(event)">
                     <div class="form-group">
                         <label>Full Name</label>
                         <input type="text" id="signup-fullname" required placeholder="John Doe">
                     </div>
-                    
                     <div class="form-group">
                         <label>Email</label>
                         <input type="email" id="signup-email" required placeholder="your@email.com">
                     </div>
-                    
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" id="signup-password" required minlength="6" placeholder="••••••••">
+                        <input type="password" id="signup-password" required placeholder="••••••••" minlength="6">
                     </div>
-                    
                     <div class="form-group">
                         <label>Confirm Password</label>
                         <input type="password" id="signup-confirm-password" required placeholder="••••••••">
                     </div>
-                    
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" required>
-                            I agree to the Terms & Conditions
-                        </label>
-                    </div>
-                    
-                    <button type="submit" class="btn-primary btn-block">Sign Up</button>
+                    <button type="submit" class="btn-primary">Sign Up</button>
                 </form>
-                
                 <p class="auth-switch">
-                    Already have an account? 
-                    <a href="#" onclick="switchToLogin()">Login</a>
+                    Already have an account? <a href="#" onclick="switchToLogin()">Login</a>
                 </p>
             </div>
         </div>
-    </main>
+    </div>
 
-    <!-- Scripts - CORRECT ORDER -->
-    <script src="js/google-sheets-api.js"></script>
-    <script src="js/github-api.js"></script>
-    <script src="js/user-auth.js"></script>
+    <!-- Auth API with NEW URL -->
+    <script>
+    const AuthAPI = {
+        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
+        
+        ADMIN_EMAIL: 'rawindunethsara93@gmail.com',
+        ADMIN_PASSWORD: 'Rnd@12114',
+        
+        async login(email, password) {
+            try {
+                if (email === this.ADMIN_EMAIL && password === this.ADMIN_PASSWORD) {
+                    const adminUser = {
+                        userId: 'admin',
+                        fullName: 'Administrator',
+                        email: this.ADMIN_EMAIL,
+                        role: 'admin',
+                        membership: 'gold',
+                        membershipExpiry: null,
+                        lastLogin: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('current_user', JSON.stringify(adminUser));
+                    return adminUser;
+                }
+
+                const response = await fetch(`${this.SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    localStorage.setItem('current_user', JSON.stringify(data.user));
+                    return data.user;
+                }
+                
+                throw new Error('Invalid email or password');
+            } catch (error) {
+                console.error('Login failed:', error);
+                throw error;
+            }
+        },
+
+        async signup(userData) {
+            try {
+                const existCheck = await fetch(`${this.SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(userData.email)}`);
+                const existData = await existCheck.json();
+                
+                if (existData.user) {
+                    throw new Error('Email already registered');
+                }
+
+                const formData = new URLSearchParams();
+                formData.append('action', 'createUser');
+                formData.append('fullName', userData.fullName);
+                formData.append('email', userData.email);
+                formData.append('password', userData.password);
+                formData.append('membership', 'free');
+                formData.append('role', 'user');
+
+                await fetch(this.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+
+                const newUserResponse = await fetch(`${this.SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(userData.email)}`);
+                const newUserData = await newUserResponse.json();
+                
+                if (newUserData.user) {
+                    localStorage.setItem('current_user', JSON.stringify(newUserData.user));
+                    return newUserData.user;
+                }
+
+                throw new Error('Signup failed');
+            } catch (error) {
+                console.error('Signup failed:', error);
+                throw error;
+            }
+        }
+    };
+
+    async function handleLogin(event) {
+        event.preventDefault();
+        
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Logging in...';
+        submitBtn.disabled = true;
+
+        try {
+            const user = await AuthAPI.login(email, password);
+            
+            if (user.role === 'admin') {
+                window.location.href = 'admin/index.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        } catch (error) {
+            alert(error.message || 'Login failed');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    async function handleSignup(event) {
+        event.preventDefault();
+        
+        const fullName = document.getElementById('signup-fullname').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters');
+            return;
+        }
+
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Creating account...';
+        submitBtn.disabled = true;
+
+        try {
+            await AuthAPI.signup({ fullName, email, password });
+            window.location.href = 'index.html';
+        } catch (error) {
+            alert(error.message || 'Signup failed');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    function switchToSignup() {
+        document.getElementById('login-form').classList.remove('active');
+        document.getElementById('signup-form').classList.add('active');
+    }
+
+    function switchToLogin() {
+        document.getElementById('signup-form').classList.remove('active');
+        document.getElementById('login-form').classList.add('active');
+    }
+    </script>
 </body>
 </html>
