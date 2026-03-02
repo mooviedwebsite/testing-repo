@@ -3,7 +3,7 @@
 ======================================== */
 
 const CommentSystem = {
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyzbUhuw7iwRjNPFP-LxVdmgzf8OH_9_fvFOi4QG3IVsuaUNgJIKkmybEsh2_yNESnx/exec',
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
     
    // Add comment with retry logic - FIXED CORS
 async addComment(postId, userId, userName, userMembership, text) {
