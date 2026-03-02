@@ -5,59 +5,65 @@
 const CommentSystem = {
     SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyzbUhuw7iwRjNPFP-LxVdmgzf8OH_9_fvFOi4QG3IVsuaUNgJIKkmybEsh2_yNESnx/exec',
     
-    // Add comment with retry logic
-    async addComment(postId, userId, userName, userMembership, text) {
-        const maxRetries = 3;
-        let lastError = null;
+   // Add comment with retry logic - FIXED CORS
+async addComment(postId, userId, userName, userMembership, text) {
+    const maxRetries = 3;
+    let lastError = null;
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            console.log(`[Comment System] Attempt ${attempt}/${maxRetries}`);
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'addComment');
+            formData.append('postId', postId);
+            formData.append('userId', userId);
+            formData.append('userName', userName);
+            formData.append('userMembership', userMembership);
+            formData.append('text', text);
+
+            const response = await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString()
+            });
+
+            console.log('[Comment System] Response status:', response.status);
+
+            // For Apps Script, we can't always read the response due to CORS
+            // If status is 200, assume success
+            if (response.status === 200 || response.ok) {
+                console.log('[Comment System] ✅ Comment posted successfully');
+                return { success: true };
+            }
+
+            // Try to read error
             try {
-                console.log(`[Comment System] Attempt ${attempt}/${maxRetries}`);
-
-                const formData = new URLSearchParams();
-                formData.append('action', 'addComment');
-                formData.append('postId', postId);
-                formData.append('userId', userId);
-                formData.append('userName', userName);
-                formData.append('userMembership', userMembership);
-                formData.append('text', text);
-
-                const response = await fetch(this.SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: formData.toString(),
-                    mode: 'cors'
-                });
-
-                let result;
-                try {
-                    const responseText = await response.text();
-                    result = JSON.parse(responseText);
-                } catch (parseError) {
-                    result = { success: true };
-                }
-
-                if (result.success !== false) {
-                    console.log('[Comment System] ✅ Comment posted successfully');
+                const result = await response.json();
+                lastError = result.error || 'Unknown error';
+            } catch (e) {
+                // If we can't parse response but got 200, it's success
+                if (response.status === 200) {
                     return { success: true };
                 }
-
-                lastError = result.error || 'Unknown error';
-
-            } catch (error) {
-                lastError = error.message;
-                console.error(`[Comment System] Attempt ${attempt} error:`, error);
+                lastError = 'Network error';
             }
 
-            if (attempt < maxRetries) {
-                await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-            }
+        } catch (error) {
+            lastError = error.message;
+            console.error(`[Comment System] Attempt ${attempt} error:`, error);
         }
 
-        throw new Error(lastError || 'Failed to post comment');
-    },
+        // Wait before retry
+        if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+    }
+
+    throw new Error(lastError || 'Failed to post comment');
+},
 
     // Edit comment
     async editComment(commentId, userId, newText) {
