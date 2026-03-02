@@ -8,6 +8,55 @@ let selectedAmount = 0;
 let currentStep = 1;
 let selectedPaymentMethod = null;
 
+// Google Sheets API for this file
+const MembershipAPI = {
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
+    
+    async createPayment(paymentData) {
+        try {
+            await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'createPayment',
+                    userId: paymentData.userId,
+                    userName: paymentData.userName,
+                    userEmail: paymentData.userEmail,
+                    plan: paymentData.plan,
+                    duration: paymentData.duration,
+                    amount: paymentData.amount,
+                    method: paymentData.method,
+                    transactionId: paymentData.transactionId || '',
+                    notes: paymentData.notes || '',
+                    status: 'pending'
+                })
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('Failed to create payment:', error);
+            throw error;
+        }
+    },
+    
+    async logActivity(userId, action, email) {
+        try {
+            await fetch(this.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'logActivity',
+                    userId: userId,
+                    activityAction: action,
+                    email: email,
+                    timestamp: new Date().toISOString()
+                })
+            });
+        } catch (error) {
+            console.error('Failed to log activity:', error);
+        }
+    }
+};
+
 // Open payment flow
 function openPaymentFlow(plan, duration, amount) {
     if (!UserAuth.currentUser) {
@@ -43,13 +92,9 @@ function closePaymentModal() {
 
 // Show specific step
 function showStep(step) {
-    // Hide all steps
     document.querySelectorAll('.payment-step').forEach(s => s.classList.remove('active'));
-
-    // Show current step
     document.getElementById('step-' + (step === 1 ? 'summary' : step === 2 ? 'method' : 'details')).classList.add('active');
 
-    // Update indicators
     document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
         indicator.classList.remove('active', 'completed');
         if (index + 1 === step) {
@@ -80,7 +125,6 @@ function nextStep() {
 function selectPaymentMethod(method) {
     selectedPaymentMethod = method;
 
-    // Update UI
     document.querySelectorAll('.payment-method-card').forEach(card => {
         card.classList.remove('selected');
     });
@@ -93,7 +137,6 @@ function selectPaymentMethod(method) {
         document.getElementById('bank-method').checked = true;
     }
 
-    // Enable next button
     document.getElementById('method-next-btn').disabled = false;
 }
 
@@ -105,7 +148,6 @@ function showPaymentDetails(method) {
     if (method === 'paypal') {
         document.getElementById('paypal-details').style.display = 'block';
         
-        // Pre-fill user info
         if (UserAuth.currentUser) {
             document.getElementById('payment-fullname').value = UserAuth.currentUser.fullName;
             document.getElementById('payment-email').value = UserAuth.currentUser.email;
@@ -113,7 +155,6 @@ function showPaymentDetails(method) {
     } else {
         document.getElementById('bank-details').style.display = 'block';
         
-        // Pre-fill user info
         if (UserAuth.currentUser) {
             document.getElementById('bank-fullname').value = UserAuth.currentUser.fullName;
             document.getElementById('bank-email').value = UserAuth.currentUser.email;
@@ -127,14 +168,12 @@ async function loadPaymentConfig() {
         const config = await GitHubAPI.getJSON('data/payment-config.json');
 
         if (config) {
-            // PayPal
             if (config.paypal && config.paypal.email) {
                 document.getElementById('paypal-email-display').value = config.paypal.email;
             } else {
                 document.getElementById('paypal-email-display').value = 'payments@yoursite.com';
             }
 
-            // Bank
             if (config.bank) {
                 document.getElementById('bank-name-display').textContent = config.bank.name || 'Your Bank Name';
                 document.getElementById('bank-account-display').value = config.bank.accountNumber || '1234567890';
@@ -153,7 +192,6 @@ function copyToClipboard(elementId) {
     input.select();
     document.execCommand('copy');
 
-    // Show feedback
     const button = event.target;
     const originalText = button.textContent;
     button.textContent = 'Copied!';
@@ -175,7 +213,6 @@ async function submitPayment() {
             method: selectedPaymentMethod
         };
 
-        // Validate and get additional data
         if (selectedPaymentMethod === 'paypal') {
             const fullName = document.getElementById('payment-fullname').value;
             const email = document.getElementById('payment-email').value;
@@ -209,23 +246,19 @@ async function submitPayment() {
             paymentData.notes = notes;
         }
 
-        // Disable submit button
         const submitBtn = event.target;
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Submitting...';
         submitBtn.disabled = true;
 
-        // Submit to Google Sheets
-        await GoogleSheetsAPI.createPayment(paymentData);
+        await MembershipAPI.createPayment(paymentData);
 
-        // Log activity
-        await GoogleSheetsAPI.logActivity(
+        await MembershipAPI.logActivity(
             UserAuth.currentUser.userId,
             `Payment request submitted: ${selectedPlan} - $${selectedAmount}`,
             UserAuth.currentUser.email
         );
 
-        // Success
         alert('✅ Payment request submitted successfully!\n\nOur admin will verify and activate your membership within 24 hours.\n\nYou will receive a confirmation email once activated.');
 
         closePaymentModal();
@@ -242,7 +275,6 @@ async function submitPayment() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Update current plan if user is logged in
     if (UserAuth.currentUser) {
         const currentPlan = UserAuth.currentUser.membership;
         
@@ -258,14 +290,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Close modal on background click
 document.getElementById('payment-modal')?.addEventListener('click', (e) => {
     if (e.target.id === 'payment-modal') {
         closePaymentModal();
     }
 });
 
-// Close modal on Escape key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closePaymentModal();
