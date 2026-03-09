@@ -9,51 +9,116 @@
       "category": "Sci-Fi",
       "year": 2010,
       "rating": 8.8,
-      "tags": ["thriller", "mind-bending", "christopher-nolan", "dreams"],
+      "rottenTomatoes": 87,
+      "quality": "UHD 4K",
+      "duration": "2h 32m",
+      "tags": ["thriller", "mind-bending", "christopher-nolan"],
       "file": "posts/inception-2010",
       "metadata": {
         "created": "2024-02-28T10:00:00Z",
-        "updated": "2024-02-28T10:00:00Z",
         "author": "admin",
         "published": true
       }
     },
     {
-      "id": "avatar-2025",
+      "id": "avatar-way-of-water",
       "slug": "avatar-the-way-of-water",
       "title": "Avatar: The Way of Water",
       "thumbnail": "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
-      "banner": "https://image.tmdb.org/t/p/original/198vrF8k7mfQ4FjDJsBmdQcaiyq.jpg",
+      "banner": "https://image.tmdb.org/t/p/original/s16H6tpK2utvwDtzZ8Qy4qm5Emw.jpg",
       "category": "Sci-Fi",
-      "year": 2025,
-      "rating": 8.9,
-      "tags": ["action", "adventure", "sci-fi", "james-cameron"],
+      "year": 2022,
+      "rating": 7.6,
+      "rottenTomatoes": 76,
+      "quality": "UHD 4K",
+      "duration": "3h 12m",
+      "tags": ["action", "adventure", "james-cameron"],
       "file": "posts/avatar-the-way-of-water",
       "metadata": {
-        "created": "2024-02-27T10:00:00Z",
-        "updated": "2024-02-27T10:00:00Z",
+        "created": "2024-02-28T11:00:00Z",
         "author": "admin",
         "published": true
       }
     },
     {
-      "id": "interstellar-2014",
-      "slug": "interstellar-2014",
+      "id": "the-dark-knight",
+      "slug": "the-dark-knight",
+      "title": "The Dark Knight",
+      "thumbnail": "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+      "banner": "https://image.tmdb.org/t/p/original/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg",
+      "category": "Action",
+      "year": 2008,
+      "rating": 9.0,
+      "rottenTomatoes": 94,
+      "quality": "UHD 4K",
+      "duration": "2h 32m",
+      "tags": ["superhero", "crime", "christopher-nolan"],
+      "file": "posts/the-dark-knight",
+      "metadata": {
+        "created": "2024-02-28T12:00:00Z",
+        "author": "admin",
+        "published": true
+      }
+    },
+    {
+      "id": "interstellar",
+      "slug": "interstellar",
       "title": "Interstellar",
       "thumbnail": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
       "banner": "https://image.tmdb.org/t/p/original/xJHokMbljvjADYdit5fK5VQsXEG.jpg",
       "category": "Sci-Fi",
       "year": 2014,
-      "rating": 8.7,
-      "tags": ["space", "time", "nolan", "adventure"],
-      "file": "posts/interstellar-2014",
+      "rating": 8.6,
+      "rottenTomatoes": 72,
+      "quality": "UHD 4K",
+      "duration": "2h 49m",
+      "tags": ["space", "time-travel", "christopher-nolan"],
+      "file": "posts/interstellar",
       "metadata": {
-        "created": "2024-02-26T10:00:00Z",
-        "updated": "2024-02-26T10:00:00Z",
+        "created": "2024-02-28T13:00:00Z",
+        "author": "admin",
+        "published": true
+      }
+    },
+    {
+      "id": "the-shawshank-redemption",
+      "slug": "the-shawshank-redemption",
+      "title": "The Shawshank Redemption",
+      "thumbnail": "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+      "banner": "https://image.tmdb.org/t/p/original/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg",
+      "category": "Drama",
+      "year": 1994,
+      "rating": 9.3,
+      "rottenTomatoes": 91,
+      "quality": "HD",
+      "duration": "2h 22m",
+      "tags": ["prison", "hope", "friendship"],
+      "file": "posts/the-shawshank-redemption",
+      "metadata": {
+        "created": "2024-02-28T14:00:00Z",
+        "author": "admin",
+        "published": true
+      }
+    },
+    {
+      "id": "pulp-fiction",
+      "slug": "pulp-fiction",
+      "title": "Pulp Fiction",
+      "thumbnail": "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
+      "banner": "https://image.tmdb.org/t/p/original/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg",
+      "category": "Crime",
+      "year": 1994,
+      "rating": 8.9,
+      "rottenTomatoes": 92,
+      "quality": "HD",
+      "duration": "2h 34m",
+      "tags": ["crime", "tarantino", "cult-classic"],
+      "file": "posts/pulp-fiction",
+      "metadata": {
+        "created": "2024-02-28T15:00:00Z",
         "author": "admin",
         "published": true
       }
     }
-  ],
-  "lastUpdated": "2024-02-28T10:00:00Z"
+  ]
 }
