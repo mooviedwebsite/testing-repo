@@ -3,184 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookmarks - GitHub CMS</title>
+    <title>My List - GitHub CMS</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/netflix-cards.css">
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="logo">
-                <h1>GitHub CMS</h1>
+                <h1>GITHUB CMS</h1>
             </div>
             <nav class="nav">
                 <a href="index.html">Home</a>
                 <a href="search.html">Search</a>
-                <a href="bookmarks.html" class="active">Bookmarks</a>
+                <a href="bookmarks.html" class="active">My List</a>
                 <div class="user-account" style="display: none;"></div>
-                <a href="auth.html" class="login-link admin-link">Login</a>
+                <a href="auth.html" class="login-link">Login</a>
             </nav>
         </div>
     </header>
 
-    <!-- Bookmarks Section -->
     <main class="main">
         <div class="container">
-            <div class="section-header">
-                <h2>My Bookmarks</h2>
-                <div class="bookmark-actions">
-                    <button id="export-btn" class="btn-secondary">Export</button>
-                    <button id="import-btn" class="btn-secondary">Import</button>
-                    <button id="clear-all-btn" class="btn-danger">Clear All</button>
+            <section class="netflix-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 class="netflix-section-title" style="margin: 0;">My List</h2>
+                    <button onclick="clearAllSaved()" class="netflix-btn" style="background: rgba(109, 109, 110, 0.7); color: white;">
+                        Clear All
+                    </button>
                 </div>
-            </div>
-
-            <!-- Bookmarks Count -->
-            <div id="bookmarks-count" class="results-count"></div>
-
-            <!-- Bookmarks Grid -->
-            <div id="bookmarks-grid" class="posts-grid"></div>
-
-            <!-- Empty State -->
-            <div id="empty-state" class="empty-state" style="display: none;">
-                <h3>No bookmarks yet</h3>
-                <p>Start bookmarking your favorite posts!</p>
-                <a href="index.html" class="btn-primary">Browse Posts</a>
-            </div>
+                <div class="netflix-grid" id="saved-grid"></div>
+            </section>
         </div>
     </main>
 
-    <!-- Import Modal -->
-    <div id="import-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3>Import Bookmarks</h3>
-            <textarea id="import-data" placeholder="Paste exported JSON here..."></textarea>
-            <div class="modal-actions">
-                <button id="import-confirm" class="btn-primary">Import</button>
-                <button id="import-cancel" class="btn-secondary">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 GitHub CMS. Built with ❤️ and GitHub Pages</p>
+            <p>&copy; 2026 GitHub CMS</p>
         </div>
     </footer>
 
-    <script src="js/github-api.js"></script>
-    <script src="js/google-sheets-api.js"></script>
     <script src="js/user-auth.js"></script>
+    <script src="js/netflix-cards.js"></script>
     <script>
-        let bookmarks = [];
-
-        function loadBookmarks() {
-            bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
-            console.log('Loaded bookmarks:', bookmarks.length);
-            displayBookmarks();
-        }
-
-        function displayBookmarks() {
-            const grid = document.getElementById('bookmarks-grid');
-            const emptyState = document.getElementById('empty-state');
-            const count = document.getElementById('bookmarks-count');
-
-            count.textContent = `${bookmarks.length} bookmark${bookmarks.length !== 1 ? 's' : ''}`;
-
-            if (bookmarks.length === 0) {
-                grid.innerHTML = '';
-                grid.style.display = 'none';
-                emptyState.style.display = 'flex';
-                return;
-            }
-
-            emptyState.style.display = 'none';
-            grid.style.display = 'grid';
-            
-            grid.innerHTML = bookmarks.map(post => {
-                const postLink = post.file || `post.html?id=${post.id}`;
-                
-                return `
-                    <div class="post-card">
-                        <div class="post-card-image" onclick="window.location='${postLink}'">
-                            <img src="${post.thumbnail}" alt="${post.title}">
-                            <div class="post-card-overlay">
-                                <span class="category">${post.category}</span>
-                                <span class="rating">⭐ ${post.rating}</span>
-                            </div>
-                        </div>
-                        <div class="post-card-content">
-                            <h3 class="post-card-title" onclick="window.location='${postLink}'">${post.title}</h3>
-                            <div class="post-card-meta">
-                                <span>${post.year}</span>
-                            </div>
-                            <button class="btn-remove" onclick="removeBookmark('${post.id}')">Remove</button>
+        async function loadSavedPosts() {
+            if (!UserAuth || !UserAuth.currentUser) {
+                document.getElementById('saved-grid').innerHTML = `
+                    <div class="netflix-empty">
+                        <div class="netflix-empty-icon">🔒</div>
+                        <div class="netflix-empty-text">Please login to view your list</div>
+                        <div class="netflix-empty-subtext">
+                            <a href="auth.html" style="color: white; text-decoration: underline;">Login here</a>
                         </div>
                     </div>
                 `;
-            }).join('');
-        }
-
-        function removeBookmark(postId) {
-            bookmarks = bookmarks.filter(b => b.id !== postId);
-            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-            loadBookmarks();
-        }
-
-        function clearAll() {
-            if (confirm('Are you sure you want to remove all bookmarks?')) {
-                localStorage.removeItem('bookmarks');
-                loadBookmarks();
+                return;
             }
-        }
 
-        function exportBookmarks() {
-            const data = JSON.stringify(bookmarks, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'bookmarks.json';
-            a.click();
-        }
+            NetflixCards.showLoading('saved-grid', 6);
 
-        function showImportModal() {
-            document.getElementById('import-modal').style.display = 'flex';
-        }
-
-        function hideImportModal() {
-            document.getElementById('import-modal').style.display = 'none';
-            document.getElementById('import-data').value = '';
-        }
-
-        function importBookmarks() {
             try {
-                const data = document.getElementById('import-data').value;
-                const imported = JSON.parse(data);
-                
-                if (!Array.isArray(imported)) {
-                    throw new Error('Invalid data format');
-                }
+                const response = await fetch('data/posts-registry.json');
+                const data = await response.json();
+                const savedPosts = NetflixCards.getSavedPosts(data.posts);
 
-                localStorage.setItem('bookmarks', JSON.stringify(imported));
-                loadBookmarks();
-                hideImportModal();
-                alert('Bookmarks imported successfully!');
+                NetflixCards.renderCards(savedPosts, 'saved-grid');
             } catch (error) {
-                alert('Error importing bookmarks. Please check the data format.');
+                console.error('Failed to load saved posts:', error);
             }
         }
 
-        // Event listeners
-        document.getElementById('export-btn').addEventListener('click', exportBookmarks);
-        document.getElementById('import-btn').addEventListener('click', showImportModal);
-        document.getElementById('clear-all-btn').addEventListener('click', clearAll);
-        document.getElementById('import-confirm').addEventListener('click', importBookmarks);
-        document.getElementById('import-cancel').addEventListener('click', hideImportModal);
+        function clearAllSaved() {
+            if (!confirm('Remove all items from your list?')) return;
+            
+            localStorage.setItem('netflix_saved', '[]');
+            NetflixCards.showToast('Your list has been cleared');
+            loadSavedPosts();
+        }
 
-        // Initialize
-        loadBookmarks();
+        document.addEventListener('DOMContentLoaded', loadSavedPosts);
     </script>
 </body>
 </html>
