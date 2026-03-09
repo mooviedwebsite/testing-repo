@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../css/netflix-cards.css">
     <title>Inception (2010) - Full Movie Review</title>
     
     <script>
@@ -153,10 +154,11 @@
                         <div id="comments-list" class="comments-list"></div>
                     </div>
 
-                    <div class="related-posts">
-                        <h3>Related Posts</h3>
-                        <div id="related-posts-grid" class="posts-grid"></div>
-                    </div>
+                   <!-- Related Posts with Premium Cards -->
+<div class="related-posts">
+    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; font-family: 'Poppins', sans-serif;">Related Posts</h3>
+    <div class="netflix-grid" id="related-posts-grid" style="padding: 0;"></div>
+</div>
                 </article>
             </div>
         </main>
@@ -517,5 +519,49 @@
         }, 500);
     })();
     </script>
+    <!-- Scripts -->
+<script src="../../js/comments-system.js"></script>
+<script src="../../js/github-api.js"></script>
+<script src="../../js/user-auth.js"></script>
+<script src="../../js/netflix-cards.js"></script>
+<script>
+(function() {
+    // ... your existing post loading code ...
+
+    // Load related posts with PREMIUM CARDS
+    async function loadRelatedPosts() {
+        try {
+            const response = await fetch('../../data/posts-registry.json');
+            const data = await response.json();
+            
+            // Get related posts (same category, exclude current)
+            const related = data.posts
+                .filter(p => p.id !== POST_DATA.id && p.category === POST_DATA.category)
+                .slice(0, 3);
+
+            const grid = document.getElementById('related-posts-grid');
+            
+            if (related.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1 / -1;">No related posts found.</p>';
+                return;
+            }
+
+            // Use NetflixCards to render
+            NetflixCards.renderCards(related, 'related-posts-grid');
+            
+        } catch (error) {
+            console.error('Failed to load related posts:', error);
+        }
+    }
+
+    // ... rest of your existing code ...
+
+    // Load everything
+    setTimeout(() => {
+        loadComments();
+        loadRelatedPosts();
+    }, 500);
+})();
+</script>
 </body>
 </html>
