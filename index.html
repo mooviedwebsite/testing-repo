@@ -3,162 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub CMS - Home</title>
+    <title>GitHub CMS - Netflix Style</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/netflix-cards.css">
 </head>
 <body>
-   <header class="header">
-    <div class="container">
-        <div class="logo">
-            <h1>GitHub CMS</h1>
-        </div>
-        <nav class="nav">
-            <a href="index.html">Home</a>
-            <a href="search.html">Search</a>
-            <a href="bookmarks.html">Bookmarks</a>
-            <!-- User Account Icon (shows when logged in) -->
-            <div class="user-account" style="display: none;"></div>
-            <!-- Login Link (shows when not logged in) -->
-            <a href="auth.html" class="login-link admin-link">Login</a>
-        </nav>
-    </div>
-</header>
-
-    <!-- Hero Section -->
-    <section class="hero">
+    <header class="header">
         <div class="container">
-            <h2 class="hero-title">Discover Amazing Content</h2>
-            <p class="hero-subtitle">Powered by GitHub, Built for Creators</p>
+            <div class="logo">
+                <h1>GITHUB CMS</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Home</a>
+                <a href="search.html">Search</a>
+                <a href="bookmarks.html">My List</a>
+                <div class="user-account" style="display: none;"></div>
+                <a href="auth.html" class="login-link">Login</a>
+            </nav>
         </div>
-    </section>
+    </header>
 
-    <!-- Posts Grid -->
     <main class="main">
         <div class="container">
-            <div class="section-header">
-                <h3>Latest Posts</h3>
-                <div class="filters">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="Action">Action</button>
-                    <button class="filter-btn" data-filter="Drama">Drama</button>
-                    <button class="filter-btn" data-filter="Sci-Fi">Sci-Fi</button>
-                    <button class="filter-btn" data-filter="Horror">Horror</button>
-                </div>
-            </div>
+            <!-- Hero Section -->
+            <section class="hero" id="hero-section" style="margin-bottom: 3rem;"></section>
 
-            <!-- Loading State -->
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Loading posts...</p>
-            </div>
+            <!-- All Posts Section -->
+            <section class="netflix-section">
+                <h2 class="netflix-section-title">All Content</h2>
+                <div class="netflix-grid" id="posts-grid"></div>
+            </section>
 
-            <!-- Posts Container -->
-            <div id="posts-grid" class="posts-grid">
-                <!-- Cards will be injected here by JavaScript -->
-            </div>
+            <!-- Categories -->
+            <section class="netflix-section" id="scifi-section" style="display: none;">
+                <h2 class="netflix-section-title">Sci-Fi</h2>
+                <div class="netflix-grid" id="scifi-grid"></div>
+            </section>
 
-            <!-- Load More -->
-            <div class="load-more-container">
-                <button id="load-more" class="btn-load-more">Load More</button>
-            </div>
+            <section class="netflix-section" id="action-section" style="display: none;">
+                <h2 class="netflix-section-title">Action</h2>
+                <div class="netflix-grid" id="action-grid"></div>
+            </section>
+
+            <section class="netflix-section" id="drama-section" style="display: none;">
+                <h2 class="netflix-section-title">Drama</h2>
+                <div class="netflix-grid" id="drama-grid"></div>
+            </section>
         </div>
     </main>
 
-   <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 GitHub CMS. Built with ❤️ and GitHub Pages</p>
+            <p>&copy; 2026 GitHub CMS. Netflix-style interface.</p>
         </div>
     </footer>
 
-
-    <script>
-// Display posts - WITH BOOKMARK BUTTONS
-function displayPosts() {
-    const postsGrid = document.getElementById('posts-grid');
-    
-    const startIndex = 0;
-    const endIndex = currentPage * postsPerPage;
-    displayedPosts = filteredPosts.slice(startIndex, endIndex);
-    
-    postsGrid.innerHTML = displayedPosts.map(post => createPostCard(post)).join('');
-    
-    updateLoadMoreButton();
-}
-
-// Create post card HTML - WITH BOOKMARK BUTTON
-function createPostCard(post) {
-    const isBookmarked = UserAuth.isBookmarked(post.id);
-    
-    return `
-        <div class="post-card">
-            ${UserAuth.currentUser ? `
-                <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
-                        onclick="handleBookmark(event, '${post.id}')"
-                        title="${isBookmarked ? 'Remove bookmark' : 'Add bookmark'}">
-                </button>
-            ` : ''}
-            
-            <div class="post-card-image" onclick="navigateToPost('${post.id}', '${post.slug}')">
-                <img src="${post.thumbnail}" alt="${post.title}" loading="lazy">
-                <div class="post-card-overlay">
-                    <span class="category">${post.category}</span>
-                    <span class="rating">⭐ ${post.rating}</span>
-                </div>
-            </div>
-            <div class="post-card-content" onclick="navigateToPost('${post.id}', '${post.slug}')">
-                <h3 class="post-card-title">${post.title}</h3>
-                <div class="post-card-meta">
-                    <span>${post.year}</span>
-                    <span>${post.tags.slice(0, 2).map(t => '#' + t).join(' ')}</span>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Handle bookmark button click
-function handleBookmark(event, postId) {
-    event.stopPropagation();
-    
-    const post = allPosts.find(p => p.id === postId);
-    if (!post) return;
-
-    const isBookmarked = UserAuth.toggleBookmark(post);
-    
-    const btn = event.target.closest('.bookmark-btn');
-    if (isBookmarked) {
-        btn.classList.add('bookmarked');
-        btn.title = 'Remove bookmark';
-        showToast('✅ Added to bookmarks');
-    } else {
-        btn.classList.remove('bookmarked');
-        btn.title = 'Add bookmark';
-        showToast('❌ Removed from bookmarks');
-    }
-}
-
-// Toast notification
-function showToast(message) {
-    // Remove existing toasts
-    document.querySelectorAll('.toast').forEach(t => t.remove());
-    
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => toast.classList.add('show'), 100);
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 2000);
-}
-    </script>    
-    <!-- Scripts in correct order -->
     <script src="js/github-api.js"></script>
-    <script src="js/google-sheets-api.js"></script>
     <script src="js/user-auth.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/netflix-cards.js"></script>
+    <script>
+        // Load posts with Netflix cards
+        async function loadPosts() {
+            NetflixCards.showLoading('posts-grid', 12);
+
+            try {
+                const response = await fetch('data/posts-registry.json');
+                const data = await response.json();
+                const posts = data.posts || [];
+
+                // Render all posts
+                NetflixCards.renderCards(posts, 'posts-grid');
+
+                // Render by category
+                const scifi = posts.filter(p => p.category === 'Sci-Fi');
+                const action = posts.filter(p => p.category === 'Action');
+                const drama = posts.filter(p => p.category === 'Drama');
+
+                if (scifi.length > 0) {
+                    document.getElementById('scifi-section').style.display = 'block';
+                    NetflixCards.renderCards(scifi, 'scifi-grid');
+                }
+
+                if (action.length > 0) {
+                    document.getElementById('action-section').style.display = 'block';
+                    NetflixCards.renderCards(action, 'action-grid');
+                }
+
+                if (drama.length > 0) {
+                    document.getElementById('drama-section').style.display = 'block';
+                    NetflixCards.renderCards(drama, 'drama-grid');
+                }
+
+                // Create hero from first post
+                if (posts.length > 0) {
+                    createHero(posts[0]);
+                }
+
+            } catch (error) {
+                console.error('Failed to load posts:', error);
+                document.getElementById('posts-grid').innerHTML = `
+                    <div class="netflix-empty">
+                        <div class="netflix-empty-icon">⚠️</div>
+                        <div class="netflix-empty-text">Failed to load content</div>
+                        <div class="netflix-empty-subtext">Please try again later</div>
+                    </div>
+                `;
+            }
+        }
+
+        function createHero(post) {
+            const hero = document.getElementById('hero-section');
+            hero.style.cssText = `
+                background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.9)), url('${post.banner}');
+                background-size: cover;
+                background-position: center;
+                padding: 8rem 2rem 4rem;
+                border-radius: 8px;
+            `;
+
+            hero.innerHTML = `
+                <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; color: white;">${post.title}</h1>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center;">
+                    <span style="color: #46d369; font-weight: 600;">⭐ ${post.rating}</span>
+                    <span style="color: rgba(255,255,255,0.7);">${post.year}</span>
+                    <span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 4px; color: white; font-size: 0.875rem;">${post.category}</span>
+                </div>
+                <p style="max-width: 600px; color: rgba(255,255,255,0.9); font-size: 1.125rem; line-height: 1.6; margin-bottom: 2rem;">
+                    ${post.tags ? post.tags.join(' • ') : 'Featured content'}
+                </p>
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="window.location='${post.file}'" class="netflix-btn netflix-btn-play" style="padding: 0.75rem 2rem; font-size: 1rem;">
+                        ▶ Play
+                    </button>
+                    <button onclick="NetflixCards.showInfo('${post.id}')" class="netflix-btn" style="background: rgba(109, 109, 110, 0.7); color: white; padding: 0.75rem 2rem; font-size: 1rem;">
+                        ℹ More Info
+                    </button>
+                </div>
+            `;
+        }
+
+        // Load on page ready
+        document.addEventListener('DOMContentLoaded', loadPosts);
+    </script>
 </body>
 </html>
