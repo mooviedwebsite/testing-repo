@@ -5,100 +5,101 @@
 
 const NetflixCards = {
     
-    // Create premium card with exact design
-    createCard(post) {
-        const isSaved = this.isSaved(post.id);
-        
-        const card = document.createElement('div');
-        card.className = 'movie-card';
-        card.setAttribute('data-post-id', post.id);
-        
-        // Calculate rating percentages for rings
-        const imdbPercent = post.rating ? ((post.rating / 10) * 100).toFixed(0) : 88;
-        const rtPercent = post.rating ? (post.rating * 10).toFixed(0) : 94;
-        
-        card.innerHTML = `
-            <div class="poster">
-                <img src="${post.thumbnail}" alt="${post.title}">
-                <div class="overlay"></div>
-                
-                <!-- Ratings -->
-                <div class="ratings-container">
-                    <div class="rating-ring imdb-ring">
-                        <svg class="ring-svg" viewBox="0 0 48 48">
-                            <circle class="ring-track" cx="24" cy="24" r="20"/>
-                            <circle class="ring-fill" cx="24" cy="24" r="20"/>
-                        </svg>
-                        <div class="ring-center">
-                            <span class="ring-score">${post.rating || '8.8'}</span>
-                            <span class="ring-label">IMDb</span>
-                        </div>
-                        <div class="ring-halo"></div>
+   // Create premium card with exact design - USING REGISTRY DATA
+createCard(post) {
+    const isSaved = this.isSaved(post.id);
+    
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+    card.setAttribute('data-post-id', post.id);
+    
+    // Use registry data with fallbacks
+    const imdbRating = post.rating || 8.8;
+    const rtScore = post.rottenTomatoes || Math.round(imdbRating * 10);
+    const quality = post.quality || 'UHD 4K';
+    const duration = post.duration || '2h 30m';
+    
+    card.innerHTML = `
+        <div class="poster">
+            <img src="${post.thumbnail}" alt="${post.title}" loading="lazy">
+            <div class="overlay"></div>
+            
+            <!-- Ratings -->
+            <div class="ratings-container">
+                <div class="rating-ring imdb-ring">
+                    <svg class="ring-svg" viewBox="0 0 48 48">
+                        <circle class="ring-track" cx="24" cy="24" r="20"/>
+                        <circle class="ring-fill" cx="24" cy="24" r="20"/>
+                    </svg>
+                    <div class="ring-center">
+                        <span class="ring-score">${imdbRating}</span>
+                        <span class="ring-label">IMDb</span>
                     </div>
-                    <div class="rating-ring rt-ring">
-                        <svg class="ring-svg" viewBox="0 0 48 48">
-                            <circle class="ring-track" cx="24" cy="24" r="20"/>
-                            <circle class="ring-fill" cx="24" cy="24" r="20"/>
-                        </svg>
-                        <div class="ring-center">
-                            <span class="ring-score">${rtPercent}%</span>
-                            <span class="ring-label">RT</span>
-                        </div>
-                        <div class="ring-halo"></div>
-                    </div>
+                    <div class="ring-halo"></div>
                 </div>
-                
-                <!-- Content -->
-                <div class="card-content">
-                    <div class="title-row">
-                        <h2>${post.title}</h2>
-                        <span class="quality-inline">UHD 4K</span>
+                <div class="rating-ring rt-ring">
+                    <svg class="ring-svg" viewBox="0 0 48 48">
+                        <circle class="ring-track" cx="24" cy="24" r="20"/>
+                        <circle class="ring-fill" cx="24" cy="24" r="20"/>
+                    </svg>
+                    <div class="ring-center">
+                        <span class="ring-score">${rtScore}%</span>
+                        <span class="ring-label">RT</span>
                     </div>
-                    <p class="meta">${post.year || '2024'} • ${post.category || 'Movie'} • ${post.duration || '2h 30m'}</p>
-                    
-                    <div class="buttons">
-                        <!-- Play Button with SVG -->
-                        <button class="play-btn" onclick="NetflixCards.openPost('${post.id}', '${post.file || post.slug}')">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                            Play
-                        </button>
-                        
-                        <!-- More Info Button with SVG -->
-                        <button class="info-btn" onclick="NetflixCards.showInfo('${post.id}')">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                            </svg>
-                            More Info
-                        </button>
-                        
-                        <!-- Save Button with SVG Icons -->
-                        <button class="save-btn ${isSaved ? 'saved' : ''}" 
-                                id="save-${post.id}"
-                                onclick="NetflixCards.toggleSave('${post.id}', event)"
-                                aria-label="Add to My List">
-                            <span class="ico ico-plus">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round">
-                                    <line x1="12" y1="4" x2="12" y2="20"/>
-                                    <line x1="4" y1="12" x2="20" y2="12"/>
-                                </svg>
-                            </span>
-                            <span class="ico ico-check">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#e50914" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="4 13 9 18 20 6"/>
-                                </svg>
-                            </span>
-                            <span class="save-tip">${isSaved ? 'Saved ✓' : 'My List'}</span>
-                        </button>
-                    </div>
+                    <div class="ring-halo"></div>
                 </div>
             </div>
-        `;
-        
-        return card;
-    },
-
+            
+            <!-- Content -->
+            <div class="card-content">
+                <div class="title-row">
+                    <h2>${post.title}</h2>
+                    <span class="quality-inline">${quality}</span>
+                </div>
+                <p class="meta">${post.year || '2024'} • ${post.category || 'Movie'} • ${duration}</p>
+                
+                <div class="buttons">
+                    <!-- Play Button with SVG -->
+                    <button class="play-btn" onclick="NetflixCards.openPost('${post.id}', '${post.file || post.slug}')">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        Play
+                    </button>
+                    
+                    <!-- More Info Button with SVG -->
+                    <button class="info-btn" onclick="NetflixCards.showInfo('${post.id}')">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
+                        More Info
+                    </button>
+                    
+                    <!-- Save Button with SVG Icons -->
+                    <button class="save-btn ${isSaved ? 'saved' : ''}" 
+                            id="save-${post.id}"
+                            onclick="NetflixCards.toggleSave('${post.id}', event)"
+                            aria-label="Add to My List">
+                        <span class="ico ico-plus">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round">
+                                <line x1="12" y1="4" x2="12" y2="20"/>
+                                <line x1="4" y1="12" x2="20" y2="12"/>
+                            </svg>
+                        </span>
+                        <span class="ico ico-check">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#e50914" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="4 13 9 18 20 6"/>
+                            </svg>
+                        </span>
+                        <span class="save-tip">${isSaved ? 'Saved ✓' : 'My List'}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return card;
+},
     // Create skeleton loading card
     createSkeletonCard() {
         const card = document.createElement('div');
