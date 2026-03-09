@@ -1,240 +1,709 @@
 /* ========================================
-   NETFLIX-STYLE CARD SYSTEM
+   PREMIUM NETFLIX-STYLE CARDS
+   Exact match to your design
 ======================================== */
 
-:root {
-    --card-bg: #181818;
-    --card-hover-bg: #2f2f2f;
-    --netflix-red: #e50914;
-    --netflix-dark: #141414;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* Card Grid */
 .netflix-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem 1rem;
-    padding: 2rem 0;
+    grid-template-columns: repeat(auto-fill, minmax(355px, 1fr));
+    gap: clamp(40px, 8vw, 100px) clamp(16px, 5vw, 60px);
+    padding: clamp(40px, 8vw, 100px) 0;
 }
 
 @media (max-width: 768px) {
     .netflix-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 1rem 0.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem 1rem;
     }
 }
 
-/* Netflix Card */
-.netflix-card {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--card-bg);
+@media (max-width: 480px) {
+    .netflix-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+/* Movie Card */
+.movie-card {
+    width: 100%;
+    max-width: 355px;
+    margin: 0 auto;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    aspect-ratio: 16/9;
+    border-radius: clamp(16px, 4vw, 28px);
+    overflow: visible;
+    transform: scale(1) translateY(0);
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                box-shadow 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.netflix-card:hover {
-    transform: scale(1.05);
-    z-index: 10;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+.movie-card:hover {
+    transform: scale(1.06) translateY(-12px);
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.85);
 }
 
-/* Card Image */
-.netflix-card-image {
-    width: 100%;
-    height: 100%;
+/* Poster */
+.poster {
     position: relative;
+    border-radius: clamp(16px, 4vw, 28px);
     overflow: hidden;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+    background: #000;
 }
 
-.netflix-card-image img {
+.poster img {
     width: 100%;
-    height: 100%;
+    height: clamp(300px, 60vw, 510px);
     object-fit: cover;
-    transition: transform 0.3s ease;
+    display: block;
+    transform: scale(1);
+    transition: transform 0.75s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.netflix-card:hover .netflix-card-image img {
-    transform: scale(1.1);
+.movie-card:hover .poster img {
+    transform: scale(1.07);
 }
 
-/* Card Overlay */
-.netflix-card-overlay {
+/* Overlay Gradient */
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top,
+        rgba(0, 0, 0, 0.95) 8%,
+        rgba(0, 0, 0, 0.72) 42%,
+        rgba(0, 0, 0, 0.18) 78%,
+        transparent 100%);
+    pointer-events: none;
+}
+
+/* ═══════════════════════════
+   RATINGS SYSTEM (IMDb + RT)
+═══════════════════════════ */
+.ratings-container {
+    position: absolute;
+    top: clamp(10px, 2.5vw, 18px);
+    right: clamp(10px, 2.5vw, 18px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+}
+
+.rating-ring {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    transition: width 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+                border-radius 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+                transform 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+                box-shadow 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.ring-svg {
+    position: absolute;
+    inset: 0;
+    width: 52px;
+    height: 100%;
+    transform: rotate(-90deg);
+    transition: opacity 0.3s ease, width 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.ring-track {
+    fill: none;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+}
+
+.ring-fill {
+    fill: none;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 3px currentColor);
+}
+
+.ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 0 10px;
+}
+
+.ring-score {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    flex-shrink: 0;
+    animation: fadeUp 0.5s ease 0.8s both;
+}
+
+.ring-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-left: 0;
+    transition: max-width 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                opacity 0.35s ease,
+                margin-left 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* IMDb Ring */
+.imdb-ring {
+    background: rgba(245, 197, 24, 0.95);
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgba(245, 197, 24, 0.4);
+}
+
+.imdb-ring .ring-track {
+    stroke: rgba(0, 0, 0, 0.15);
+}
+
+.imdb-ring .ring-fill {
+    stroke: rgba(0, 0, 0, 0.7);
+    stroke-dasharray: 125.66;
+    stroke-dashoffset: 125.66;
+    animation: drawImdb 1.6s cubic-bezier(0.23, 1, 0.32, 1) 0.3s forwards;
+}
+
+.imdb-ring .ring-score,
+.imdb-ring .ring-label {
+    color: #000;
+}
+
+.movie-card:hover .imdb-ring {
+    width: 80px;
+    border-radius: 26px;
+    background: #f5c518;
+    box-shadow: 0 6px 22px rgba(245, 197, 24, 0.6);
+    transform: translateY(-2px);
+    height: 35px;
+}
+
+.movie-card:hover .imdb-ring .ring-label {
+    max-width: 40px;
+    opacity: 1;
+    margin-left: 4px;
+}
+
+.movie-card:hover .imdb-ring .ring-svg {
+    opacity: 0;
+}
+
+.imdb-ring::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    animation: glowImdb 2.4s ease-in-out infinite;
+}
+
+@keyframes glowImdb {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(245, 197, 24, 0);
+    }
+    50% {
+        box-shadow: 0 0 18px 6px rgba(245, 197, 24, 0.35);
+    }
+}
+
+@keyframes drawImdb {
+    to {
+        stroke-dashoffset: 15.08;
+    }
+}
+
+/* Rotten Tomatoes Ring */
+.rt-ring {
+    background: rgba(20, 20, 28, 0.92);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 61, 61, 0.5);
+    box-shadow: 0 4px 14px rgba(255, 61, 61, 0.25);
+}
+
+.rt-ring .ring-track {
+    stroke: rgba(255, 61, 61, 0.20);
+}
+
+.rt-ring .ring-fill {
+    stroke: #ff3d3d;
+    stroke-dasharray: 125.66;
+    stroke-dashoffset: 125.66;
+    animation: drawRT 1.6s cubic-bezier(0.23, 1, 0.32, 1) 0.55s forwards;
+}
+
+.rt-ring .ring-score,
+.rt-ring .ring-label {
+    color: #ff4e4e;
+}
+
+.movie-card:hover .rt-ring {
+    width: 80px;
+    border-radius: 26px;
+    background: rgba(22, 22, 32, 0.96);
+    box-shadow: 0 6px 22px rgba(255, 61, 61, 0.35);
+    transform: translateY(-2px);
+    height: 35px;
+}
+
+.movie-card:hover .rt-ring .ring-label {
+    max-width: 40px;
+    opacity: 1;
+    margin-left: 4px;
+}
+
+.movie-card:hover .rt-ring .ring-svg {
+    opacity: 0;
+}
+
+@keyframes drawRT {
+    to {
+        stroke-dashoffset: 7.54;
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ring Halo */
+.ring-halo {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    pointer-events: none;
+}
+
+.imdb-ring .ring-halo {
+    border-top-color: rgba(245, 197, 24, 0.6);
+    animation: rotateHaloImdb 3s linear infinite;
+    animation-delay: 2s;
+}
+
+.rt-ring .ring-halo {
+    border-top-color: rgba(255, 61, 61, 0.55);
+    animation: rotateHaloRT 3s linear infinite;
+    animation-delay: 2.25s;
+}
+
+@keyframes rotateHaloImdb {
+    0% {
+        transform: rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes rotateHaloRT {
+    0% {
+        transform: rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ═══════════════════════════
+   CARD CONTENT
+═══════════════════════════ */
+.card-content {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
-    padding: 1.5rem 1rem 1rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.netflix-card:hover .netflix-card-overlay {
-    opacity: 1;
-}
-
-/* Card Title */
-.netflix-card-title {
+    padding: clamp(20px, 5vw, 30px) clamp(14px, 4vw, 24px) clamp(16px, 4vw, 26px);
     color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem 0;
-    line-height: 1.2;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
 }
 
-/* Card Meta */
-.netflix-card-meta {
+.title-row {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.875rem;
+    gap: clamp(8px, 2vw, 12px);
+    margin-bottom: clamp(3px, 1vw, 6px);
+    flex-wrap: nowrap;
 }
 
-.netflix-card-year {
-    color: rgba(255, 255, 255, 0.7);
+.card-content h2 {
+    font-size: clamp(16px, 4.5vw, 25px);
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.netflix-card-rating {
-    color: #46d369;
-    font-weight: 600;
+.quality-inline {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: clamp(3px, 0.8vw, 5px) clamp(7px, 1.8vw, 11px);
+    font-size: clamp(8px, 1.8vw, 10.5px);
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(10px);
+    text-transform: uppercase;
+    line-height: 1;
 }
 
-.netflix-card-category {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    color: white;
-    font-size: 0.75rem;
+.meta {
+    font-size: clamp(10px, 2.5vw, 13.5px);
+    color: #c8c8c8;
     font-weight: 500;
 }
 
-/* Card Actions */
-.netflix-card-actions {
+/* ═══════════════════════════
+   BUTTONS
+═══════════════════════════ */
+.buttons {
+    margin-top: clamp(12px, 3vw, 22px);
     display: flex;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
+    gap: clamp(7px, 1.8vw, 11px);
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
-.netflix-btn {
-    display: inline-flex;
+/* Play Button */
+.play-btn {
+    display: flex;
+    align-items: center;
+    gap: clamp(5px, 1.5vw, 8px);
+    border: none;
+    padding: clamp(9px, 2.2vw, 12px) clamp(16px, 4.5vw, 24px);
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: clamp(11px, 2.8vw, 14px);
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    white-space: nowrap;
+    background: #fff;
+    color: #000;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+                box-shadow 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+                background 0.2s ease;
+    animation: buttonIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) 1.4s both;
+    flex-shrink: 0;
+}
+
+.play-btn:hover {
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.55);
+    background: #f0f0f0;
+}
+
+.play-btn:active {
+    transform: scale(0.95);
+}
+
+.play-btn svg {
+    width: clamp(14px, 3.5vw, 18px);
+    height: clamp(14px, 3.5vw, 18px);
+    flex-shrink: 0;
+}
+
+/* More Info Button */
+.info-btn {
+    display: flex;
+    align-items: center;
+    gap: clamp(5px, 1.5vw, 8px);
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    padding: clamp(8px, 2vw, 11px) clamp(12px, 3.2vw, 19px);
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: clamp(11px, 2.8vw, 14px);
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    white-space: nowrap;
+    background: rgba(30, 30, 30, 0.55);
+    color: white;
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+                background 0.3s ease,
+                border-color 0.3s ease;
+    animation: buttonIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) 1.55s both;
+    flex-shrink: 0;
+}
+
+.info-btn:hover {
+    transform: translateY(-4px);
+    background: rgba(60, 60, 60, 0.75);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.info-btn:active {
+    transform: scale(0.95);
+}
+
+.info-btn svg {
+    width: clamp(13px, 3.2vw, 17px);
+    height: clamp(13px, 3.2vw, 17px);
+    flex-shrink: 0;
+}
+
+@keyframes buttonIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ═══════════════════════════
+   SAVE BUTTON (MY LIST)
+═══════════════════════════ */
+.save-btn {
+    position: relative;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-
-.netflix-btn-play {
-    background: white;
-    color: black;
-    flex: 1;
-}
-
-.netflix-btn-play:hover {
-    background: rgba(255, 255, 255, 0.85);
-}
-
-.netflix-btn-icon {
-    background: rgba(42, 42, 42, 0.6);
-    color: white;
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    width: clamp(38px, 9.5vw, 46px);
+    height: clamp(38px, 9.5vw, 46px);
+    min-width: 38px;
+    min-height: 38px;
     border-radius: 50%;
-    font-size: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(18, 18, 26, 0.65);
+    backdrop-filter: blur(16px);
+    cursor: pointer;
+    flex-shrink: 0;
+    outline: none;
+    transition: border-color 0.28s ease,
+                background 0.28s ease,
+                transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.3s ease;
+    animation: buttonIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) 1.65s both;
+    overflow: visible;
 }
 
-.netflix-btn-icon:hover {
-    background: rgba(42, 42, 42, 0.9);
-    border-color: white;
+.save-btn:hover {
+    border-color: rgba(255, 255, 255, 0.88);
+    background: rgba(48, 48, 60, 0.72);
+    transform: scale(1.14);
 }
 
-.netflix-btn-icon.saved {
-    background: var(--netflix-red);
-    border-color: var(--netflix-red);
+.save-btn:active {
+    transform: scale(0.88);
 }
 
-/* Badge (Top-right corner) */
-.netflix-card-badge {
+/* Save Icons */
+.save-btn .ico {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.22s ease,
+                transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ico-plus {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+.ico-check {
+    opacity: 0;
+    transform: scale(0.35) rotate(-30deg);
+}
+
+.save-btn .ico svg {
+    width: clamp(15px, 3.8vw, 19px);
+    height: clamp(15px, 3.8vw, 19px);
+    pointer-events: none;
+    display: block;
+}
+
+/* Saved State */
+.save-btn.saved {
+    border-color: #e50914;
+    background: rgba(229, 9, 20, 0.16);
+    box-shadow: 0 0 14px rgba(229, 9, 20, 0.28);
+}
+
+.save-btn.saved .ico-plus {
+    opacity: 0;
+    transform: scale(0.35) rotate(45deg);
+}
+
+.save-btn.saved .ico-check {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+/* Burst Effect */
+.save-btn::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 2px solid rgba(229, 9, 20, 0.75);
+    transform: scale(1);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.save-btn.burst::after {
+    animation: ringBurst 0.52s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes ringBurst {
+    0% {
+        transform: scale(1);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(2.3);
+        opacity: 0;
+    }
+}
+
+/* Heart Particles */
+.heart-particle {
+    position: absolute;
+    pointer-events: none;
+    font-size: clamp(11px, 2.8vw, 14px);
+    animation: floatHeart 0.88s ease-out forwards;
+    z-index: 100;
+}
+
+@keyframes floatHeart {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-52px) scale(0.25);
+        opacity: 0;
+    }
+}
+
+/* Tooltip */
+.save-tip {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    background: rgba(16, 16, 22, 0.95);
+    color: #fff;
+    font-size: 11px;
     font-weight: 600;
-    z-index: 2;
-    backdrop-filter: blur(10px);
+    font-family: 'Poppins', sans-serif;
+    padding: 5px 11px;
+    border-radius: 7px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 200;
 }
 
-/* Skeleton Loading */
-.netflix-card.skeleton {
-    background: linear-gradient(
-        90deg,
-        #1a1a1a 25%,
-        #2a2a2a 50%,
-        #1a1a1a 75%
-    );
-    background-size: 200% 100%;
-    animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-/* Mobile Adjustments */
-@media (max-width: 768px) {
-    .netflix-card-title {
-        font-size: 0.875rem;
-    }
-    
-    .netflix-card-meta {
-        font-size: 0.75rem;
-    }
-    
-    .netflix-card-overlay {
-        padding: 1rem 0.75rem;
-    }
-    
-    .netflix-btn {
-        font-size: 0.75rem;
-        padding: 0.4rem 0.75rem;
-    }
-    
-    .netflix-btn-icon {
-        width: 32px;
-        height: 32px;
-        font-size: 0.875rem;
+@media (hover: hover) {
+    .save-btn:hover .save-tip {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
     }
 }
 
-/* Hover Info Panel (Desktop Only) */
-@media (min-width: 769px) {
-    .netflix-card:hover {
-        transform: scale(1.15);
+/* Mobile Touch Devices */
+@media (hover: none) {
+    .imdb-ring,
+    .rt-ring {
+        width: 80px !important;
+        border-radius: 26px !important;
     }
-    
-    .netflix-card-overlay {
-        padding: 1.5rem;
+
+    .imdb-ring {
+        background: #f5c518 !important;
+    }
+
+    .rt-ring {
+        background: rgba(22, 22, 32, 0.96) !important;
+    }
+
+    .rating-ring .ring-label {
+        max-width: 40px !important;
+        opacity: 1 !important;
+        margin-left: 4px !important;
+    }
+
+    .rating-ring .ring-svg {
+        opacity: 0 !important;
+    }
+
+    .save-btn {
+        width: 44px !important;
+        height: 44px !important;
+    }
+}
+
+/* Responsive Button Layout */
+@media (max-width: 360px) {
+    .buttons {
+        flex-wrap: wrap;
+    }
+
+    .play-btn {
+        width: 100%;
+        justify-content: center;
+        order: 1;
+    }
+
+    .info-btn {
+        order: 2;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .save-btn {
+        order: 3;
     }
 }
 
@@ -248,7 +717,7 @@
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    padding-left: 0.5rem;
+    font-family: 'Poppins', sans-serif;
 }
 
 /* Empty State */
@@ -256,6 +725,7 @@
     text-align: center;
     padding: 4rem 2rem;
     color: rgba(255, 255, 255, 0.6);
+    grid-column: 1 / -1;
 }
 
 .netflix-empty-icon {
@@ -266,6 +736,7 @@
 .netflix-empty-text {
     font-size: 1.125rem;
     margin-bottom: 0.5rem;
+    font-family: 'Poppins', sans-serif;
 }
 
 .netflix-empty-subtext {
