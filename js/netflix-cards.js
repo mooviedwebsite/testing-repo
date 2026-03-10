@@ -526,33 +526,7 @@ getDescription(post) {
     return descriptions[post.id] || `Discover the thrilling story of ${post.title}, a must-watch ${post.category} masterpiece from ${post.year}. Experience stunning visuals in ${post.quality || 'UHD 4K'} quality.`;
 },
 
-    // Show toast notification
-    showToast(message) {
-        const toast = document.createElement('div');
-        toast.textContent = message;
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            font-family: 'Poppins', sans-serif;
-            z-index: 10000;
-            animation: slideUp 0.3s ease;
-        `;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.animation = 'slideDown 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }, 2000);
-    }
-};
+   
 
 // Add loading animation keyframe
 const style = document.createElement('style');
