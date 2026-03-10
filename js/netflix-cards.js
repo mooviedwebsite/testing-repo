@@ -265,26 +265,266 @@ createCard(post) {
         return allPosts.filter(post => saved.includes(post.id));
     },
 
-    // Show info modal
-    showInfo(postId) {
-        fetch('data/posts-registry.json')
-            .then(r => r.json())
-            .then(data => {
-                const post = data.posts.find(p => p.id === postId);
-                if (post) {
-                    alert(`
-📽️ ${post.title}
+ /* ========================================
+   NETFLIX MODAL FUNCTIONS
+======================================== */
 
-📅 Year: ${post.year}
-⭐ Rating: ${post.rating}
-🎭 Category: ${post.category}
-🏷️ Tags: ${post.tags ? post.tags.join(', ') : 'None'}
+// Show Netflix-style info modal
+showInfo(postId) {
+    fetch('data/posts-registry.json')
+        .then(r => r.json())
+        .then(data => {
+            const post = data.posts.find(p => p.id === postId);
+            if (post) {
+                this.openModal(post, data.posts);
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load post info:', error);
+        });
+},
 
-Click "Play" to watch or "+" to save to your list!
-                    `.trim());
-                }
-            });
-    },
+// Open modal
+openModal(post, allPosts) {
+    // Get similar posts (same category, exclude current)
+    const similar = allPosts
+        .filter(p => p.id !== post.id && p.category === post.category)
+        .slice(0, 6);
+    
+    const isSaved = this.isSaved(post.id);
+    
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'netflix-modal-overlay';
+    overlay.id = 'netflix-modal';
+    
+    overlay.innerHTML = `
+        <div class="netflix-modal">
+            <button class="netflix-modal-close" onclick="NetflixCards.closeModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            
+            <div class="netflix-modal-content">
+                <!-- Hero Section -->
+                <div class="netflix-modal-hero" style="background-image: url('${post.banner}')">
+                    <div class="netflix-modal-hero-gradient"></div>
+                    <div class="netflix-modal-hero-content">
+                        <h2 class="netflix-modal-title">${post.title}</h2>
+                        <div class="netflix-modal-meta">
+                            <span class="netflix-modal-match">${Math.round(post.rating * 10)}% Match</span>
+                            <span class="netflix-modal-year">${post.year}</span>
+                            <span class="netflix-modal-duration">${post.duration || '2h 30m'}</span>
+                            <span class="netflix-modal-quality">${post.quality || 'UHD 4K'}</span>
+                        </div>
+                        
+                        <div class="netflix-modal-actions">
+                            <button class="netflix-modal-btn netflix-modal-btn-play" onclick="NetflixCards.openPost('${post.id}', '${post.file}')">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                                Play
+                            </button>
+                            <button class="netflix-modal-btn netflix-modal-btn-add ${isSaved ? 'saved' : ''}" 
+                                    id="modal-save-${post.id}"
+                                    onclick="NetflixCards.toggleSaveModal('${post.id}', event)">
+                                ${isSaved ? `
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <polyline points="4 13 9 18 20 6"/>
+                                    </svg>
+                                ` : `
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <line x1="12" y1="5" x2="12" y2="19"/>
+                                        <line x1="5" y1="12" x2="19" y2="12"/>
+                                    </svg>
+                                `}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Body Content -->
+                <div class="netflix-modal-body">
+                    <p class="netflix-modal-description">
+                        ${this.getDescription(post)}
+                    </p>
+                    
+                    <div class="netflix-modal-info-grid">
+                        <div>
+                            <!-- Tags -->
+                            ${post.tags && post.tags.length > 0 ? `
+                                <div class="netflix-modal-tags">
+                                    ${post.tags.map(tag => `
+                                        <span class="netflix-modal-tag">#${tag}</span>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            <!-- Ratings -->
+                            <div class="netflix-modal-ratings">
+                                <div class="netflix-modal-rating-item">
+                                    <div class="netflix-modal-rating-badge imdb">${post.rating || '8.8'}</div>
+                                    <span class="netflix-modal-rating-label">IMDb Rating</span>
+                                </div>
+                                <div class="netflix-modal-rating-item">
+                                    <div class="netflix-modal-rating-badge rt">${post.rottenTomatoes || '94'}%</div>
+                                    <span class="netflix-modal-rating-label">Rotten Tomatoes</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <!-- Info Items -->
+                            <div class="netflix-modal-info-item">
+                                <div class="netflix-modal-info-label">Category</div>
+                                <div class="netflix-modal-info-value">${post.category}</div>
+                            </div>
+                            <div class="netflix-modal-info-item">
+                                <div class="netflix-modal-info-label">Release Year</div>
+                                <div class="netflix-modal-info-value">${post.year}</div>
+                            </div>
+                            <div class="netflix-modal-info-item">
+                                <div class="netflix-modal-info-label">Quality</div>
+                                <div class="netflix-modal-info-value">${post.quality || 'UHD 4K'}</div>
+                            </div>
+                            <div class="netflix-modal-info-item">
+                                <div class="netflix-modal-info-label">Duration</div>
+                                <div class="netflix-modal-info-value">${post.duration || '2h 30m'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Similar Content -->
+                ${similar.length > 0 ? `
+                    <div class="netflix-modal-similar">
+                        <h3 class="netflix-modal-similar-title">More Like This</h3>
+                        <div class="netflix-modal-similar-grid">
+                            ${similar.map(item => `
+                                <div class="netflix-modal-similar-card" onclick="NetflixCards.openPost('${item.id}', '${item.file}')">
+                                    <img src="${item.thumbnail}" alt="${item.title}" loading="lazy">
+                                    <div class="netflix-modal-similar-card-content">
+                                        <div class="netflix-modal-similar-card-title">${item.title}</div>
+                                        <div class="netflix-modal-similar-card-meta">
+                                            <span>${item.year}</span>
+                                            <span>⭐ ${item.rating}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    // Activate modal after small delay for animation
+    setTimeout(() => {
+        overlay.classList.add('active');
+    }, 10);
+    
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            this.closeModal();
+        }
+    });
+    
+    // Close on ESC key
+    this.modalEscListener = (e) => {
+        if (e.key === 'Escape') {
+            this.closeModal();
+        }
+    };
+    document.addEventListener('keydown', this.modalEscListener);
+},
+
+// Close modal
+closeModal() {
+    const modal = document.getElementById('netflix-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.remove();
+            document.body.style.overflow = '';
+        }, 300);
+    }
+    
+    if (this.modalEscListener) {
+        document.removeEventListener('keydown', this.modalEscListener);
+        this.modalEscListener = null;
+    }
+},
+
+// Toggle save in modal
+toggleSaveModal(postId, event) {
+    event.stopPropagation();
+    
+    if (!UserAuth || !UserAuth.currentUser) {
+        alert('Please login to save content');
+        this.closeModal();
+        window.location.href = 'auth.html';
+        return;
+    }
+
+    let saved = JSON.parse(localStorage.getItem('netflix_saved') || '[]');
+    const index = saved.findIndex(id => id === postId);
+    
+    const button = document.getElementById('modal-save-' + postId);
+    
+    if (index > -1) {
+        saved.splice(index, 1);
+        button.classList.remove('saved');
+        button.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        `;
+        this.showToast('Removed from your list');
+    } else {
+        saved.push(postId);
+        button.classList.add('saved');
+        button.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="4 13 9 18 20 6"/>
+            </svg>
+        `;
+        this.showToast('Added to your list');
+    }
+    
+    localStorage.setItem('netflix_saved', JSON.stringify(saved));
+    
+    // Update card button if exists
+    const cardButton = document.getElementById('save-' + postId);
+    if (cardButton) {
+        if (index > -1) {
+            cardButton.classList.remove('saved', 'burst');
+        } else {
+            cardButton.classList.add('saved', 'burst');
+        }
+    }
+},
+
+// Get description (placeholder)
+getDescription(post) {
+    const descriptions = {
+        'inception-2010': 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O., but his tragic past may doom the project and his team to disaster.',
+        'avatar-way-of-water': 'Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. Once a familiar threat returns to finish what was previously started, Jake must work with Neytiri and the army of the Na\'vi race to protect their home.',
+        'the-dark-knight': 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
+        'interstellar': 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.',
+        'the-shawshank-redemption': 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.',
+        'pulp-fiction': 'The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.'
+    };
+    
+    return descriptions[post.id] || `Discover the thrilling story of ${post.title}, a must-watch ${post.category} masterpiece from ${post.year}. Experience stunning visuals in ${post.quality || 'UHD 4K'} quality.`;
+},
 
     // Show toast notification
     showToast(message) {
