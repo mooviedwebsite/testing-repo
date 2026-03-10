@@ -1,0 +1,490 @@
+/* ========================================
+   NETFLIX-STYLE MORE INFO MODAL
+   Real Netflix UI/UX
+======================================== */
+
+/* Modal Overlay */
+.netflix-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.netflix-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal Container */
+.netflix-modal {
+    position: relative;
+    width: 100%;
+    max-width: 850px;
+    max-height: 90vh;
+    background: #181818;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+    transform: scale(0.7) translateY(-50px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.netflix-modal-overlay.active .netflix-modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+/* Scrollable Content */
+.netflix-modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #4a4a4a #2a2a2a;
+}
+
+.netflix-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.netflix-modal-content::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
+.netflix-modal-content::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+    border-radius: 4px;
+}
+
+.netflix-modal-content::-webkit-scrollbar-thumb:hover {
+    background: #5a5a5a;
+}
+
+/* Close Button */
+.netflix-modal-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(24, 24, 24, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+.netflix-modal-close:hover {
+    background: #181818;
+    transform: scale(1.1);
+}
+
+.netflix-modal-close svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+/* Hero Banner */
+.netflix-modal-hero {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    background-size: cover;
+    background-position: center;
+}
+
+.netflix-modal-hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        #181818 0%,
+        rgba(24, 24, 24, 0.8) 40%,
+        transparent 100%
+    );
+}
+
+.netflix-modal-hero-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 3rem 3rem 2rem;
+}
+
+.netflix-modal-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 1rem 0;
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.2;
+}
+
+.netflix-modal-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.netflix-modal-match {
+    color: #46d369;
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.netflix-modal-year,
+.netflix-modal-duration {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+}
+
+.netflix-modal-quality {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.netflix-modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Modal Buttons */
+.netflix-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 2rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.netflix-modal-btn-play {
+    background: white;
+    color: black;
+}
+
+.netflix-modal-btn-play:hover {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.netflix-modal-btn-play svg {
+    width: 20px;
+    height: 20px;
+}
+
+.netflix-modal-btn-add {
+    background: rgba(42, 42, 42, 0.6);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+}
+
+.netflix-modal-btn-add:hover {
+    background: rgba(42, 42, 42, 0.9);
+    border-color: white;
+}
+
+.netflix-modal-btn-add.saved {
+    background: rgba(229, 9, 20, 0.2);
+    border-color: #e50914;
+}
+
+.netflix-modal-btn-add svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Body Content */
+.netflix-modal-body {
+    padding: 2rem 3rem 3rem;
+}
+
+.netflix-modal-description {
+    color: white;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Info Grid */
+.netflix-modal-info-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Tags */
+.netflix-modal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.netflix-modal-tag {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Ratings Section */
+.netflix-modal-ratings {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.netflix-modal-rating-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.netflix-modal-rating-badge {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.netflix-modal-rating-badge.imdb {
+    background: #f5c518;
+    color: black;
+}
+
+.netflix-modal-rating-badge.rt {
+    background: #fa320a;
+    color: white;
+}
+
+.netflix-modal-rating-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+}
+
+/* Info Items */
+.netflix-modal-info-item {
+    margin-bottom: 1rem;
+}
+
+.netflix-modal-info-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.netflix-modal-info-value {
+    color: white;
+    font-size: 1rem;
+}
+
+/* More Like This Section */
+.netflix-modal-similar {
+    padding: 0 3rem 3rem;
+}
+
+.netflix-modal-similar-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.netflix-modal-similar-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.netflix-modal-similar-card {
+    background: #2f2f2f;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.netflix-modal-similar-card:hover {
+    transform: scale(1.05);
+    background: #3a3a3a;
+}
+
+.netflix-modal-similar-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.netflix-modal-similar-card-content {
+    padding: 1rem;
+}
+
+.netflix-modal-similar-card-title {
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.netflix-modal-similar-card-meta {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+    .netflix-modal-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .netflix-modal {
+        max-width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+    
+    .netflix-modal-overlay {
+        padding: 0;
+        align-items: flex-start;
+    }
+    
+    .netflix-modal-hero {
+        height: 360px;
+    }
+    
+    .netflix-modal-hero-content {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+    
+    .netflix-modal-title {
+        font-size: 1.75rem;
+    }
+    
+    .netflix-modal-body {
+        padding: 1.5rem;
+    }
+    
+    .netflix-modal-similar {
+        padding: 0 1.5rem 2rem;
+    }
+    
+    .netflix-modal-similar-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .netflix-modal-actions {
+        flex-wrap: wrap;
+    }
+    
+    .netflix-modal-btn-play {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .netflix-modal-hero {
+        height: 280px;
+    }
+    
+    .netflix-modal-title {
+        font-size: 1.5rem;
+    }
+    
+    .netflix-modal-description {
+        font-size: 1rem;
+    }
+    
+    .netflix-modal-similar-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .netflix-modal-meta {
+        font-size: 0.875rem;
+    }
+}
+
+/* Tablet Landscape */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    .netflix-modal-hero {
+        height: 400px;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.netflix-modal-hero-content {
+    animation: slideUp 0.5s ease 0.2s both;
+}
