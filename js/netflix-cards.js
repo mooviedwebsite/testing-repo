@@ -6,7 +6,6 @@ const NetflixCards = {
     modalEscListener: null,
     allPostsCache: null,
     
-    // Create premium card
     createCard(post) {
         const isSaved = this.isSaved(post.id);
         
@@ -129,8 +128,6 @@ const NetflixCards = {
             return;
         }
 
-        console.log('[NetflixCards] Rendering', posts.length, 'cards');
-
         posts.forEach(post => {
             const card = this.createCard(post);
             container.appendChild(card);
@@ -180,7 +177,6 @@ const NetflixCards = {
     },
 
     openPost(postId, file) {
-        console.log('[NetflixCards] Opening post:', postId, file);
         const url = file.startsWith('posts/') ? file : `posts/${file}`;
         window.location.href = url;
     },
@@ -253,13 +249,8 @@ const NetflixCards = {
         return allPosts.filter(post => saved.includes(post.id));
     },
 
-    // Show info - FIXED
     showInfo(postId) {
-        console.log('[NetflixCards] showInfo called for:', postId);
-        
-        // Use cached posts if available
         if (this.allPostsCache) {
-            console.log('[NetflixCards] Using cached posts');
             const post = this.allPostsCache.find(p => p.id === postId);
             if (post) {
                 this.openModal(post, this.allPostsCache);
@@ -267,36 +258,22 @@ const NetflixCards = {
             }
         }
         
-        // Otherwise fetch
-        console.log('[NetflixCards] Fetching posts data...');
         fetch('data/posts-registry.json')
-            .then(r => {
-                console.log('[NetflixCards] Fetch response:', r.status);
-                if (!r.ok) throw new Error('Network response was not ok');
-                return r.json();
-            })
+            .then(r => r.json())
             .then(data => {
-                console.log('[NetflixCards] Data loaded:', data);
                 this.allPostsCache = data.posts;
                 const post = data.posts.find(p => p.id === postId);
                 if (post) {
-                    console.log('[NetflixCards] Post found:', post.title);
                     this.openModal(post, data.posts);
-                } else {
-                    console.error('[NetflixCards] Post not found in data');
-                    alert('Content information not available');
                 }
             })
             .catch(error => {
-                console.error('[NetflixCards] Fetch error:', error);
+                console.error('[NetflixCards] Error:', error);
                 alert('Failed to load content information');
             });
     },
 
     openModal(post, allPosts) {
-        console.log('[NetflixCards] Opening modal for:', post.title);
-        
-        // Remove existing modal if any
         const existing = document.getElementById('netflix-modal');
         if (existing) existing.remove();
         
@@ -419,8 +396,6 @@ const NetflixCards = {
             if (e.key === 'Escape') this.closeModal();
         };
         document.addEventListener('keydown', this.modalEscListener);
-        
-        console.log('[NetflixCards] Modal opened successfully');
     },
 
     closeModal() {
@@ -510,14 +485,27 @@ const NetflixCards = {
     }
 };
 
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    @keyframes slideUp { from { opacity: 0; transform: translate(-50%, 100%); } to { opacity: 1; transform: translate(-50%, 0); } }
-    @keyframes slideDown { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 100%); } }
-`;
-document.head.appendChild(style);
+// Animations - FIXED (added semicolon before this)
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes loading { 
+            0% { background-position: 200% 0; } 
+            100% { background-position: -200% 0; } 
+        }
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translate(-50%, 100%); } 
+            to { opacity: 1; transform: translate(-50%, 0); } 
+        }
+        @keyframes slideDown { 
+            from { opacity: 1; transform: translate(-50%, 0); } 
+            to { opacity: 0; transform: translate(-50%, 100%); } 
+        }
+    `;
+    document.head.appendChild(style);
+})();
 
+// Export
 if (typeof window !== 'undefined') {
     window.NetflixCards = NetflixCards;
 }
