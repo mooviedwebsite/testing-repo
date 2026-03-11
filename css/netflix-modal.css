@@ -480,24 +480,99 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+/* Modal Overlay - NO SCROLL */
+.netflix-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(12px, 3vw, 40px) clamp(10px, 2.5vw, 20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    overflow: hidden; /* Changed from auto to hidden */
+}
 
-/* Scrollbar */
-.netflix-modal-overlay::-webkit-scrollbar {
+.netflix-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.netflix-modal-overlay::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(ellipse at 15% 50%, #200808 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, #08141e 0%, transparent 55%),
+        var(--bg);
+}
+
+/* Modal Card - WITH SCROLL */
+.netflix-modal {
+    background: var(--card);
+    border-radius: var(--r);
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh; /* Add max height */
+    overflow-y: auto; /* Scroll on modal content */
+    overflow-x: hidden;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.85);
+    transform: scale(0.9) translateY(30px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    /* Custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.13) transparent;
+}
+
+.netflix-modal::-webkit-scrollbar {
     width: 6px;
 }
 
-.netflix-modal-overlay::-webkit-scrollbar-track {
+.netflix-modal::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.netflix-modal-overlay::-webkit-scrollbar-thumb {
+.netflix-modal::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.13);
     border-radius: 3px;
 }
 
+.netflix-modal::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.netflix-modal-overlay.active .netflix-modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
 /* Mobile Adjustments */
 @media (max-width: 768px) {
     .netflix-modal-hero {
         height: clamp(160px, 40vw, 320px);
+    }
+}
+/* Mobile Full Screen Modal */
+@media (max-width: 768px) {
+    .netflix-modal-overlay {
+        padding: 0;
+        align-items: flex-start;
+    }
+    
+    .netflix-modal {
+        max-height: 100vh;
+        border-radius: 0;
+        max-width: 100%;
+    }
+    
+    .netflix-modal-close {
+        background: rgba(0, 0, 0, 0.8);
     }
 }
