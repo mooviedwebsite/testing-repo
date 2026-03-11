@@ -285,7 +285,10 @@ openModal(post, allPosts) {
     overlay.id = 'netflix-modal';
     
     const matchScore = Math.round((post.rating || 8.8) * 10);
-    const tagline = post.tagline || `"${post.title} - ${post.category} masterpiece"`;
+    const tagline = post.tagline || `"${post.title} - A ${post.category} masterpiece"`;
+    const synopsis = post.synopsis || this.getDescription(post);
+    const genres = post.genres || [post.category];
+    const cast = post.cast || [];
     
     overlay.innerHTML = `
         <div class="netflix-modal">
@@ -321,7 +324,8 @@ openModal(post, allPosts) {
                     <div class="netflix-modal-meta-row">
                         <span class="netflix-modal-match-score">${matchScore}% Match</span>
                         <span class="netflix-modal-year">${post.year || '2024'}</span>
-                        <span class="netflix-modal-badge netflix-modal-badge-hd">${post.quality || 'UHD 4K'}</span>
+                        <span class="netflix-modal-badge netflix-modal-badge-hd">${post.quality || 'HD'}</span>
+                        ${post.maturityRating ? `<span class="netflix-modal-badge">${post.maturityRating}</span>` : ''}
                         <span class="netflix-modal-runtime">${post.duration || '2h 30m'}</span>
                     </div>
                     
@@ -336,7 +340,7 @@ openModal(post, allPosts) {
                         </div>
                     </div>
                     
-                    <p class="netflix-modal-description">${this.getDescription(post)}</p>
+                    <p class="netflix-modal-description">${synopsis}</p>
                     
                     ${post.tags && post.tags.length > 0 ? `
                         <div class="netflix-modal-tags">
@@ -345,28 +349,46 @@ openModal(post, allPosts) {
                     ` : ''}
                     
                     <div class="netflix-modal-info-grid">
+                        ${post.director ? `<div><div class="netflix-modal-info-label">Director</div><div class="netflix-modal-info-value">${post.director}</div></div>` : ''}
+                        ${post.writer ? `<div><div class="netflix-modal-info-label">Writer</div><div class="netflix-modal-info-value">${post.writer}</div></div>` : ''}
                         <div><div class="netflix-modal-info-label">Category</div><div class="netflix-modal-info-value">${post.category || 'Movie'}</div></div>
                         <div><div class="netflix-modal-info-label">Year</div><div class="netflix-modal-info-value">${post.year || '2024'}</div></div>
-                        <div><div class="netflix-modal-info-label">Quality</div><div class="netflix-modal-info-value">${post.quality || 'UHD 4K'}</div></div>
+                        <div><div class="netflix-modal-info-label">Quality</div><div class="netflix-modal-info-value">${post.quality || 'HD'}</div></div>
                         <div><div class="netflix-modal-info-label">Duration</div><div class="netflix-modal-info-value">${post.duration || '2h 30m'}</div></div>
+                        ${post.language ? `<div><div class="netflix-modal-info-label">Language</div><div class="netflix-modal-info-value">${post.language}</div></div>` : ''}
+                        ${post.country ? `<div><div class="netflix-modal-info-label">Country</div><div class="netflix-modal-info-value">${post.country}</div></div>` : ''}
                     </div>
                 </div>
                 
                 <div class="netflix-modal-sidebar">
-                    ${post.tags && post.tags.length > 0 ? `
+                    ${cast.length > 0 ? `
+                        <div class="netflix-modal-sidebar-block">
+                            <div class="netflix-modal-sidebar-label">Cast</div>
+                            <div class="netflix-modal-sidebar-value">${cast.slice(0, 6).join(', ')}</div>
+                        </div>
+                    ` : ''}
+                    ${genres.length > 0 ? `
                         <div class="netflix-modal-sidebar-block">
                             <div class="netflix-modal-sidebar-label">Genres</div>
-                            <div class="netflix-modal-sidebar-value">${post.tags.slice(0, 4).join(' · ')}</div>
+                            <div class="netflix-modal-sidebar-value">${genres.join(' · ')}</div>
                         </div>
                     ` : ''}
                     <div class="netflix-modal-sidebar-block">
                         <div class="netflix-modal-sidebar-label">Rating</div>
-                        <div class="netflix-modal-sidebar-value">⭐ ${post.rating || '8.8'}/10</div>
+                        <div class="netflix-modal-sidebar-value">⭐ ${post.rating || '8.8'}/10 IMDb</div>
                     </div>
-                    <div class="netflix-modal-sidebar-block">
-                        <div class="netflix-modal-sidebar-label">Language</div>
-                        <div class="netflix-modal-sidebar-value">English</div>
-                    </div>
+                    ${post.maturityRating ? `
+                        <div class="netflix-modal-sidebar-block">
+                            <div class="netflix-modal-sidebar-label">Maturity</div>
+                            <div class="netflix-modal-sidebar-value">${post.maturityRating}</div>
+                        </div>
+                    ` : ''}
+                    ${post.language ? `
+                        <div class="netflix-modal-sidebar-block">
+                            <div class="netflix-modal-sidebar-label">Audio</div>
+                            <div class="netflix-modal-sidebar-value">${post.language}</div>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
             
@@ -385,7 +407,7 @@ openModal(post, allPosts) {
                                         <span class="netflix-modal-similar-duration">${item.year || '2024'}</span>
                                     </div>
                                     <div class="netflix-modal-similar-title">${item.title}</div>
-                                    <div class="netflix-modal-similar-desc">${this.getDescription(item).substring(0, 100)}...</div>
+                                    <div class="netflix-modal-similar-desc">${(item.synopsis || item.tagline || 'Discover this amazing content').substring(0, 100)}...</div>
                                 </div>
                             </div>
                         `).join('')}
@@ -409,7 +431,6 @@ openModal(post, allPosts) {
     };
     document.addEventListener('keydown', this.modalEscListener);
 },
-
     closeModal() {
         const modal = document.getElementById('netflix-modal');
         if (modal) {
