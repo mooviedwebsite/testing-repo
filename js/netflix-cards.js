@@ -273,130 +273,142 @@ const NetflixCards = {
             });
     },
 
-    openModal(post, allPosts) {
-        const existing = document.getElementById('netflix-modal');
-        if (existing) existing.remove();
-        
-        const similar = allPosts.filter(p => p.id !== post.id && p.category === post.category).slice(0, 6);
-        const isSaved = this.isSaved(post.id);
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'netflix-modal-overlay';
-        overlay.id = 'netflix-modal';
-        
-        overlay.innerHTML = `
-            <div class="netflix-modal">
-                <button class="netflix-modal-close" onclick="NetflixCards.closeModal()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                </button>
-                
-                <div class="netflix-modal-content">
-                    <div class="netflix-modal-hero" style="background-image: url('${post.banner}')">
-                        <div class="netflix-modal-hero-gradient"></div>
-                        <div class="netflix-modal-hero-content">
-                            <h2 class="netflix-modal-title">${post.title}</h2>
-                            <div class="netflix-modal-meta">
-                                <span class="netflix-modal-match">${Math.round((post.rating || 8.8) * 10)}% Match</span>
-                                <span class="netflix-modal-year">${post.year || '2024'}</span>
-                                <span class="netflix-modal-duration">${post.duration || '2h 30m'}</span>
-                                <span class="netflix-modal-quality">${post.quality || 'UHD 4K'}</span>
-                            </div>
-                            <div class="netflix-modal-actions">
-                                <button class="netflix-modal-btn netflix-modal-btn-play" onclick="NetflixCards.openPost('${post.id}', '${post.file}')">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                                    Play
-                                </button>
-                                <button class="netflix-modal-btn netflix-modal-btn-add ${isSaved ? 'saved' : ''}" id="modal-save-${post.id}" onclick="NetflixCards.toggleSaveModal('${post.id}', event)">
-                                    ${isSaved ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 13 9 18 20 6"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}
-                                </button>
-                            </div>
-                        </div>
+openModal(post, allPosts) {
+    const existing = document.getElementById('netflix-modal');
+    if (existing) existing.remove();
+    
+    const similar = allPosts.filter(p => p.id !== post.id && p.category === post.category).slice(0, 6);
+    const isSaved = this.isSaved(post.id);
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'netflix-modal-overlay';
+    overlay.id = 'netflix-modal';
+    
+    const matchScore = Math.round((post.rating || 8.8) * 10);
+    const tagline = post.tagline || `"${post.title} - ${post.category} masterpiece"`;
+    
+    overlay.innerHTML = `
+        <div class="netflix-modal">
+            <button class="netflix-modal-close" onclick="NetflixCards.closeModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            
+            <div class="netflix-modal-hero">
+                <img class="netflix-modal-hero-img" src="${post.banner}" alt="${post.title}" loading="eager"/>
+                <div class="netflix-modal-hero-content">
+                    <div class="netflix-modal-hero-logo">${post.title.toUpperCase()}</div>
+                    <div class="netflix-modal-hero-tagline">${tagline}</div>
+                    <div class="netflix-modal-btn-row">
+                        <button class="netflix-modal-btn netflix-modal-btn-play" onclick="NetflixCards.openPost('${post.id}', '${post.file}')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                            Play
+                        </button>
+                        <button class="netflix-modal-btn netflix-modal-btn-add ${isSaved ? 'saved' : ''}" id="modal-save-${post.id}" onclick="NetflixCards.toggleSaveModal('${post.id}', event)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                ${isSaved ? '<polyline points="20 6 9 17 4 12"/>' : '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'}
+                            </svg>
+                            <span>${isSaved ? 'Added' : 'My List'}</span>
+                        </button>
                     </div>
-                    
-                    <div class="netflix-modal-body">
-                        <p class="netflix-modal-description">${this.getDescription(post)}</p>
-                        
-                        <div class="netflix-modal-info-grid">
-                            <div>
-                                ${post.tags && post.tags.length > 0 ? `
-                                    <div class="netflix-modal-tags">
-                                        ${post.tags.map(tag => `<span class="netflix-modal-tag">#${tag}</span>`).join('')}
-                                    </div>
-                                ` : ''}
-                                
-                                <div class="netflix-modal-ratings">
-                                    <div class="netflix-modal-rating-item">
-                                        <div class="netflix-modal-rating-badge imdb">${post.rating || '8.8'}</div>
-                                        <span class="netflix-modal-rating-label">IMDb</span>
-                                    </div>
-                                    <div class="netflix-modal-rating-item">
-                                        <div class="netflix-modal-rating-badge rt">${post.rottenTomatoes || '94'}%</div>
-                                        <span class="netflix-modal-rating-label">RT</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <div class="netflix-modal-info-item">
-                                    <div class="netflix-modal-info-label">Category</div>
-                                    <div class="netflix-modal-info-value">${post.category || 'Movie'}</div>
-                                </div>
-                                <div class="netflix-modal-info-item">
-                                    <div class="netflix-modal-info-label">Year</div>
-                                    <div class="netflix-modal-info-value">${post.year || '2024'}</div>
-                                </div>
-                                <div class="netflix-modal-info-item">
-                                    <div class="netflix-modal-info-label">Quality</div>
-                                    <div class="netflix-modal-info-value">${post.quality || 'UHD 4K'}</div>
-                                </div>
-                                <div class="netflix-modal-info-item">
-                                    <div class="netflix-modal-info-label">Duration</div>
-                                    <div class="netflix-modal-info-value">${post.duration || '2h 30m'}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    ${similar.length > 0 ? `
-                        <div class="netflix-modal-similar">
-                            <h3 class="netflix-modal-similar-title">More Like This</h3>
-                            <div class="netflix-modal-similar-grid">
-                                ${similar.map(item => `
-                                    <div class="netflix-modal-similar-card" onclick="NetflixCards.openPost('${item.id}', '${item.file}')">
-                                        <img src="${item.thumbnail}" alt="${item.title}">
-                                        <div class="netflix-modal-similar-card-content">
-                                            <div class="netflix-modal-similar-card-title">${item.title}</div>
-                                            <div class="netflix-modal-similar-card-meta">
-                                                <span>${item.year}</span>
-                                                <span>⭐ ${item.rating || '8.8'}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
                 </div>
             </div>
-        `;
-        
-        document.body.appendChild(overlay);
-        document.body.style.overflow = 'hidden';
-        
-        setTimeout(() => overlay.classList.add('active'), 10);
-        
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) this.closeModal();
-        });
-        
-        this.modalEscListener = (e) => {
-            if (e.key === 'Escape') this.closeModal();
-        };
-        document.addEventListener('keydown', this.modalEscListener);
-    },
+            
+            <div class="netflix-modal-body">
+                <div class="netflix-modal-left">
+                    <div class="netflix-modal-meta-row">
+                        <span class="netflix-modal-match-score">${matchScore}% Match</span>
+                        <span class="netflix-modal-year">${post.year || '2024'}</span>
+                        <span class="netflix-modal-badge netflix-modal-badge-hd">${post.quality || 'UHD 4K'}</span>
+                        <span class="netflix-modal-runtime">${post.duration || '2h 30m'}</span>
+                    </div>
+                    
+                    <div class="netflix-modal-ratings">
+                        <div class="netflix-modal-rating-pill netflix-modal-rating-imdb">
+                            <span>⭐</span>
+                            <span>IMDb ${post.rating || '8.8'}</span>
+                        </div>
+                        <div class="netflix-modal-rating-pill netflix-modal-rating-rt">
+                            <span>🍅</span>
+                            <span>RT ${post.rottenTomatoes || '94'}%</span>
+                        </div>
+                    </div>
+                    
+                    <p class="netflix-modal-description">${this.getDescription(post)}</p>
+                    
+                    ${post.tags && post.tags.length > 0 ? `
+                        <div class="netflix-modal-tags">
+                            ${post.tags.map(tag => `<span class="netflix-modal-tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="netflix-modal-info-grid">
+                        <div><div class="netflix-modal-info-label">Category</div><div class="netflix-modal-info-value">${post.category || 'Movie'}</div></div>
+                        <div><div class="netflix-modal-info-label">Year</div><div class="netflix-modal-info-value">${post.year || '2024'}</div></div>
+                        <div><div class="netflix-modal-info-label">Quality</div><div class="netflix-modal-info-value">${post.quality || 'UHD 4K'}</div></div>
+                        <div><div class="netflix-modal-info-label">Duration</div><div class="netflix-modal-info-value">${post.duration || '2h 30m'}</div></div>
+                    </div>
+                </div>
+                
+                <div class="netflix-modal-sidebar">
+                    ${post.tags && post.tags.length > 0 ? `
+                        <div class="netflix-modal-sidebar-block">
+                            <div class="netflix-modal-sidebar-label">Genres</div>
+                            <div class="netflix-modal-sidebar-value">${post.tags.slice(0, 4).join(' · ')}</div>
+                        </div>
+                    ` : ''}
+                    <div class="netflix-modal-sidebar-block">
+                        <div class="netflix-modal-sidebar-label">Rating</div>
+                        <div class="netflix-modal-sidebar-value">⭐ ${post.rating || '8.8'}/10</div>
+                    </div>
+                    <div class="netflix-modal-sidebar-block">
+                        <div class="netflix-modal-sidebar-label">Language</div>
+                        <div class="netflix-modal-sidebar-value">English</div>
+                    </div>
+                </div>
+            </div>
+            
+            ${similar.length > 0 ? `
+                <div class="netflix-modal-divider"></div>
+                <div class="netflix-modal-similar">
+                    <div class="netflix-modal-section-title">More Like This</div>
+                    <div class="netflix-modal-similar-grid">
+                        ${similar.map(item => `
+                            <div class="netflix-modal-similar-card" onclick="NetflixCards.openPost('${item.id}', '${item.file}')">
+                                <img class="netflix-modal-similar-thumb" src="${item.thumbnail}" alt="${item.title}"/>
+                                <div class="netflix-modal-card-overlay">▶</div>
+                                <div class="netflix-modal-similar-info">
+                                    <div class="netflix-modal-similar-meta">
+                                        <span class="netflix-modal-similar-match">${Math.round((item.rating || 8.8) * 10)}% Match</span>
+                                        <span class="netflix-modal-similar-duration">${item.year || '2024'}</span>
+                                    </div>
+                                    <div class="netflix-modal-similar-title">${item.title}</div>
+                                    <div class="netflix-modal-similar-desc">${this.getDescription(item).substring(0, 100)}...</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    setTimeout(() => overlay.classList.add('active'), 10);
+    
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) this.closeModal();
+    });
+    
+    this.modalEscListener = (e) => {
+        if (e.key === 'Escape') this.closeModal();
+    };
+    document.addEventListener('keydown', this.modalEscListener);
+},
 
     closeModal() {
         const modal = document.getElementById('netflix-modal');
