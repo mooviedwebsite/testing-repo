@@ -1,33 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-    <header class="header">
-    <div class="container">
-        <div class="logo">
-            <h1>GITHUB CMS</h1>
-        </div>
-        <nav class="nav">
-            <a href="index.html">Home</a>
-            <a href="search.html">Search</a>
-            <a href="bookmarks.html">My List</a>
-            <a href="membership.html">Membership</a>
-            
-            <!-- User Account (Hidden by default, shown when logged in) -->
-            <div class="user-account"></div>
-            
-            <!-- Login Link (Shown when not logged in) -->
-            <a href="auth.html" class="login-link">Login</a>
-        </nav>
-    </div>
-</header>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub CMS - Netflix Style</title>
+    <title>GitHub CMS - Home</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/netflix-cards.css">
-    <link rel="stylesheet" href="css/netflix-modal.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="header">
@@ -36,10 +15,11 @@
                 <h1>GITHUB CMS</h1>
             </div>
             <nav class="nav">
-                <a href="index.html">Home</a>
+                <a href="index.html" class="active">Home</a>
                 <a href="search.html">Search</a>
                 <a href="bookmarks.html">My List</a>
-                <div class="user-account" style="display: none;"></div>
+                <a href="membership.html">Membership</a>
+                <div class="user-account"></div>
                 <a href="auth.html" class="login-link">Login</a>
             </nav>
         </div>
@@ -47,125 +27,36 @@
 
     <main class="main">
         <div class="container">
-            <!-- Hero Section -->
-            <section class="hero" id="hero-section" style="margin-bottom: 3rem;"></section>
-
-            <!-- All Posts Section -->
-            <section class="netflix-section">
-                <h2 class="netflix-section-title">All Content</h2>
-                <div class="netflix-grid" id="posts-grid"></div>
+            <section class="hero-section">
+                <h1>Welcome to GitHub CMS</h1>
+                <p>Unlimited movies, TV shows, and more</p>
             </section>
 
-            <!-- Categories -->
-            <section class="netflix-section" id="scifi-section" style="display: none;">
-                <h2 class="netflix-section-title">Sci-Fi</h2>
-                <div class="netflix-grid" id="scifi-grid"></div>
-            </section>
-
-            <section class="netflix-section" id="action-section" style="display: none;">
-                <h2 class="netflix-section-title">Action</h2>
-                <div class="netflix-grid" id="action-grid"></div>
-            </section>
-
-            <section class="netflix-section" id="drama-section" style="display: none;">
-                <h2 class="netflix-section-title">Drama</h2>
-                <div class="netflix-grid" id="drama-grid"></div>
+            <section class="content-section">
+                <h2>Featured Content</h2>
+                <div class="netflix-grid" id="featured-grid"></div>
             </section>
         </div>
     </main>
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 GitHub CMS. Netflix-style interface.</p>
+            <p>&copy; 2026 GitHub CMS</p>
         </div>
     </footer>
 
-    <script src="js/github-api.js"></script>
     <script src="js/user-auth.js"></script>
     <script src="js/netflix-cards.js"></script>
     <script>
-        // Load posts with Netflix cards
-        async function loadPosts() {
-            NetflixCards.showLoading('posts-grid', 12);
-
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const response = await fetch('data/posts-registry.json');
                 const data = await response.json();
-                const posts = data.posts || [];
-
-                // Render all posts
-                NetflixCards.renderCards(posts, 'posts-grid');
-
-                // Render by category
-                const scifi = posts.filter(p => p.category === 'Sci-Fi');
-                const action = posts.filter(p => p.category === 'Action');
-                const drama = posts.filter(p => p.category === 'Drama');
-
-                if (scifi.length > 0) {
-                    document.getElementById('scifi-section').style.display = 'block';
-                    NetflixCards.renderCards(scifi, 'scifi-grid');
-                }
-
-                if (action.length > 0) {
-                    document.getElementById('action-section').style.display = 'block';
-                    NetflixCards.renderCards(action, 'action-grid');
-                }
-
-                if (drama.length > 0) {
-                    document.getElementById('drama-section').style.display = 'block';
-                    NetflixCards.renderCards(drama, 'drama-grid');
-                }
-
-                // Create hero from first post
-                if (posts.length > 0) {
-                    createHero(posts[0]);
-                }
-
+                NetflixCards.renderCards(data.posts.slice(0, 12), 'featured-grid');
             } catch (error) {
-                console.error('Failed to load posts:', error);
-                document.getElementById('posts-grid').innerHTML = `
-                    <div class="netflix-empty">
-                        <div class="netflix-empty-icon">⚠️</div>
-                        <div class="netflix-empty-text">Failed to load content</div>
-                        <div class="netflix-empty-subtext">Please try again later</div>
-                    </div>
-                `;
+                console.error('Failed to load:', error);
             }
-        }
-
-        function createHero(post) {
-            const hero = document.getElementById('hero-section');
-            hero.style.cssText = `
-                background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.9)), url('${post.banner}');
-                background-size: cover;
-                background-position: center;
-                padding: 8rem 2rem 4rem;
-                border-radius: 8px;
-            `;
-
-            hero.innerHTML = `
-                <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; color: white;">${post.title}</h1>
-                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center;">
-                    <span style="color: #46d369; font-weight: 600;">⭐ ${post.rating}</span>
-                    <span style="color: rgba(255,255,255,0.7);">${post.year}</span>
-                    <span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 4px; color: white; font-size: 0.875rem;">${post.category}</span>
-                </div>
-                <p style="max-width: 600px; color: rgba(255,255,255,0.9); font-size: 1.125rem; line-height: 1.6; margin-bottom: 2rem;">
-                    ${post.tags ? post.tags.join(' • ') : 'Featured content'}
-                </p>
-                <div style="display: flex; gap: 1rem;">
-                    <button onclick="window.location='${post.file}'" class="netflix-btn netflix-btn-play" style="padding: 0.75rem 2rem; font-size: 1rem;">
-                        ▶ Play
-                    </button>
-                    <button onclick="NetflixCards.showInfo('${post.id}')" class="netflix-btn" style="background: rgba(109, 109, 110, 0.7); color: white; padding: 0.75rem 2rem; font-size: 1rem;">
-                        ℹ More Info
-                    </button>
-                </div>
-            `;
-        }
-
-        // Load on page ready
-        document.addEventListener('DOMContentLoaded', loadPosts);
+        });
     </script>
 </body>
 </html>
