@@ -5,8 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - GitHub CMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/auth.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .auth-box {
+            background: #141414;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #E50914;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form h2 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #E50914;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: #E50914;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary:hover {
+            background: #B20710;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-footer {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .form-footer p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .form-footer a {
+            color: #E50914;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
@@ -30,10 +160,10 @@
                     <input type="password" id="login-password" placeholder="••••••••" required>
                 </div>
 
-                <button class="btn-primary" id="login-btn" onclick="handleLogin()">Sign In</button>
+                <button class="btn-primary" id="login-btn">Sign In</button>
 
                 <div class="form-footer">
-                    <p>Don't have an account? <a href="#" onclick="switchToSignup()">Sign up</a></p>
+                    <p>Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
                 </div>
             </div>
 
@@ -56,10 +186,10 @@
                     <input type="password" id="signup-password" placeholder="••••••••" required>
                 </div>
 
-                <button class="btn-primary" id="signup-btn" onclick="handleSignup()">Create Account</button>
+                <button class="btn-primary" id="signup-btn">Create Account</button>
 
                 <div class="form-footer">
-                    <p>Already have an account? <a href="#" onclick="switchToLogin()">Sign in</a></p>
+                    <p>Already have an account? <a href="#" id="show-login">Sign in</a></p>
                 </div>
             </div>
         </div>
@@ -67,45 +197,39 @@
 
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
-        
-        // HARDCODED ADMIN CREDENTIALS
         const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
         const ADMIN_PASSWORD = 'Rnd@12114';
 
-        // Switch to signup
-        function switchToSignup() {
-            event.preventDefault();
+        // Switch forms
+        document.getElementById('show-signup').addEventListener('click', (e) => {
+            e.preventDefault();
             document.getElementById('login-form').classList.remove('active');
             document.getElementById('signup-form').classList.add('active');
-        }
+        });
 
-        // Switch to login
-        function switchToLogin() {
-            event.preventDefault();
+        document.getElementById('show-login').addEventListener('click', (e) => {
+            e.preventDefault();
             document.getElementById('signup-form').classList.remove('active');
             document.getElementById('login-form').classList.add('active');
-        }
+        });
 
-        // Handle login
-        async function handleLogin() {
+        // Login
+        document.getElementById('login-btn').addEventListener('click', async () => {
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
+            const btn = document.getElementById('login-btn');
 
             if (!email || !password) {
                 alert('Please fill in all fields');
                 return;
             }
 
-            const loginBtn = document.getElementById('login-btn');
-            loginBtn.textContent = 'Signing in...';
-            loginBtn.disabled = true;
+            btn.textContent = 'Signing in...';
+            btn.disabled = true;
 
             try {
-                // CHECK ADMIN FIRST
+                // Check admin
                 if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                    console.log('✅ Admin login successful');
-                    
-                    // Set admin session
                     sessionStorage.setItem('adminAuth', 'true');
                     localStorage.setItem('currentUser', JSON.stringify({
                         userId: 'admin',
@@ -113,45 +237,37 @@
                         email: ADMIN_EMAIL,
                         plan: 'admin'
                     }));
-                    
                     alert('✅ Admin login successful!');
                     window.location.href = 'admin/index.html';
                     return;
                 }
 
-                // Regular user login
-                console.log('Attempting regular user login...');
+                // Regular user
                 const response = await fetch(`${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
                 const data = await response.json();
 
-                console.log('Login response:', data);
-
                 if (data.success && data.user) {
-                    console.log('✅ User login successful');
-                    
-                    // Save user data
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
-                    
                     alert('✅ Login successful!');
                     window.location.href = 'index.html';
                 } else {
                     alert('❌ Invalid email or password');
                 }
-
             } catch (error) {
                 console.error('Login error:', error);
                 alert('❌ Login failed. Please try again.');
             } finally {
-                loginBtn.textContent = 'Sign In';
-                loginBtn.disabled = false;
+                btn.textContent = 'Sign In';
+                btn.disabled = false;
             }
-        }
+        });
 
-        // Handle signup
-        async function handleSignup() {
+        // Signup
+        document.getElementById('signup-btn').addEventListener('click', async () => {
             const fullName = document.getElementById('signup-fullname').value.trim();
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value.trim();
+            const btn = document.getElementById('signup-btn');
 
             if (!fullName || !email || !password) {
                 alert('Please fill in all fields');
@@ -163,90 +279,50 @@
                 return;
             }
 
-            // Check if email is admin email
-            if (email === ADMIN_EMAIL) {
-                alert('❌ This email is reserved for admin');
-                return;
-            }
-
-            const signupBtn = document.getElementById('signup-btn');
-            signupBtn.textContent = 'Creating account...';
-            signupBtn.disabled = true;
+            btn.textContent = 'Creating account...';
+            btn.disabled = true;
 
             try {
-                // Check if user exists
-                console.log('Checking if user exists...');
-                const checkResponse = await fetch(`${SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(email)}`);
-                const existingUser = await checkResponse.json();
-
-                if (existingUser && existingUser.email) {
-                    alert('❌ Email already registered. Please login.');
-                    switchToLogin();
-                    signupBtn.textContent = 'Create Account';
-                    signupBtn.disabled = false;
-                    return;
-                }
-
-                // Create user
-                console.log('Creating new user...');
                 const formData = new URLSearchParams();
                 formData.append('action', 'createUser');
                 formData.append('fullName', fullName);
                 formData.append('email', email);
                 formData.append('password', password);
 
-                const createResponse = await fetch(SCRIPT_URL, {
+                const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: formData.toString()
                 });
 
-                const createData = await createResponse.json();
-                console.log('Create user response:', createData);
+                const data = await response.json();
 
-                if (createData.success) {
-                    // Get user data
+                if (data.success) {
                     const userResponse = await fetch(`${SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(email)}`);
                     const userData = await userResponse.json();
-
-                    // Save user data
+                    
                     localStorage.setItem('currentUser', JSON.stringify(userData));
-
                     alert('✅ Account created successfully!');
                     window.location.href = 'index.html';
                 } else {
-                    alert('❌ Failed to create account. Please try again.');
+                    alert('❌ Failed to create account');
                 }
-
             } catch (error) {
                 console.error('Signup error:', error);
                 alert('❌ Signup failed. Please try again.');
             } finally {
-                signupBtn.textContent = 'Create Account';
-                signupBtn.disabled = false;
-            }
-        }
-
-        // Enter key to submit
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                if (document.getElementById('login-form').classList.contains('active')) {
-                    handleLogin();
-                } else {
-                    handleSignup();
-                }
+                btn.textContent = 'Create Account';
+                btn.disabled = false;
             }
         });
 
-        // Check if already logged in
-        document.addEventListener('DOMContentLoaded', () => {
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                const user = JSON.parse(currentUser);
-                if (user.userId === 'admin') {
-                    window.location.href = 'admin/index.html';
+        // Enter key
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (document.getElementById('login-form').classList.contains('active')) {
+                    document.getElementById('login-btn').click();
                 } else {
-                    window.location.href = 'index.html';
+                    document.getElementById('signup-btn').click();
                 }
             }
         });
