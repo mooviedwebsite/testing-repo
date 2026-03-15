@@ -8,6 +8,7 @@ const UserAuth = {
 
     // Initialize
     init() {
+        console.log('🔐 UserAuth initializing...');
         this.loadCurrentUser();
         this.updateUI();
     },
@@ -22,58 +23,129 @@ const UserAuth = {
             } catch (error) {
                 console.error('Failed to parse user data:', error);
                 localStorage.removeItem('currentUser');
+                this.currentUser = null;
             }
+        } else {
+            console.log('❌ No user logged in');
         }
     },
 
     // Update UI based on auth state
     updateUI() {
+        console.log('🎨 Updating UI...');
+        
         const loginLink = document.querySelector('.login-link');
         const userAccount = document.querySelector('.user-account');
 
+        console.log('Login link element:', loginLink);
+        console.log('User account element:', userAccount);
+
         if (this.currentUser) {
+            console.log('👤 User is logged in, showing user menu');
+            
             // Hide login link
-            if (loginLink) loginLink.style.display = 'none';
+            if (loginLink) {
+                loginLink.style.display = 'none';
+                console.log('✅ Login link hidden');
+            }
 
             // Show user account
             if (userAccount) {
-                userAccount.style.display = 'flex';
+                userAccount.style.display = 'block';
+                
+                // Create user menu HTML
+                const planBadgeClass = this.getPlanBadgeClass(this.currentUser.plan);
+                
                 userAccount.innerHTML = `
                     <div class="user-menu">
-                        <button class="user-btn" onclick="UserAuth.toggleMenu()">
+                        <button class="user-btn" onclick="UserAuth.toggleMenu(event)">
                             <span class="user-icon">👤</span>
-                            <span class="user-name">${this.currentUser.fullName}</span>
-                            <span class="user-plan">${this.currentUser.plan.toUpperCase()}</span>
+                            <span class="user-name">${this.currentUser.fullName || 'User'}</span>
+                            <span class="user-plan ${planBadgeClass}">${this.currentUser.plan.toUpperCase()}</span>
                         </button>
                         <div class="user-dropdown" id="user-dropdown">
-                            <a href="profile.html">👤 Profile</a>
-                            <a href="membership.html">💎 Membership</a>
-                            ${this.currentUser.userId === 'admin' ? '<a href="admin/index.html">⚙️ Admin Panel</a>' : ''}
-                            <a href="#" onclick="UserAuth.logout()">🚪 Logout</a>
+                            <a href="profile.html">
+                                <span class="dropdown-icon">👤</span>
+                                <span>Profile</span>
+                            </a>
+                            <a href="membership.html">
+                                <span class="dropdown-icon">💎</span>
+                                <span>Membership</span>
+                            </a>
+                            ${this.currentUser.userId === 'admin' ? `
+                                <a href="admin/index.html">
+                                    <span class="dropdown-icon">⚙️</span>
+                                    <span>Admin Panel</span>
+                                </a>
+                            ` : ''}
+                            <div class="dropdown-divider"></div>
+                            <a href="#" onclick="UserAuth.logout(); return false;">
+                                <span class="dropdown-icon">🚪</span>
+                                <span>Logout</span>
+                            </a>
                         </div>
                     </div>
                 `;
+                
+                console.log('✅ User menu created');
             }
         } else {
+            console.log('🔓 No user logged in, showing login link');
+            
             // Show login link
-            if (loginLink) loginLink.style.display = 'block';
+            if (loginLink) {
+                loginLink.style.display = 'inline-block';
+            }
             
             // Hide user account
-            if (userAccount) userAccount.style.display = 'none';
+            if (userAccount) {
+                userAccount.style.display = 'none';
+                userAccount.innerHTML = '';
+            }
         }
     },
 
+    // Get plan badge class
+    getPlanBadgeClass(plan) {
+        const planMap = {
+            'free': 'plan-free',
+            'pro': 'plan-pro',
+            'premium': 'plan-premium',
+            'gold': 'plan-gold',
+            'admin': 'plan-admin'
+        };
+        return planMap[plan.toLowerCase()] || 'plan-free';
+    },
+
     // Toggle user menu
-    toggleMenu() {
+    toggleMenu(event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        
         const dropdown = document.getElementById('user-dropdown');
         if (dropdown) {
-            dropdown.classList.toggle('active');
+            const isActive = dropdown.classList.contains('active');
+            
+            // Close all dropdowns first
+            document.querySelectorAll('.user-dropdown').forEach(d => {
+                d.classList.remove('active');
+            });
+            
+            // Toggle current dropdown
+            if (!isActive) {
+                dropdown.classList.add('active');
+                console.log('✅ Dropdown opened');
+            } else {
+                console.log('✅ Dropdown closed');
+            }
         }
     },
 
     // Logout
     logout() {
         if (confirm('Are you sure you want to logout?')) {
+            console.log('🚪 Logging out...');
             localStorage.removeItem('currentUser');
             sessionStorage.removeItem('adminAuth');
             this.currentUser = null;
@@ -100,6 +172,7 @@ const UserAuth = {
 // Initialize on page load
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('📄 DOM loaded, initializing UserAuth...');
         UserAuth.init();
     });
 
@@ -108,7 +181,7 @@ if (typeof document !== 'undefined') {
         const userMenu = document.querySelector('.user-menu');
         const dropdown = document.getElementById('user-dropdown');
         
-        if (userMenu && dropdown && !userMenu.contains(e.target)) {
+        if (dropdown && !e.target.closest('.user-menu')) {
             dropdown.classList.remove('active');
         }
     });
