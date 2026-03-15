@@ -118,29 +118,38 @@ const UserAuth = {
     },
 
     // Toggle user menu
-    toggleMenu(event) {
-        if (event) {
-            event.stopPropagation();
-        }
+toggleMenu(event) {
+    console.log('🖱️ Toggle menu clicked');
+    
+    if (event) {
+        event.stopPropagation();
+        console.log('Event stopped');
+    }
+    
+    const dropdown = document.getElementById('user-dropdown');
+    console.log('Dropdown element:', dropdown);
+    
+    if (dropdown) {
+        const isActive = dropdown.classList.contains('active');
+        console.log('Is currently active:', isActive);
         
-        const dropdown = document.getElementById('user-dropdown');
-        if (dropdown) {
-            const isActive = dropdown.classList.contains('active');
-            
-            // Close all dropdowns first
-            document.querySelectorAll('.user-dropdown').forEach(d => {
-                d.classList.remove('active');
-            });
-            
-            // Toggle current dropdown
-            if (!isActive) {
-                dropdown.classList.add('active');
-                console.log('✅ Dropdown opened');
-            } else {
-                console.log('✅ Dropdown closed');
-            }
+        // Close all dropdowns first
+        document.querySelectorAll('.user-dropdown').forEach(d => {
+            d.classList.remove('active');
+        });
+        
+        // Toggle current dropdown
+        if (!isActive) {
+            dropdown.classList.add('active');
+            console.log('✅ Dropdown opened - active class added');
+            console.log('Dropdown classes:', dropdown.className);
+        } else {
+            console.log('✅ Dropdown closed');
         }
-    },
+    } else {
+        console.error('❌ Dropdown element not found!');
+    }
+},
 
     // Logout
     logout() {
