@@ -3,210 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login / Sign Up - GitHub CMS</title>
+    <title>Login - GitHub CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-box">
-            <h1 class="auth-title">GitHub CMS</h1>
-            
+            <div class="auth-header">
+                <h1>GITHUB CMS</h1>
+                <p>Welcome back!</p>
+            </div>
+
             <!-- Login Form -->
             <div id="login-form" class="auth-form active">
-                <h2>Welcome Back</h2>
-                <form onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="login-email" required placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="login-password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn-primary">Login</button>
-                </form>
-                <p class="auth-switch">
-                    Don't have an account? <a href="#" onclick="switchToSignup()">Sign Up</a>
-                </p>
+                <h2>Sign In</h2>
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="login-email" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+
+                <button class="btn-primary" id="login-btn" onclick="handleLogin()">Sign In</button>
+
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="#" onclick="switchToSignup()">Sign up</a></p>
+                </div>
             </div>
 
             <!-- Signup Form -->
             <div id="signup-form" class="auth-form">
                 <h2>Create Account</h2>
-                <form onsubmit="handleSignup(event)">
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="signup-fullname" required placeholder="John Doe">
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="signup-email" required placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="signup-password" required placeholder="••••••••" minlength="6">
-                    </div>
-                    <div class="form-group">
-                        <label>Confirm Password</label>
-                        <input type="password" id="signup-confirm-password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn-primary">Sign Up</button>
-                </form>
-                <p class="auth-switch">
-                    Already have an account? <a href="#" onclick="switchToLogin()">Login</a>
-                </p>
+                
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signup-fullname" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signup-email" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signup-password" placeholder="••••••••" required>
+                </div>
+
+                <button class="btn-primary" id="signup-btn" onclick="handleSignup()">Create Account</button>
+
+                <div class="form-footer">
+                    <p>Already have an account? <a href="#" onclick="switchToLogin()">Sign in</a></p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Auth API with NEW URL -->
     <script>
-    const AuthAPI = {
-        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
         
-        ADMIN_EMAIL: 'rawindunethsara93@gmail.com',
-        ADMIN_PASSWORD: 'Rnd@12114',
-        
-        async login(email, password) {
-            try {
-                if (email === this.ADMIN_EMAIL && password === this.ADMIN_PASSWORD) {
-                    const adminUser = {
-                        userId: 'admin',
-                        fullName: 'Administrator',
-                        email: this.ADMIN_EMAIL,
-                        role: 'admin',
-                        membership: 'gold',
-                        membershipExpiry: null,
-                        lastLogin: new Date().toISOString()
-                    };
-                    
-                    localStorage.setItem('current_user', JSON.stringify(adminUser));
-                    return adminUser;
-                }
+        // HARDCODED ADMIN CREDENTIALS
+        const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
+        const ADMIN_PASSWORD = 'Rnd@12114';
 
-                const response = await fetch(`${this.SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
-                const data = await response.json();
-                
-                if (data.success && data.user) {
-                    localStorage.setItem('current_user', JSON.stringify(data.user));
-                    return data.user;
-                }
-                
-                throw new Error('Invalid email or password');
-            } catch (error) {
-                console.error('Login failed:', error);
-                throw error;
+        // Switch to signup
+        function switchToSignup() {
+            event.preventDefault();
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('signup-form').classList.add('active');
+        }
+
+        // Switch to login
+        function switchToLogin() {
+            event.preventDefault();
+            document.getElementById('signup-form').classList.remove('active');
+            document.getElementById('login-form').classList.add('active');
+        }
+
+        // Handle login
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
             }
-        },
 
-        async signup(userData) {
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.textContent = 'Signing in...';
+            loginBtn.disabled = true;
+
             try {
-                const existCheck = await fetch(`${this.SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(userData.email)}`);
-                const existData = await existCheck.json();
-                
-                if (existData.user) {
-                    throw new Error('Email already registered');
+                // CHECK ADMIN FIRST
+                if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                    console.log('✅ Admin login successful');
+                    
+                    // Set admin session
+                    sessionStorage.setItem('adminAuth', 'true');
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        userId: 'admin',
+                        fullName: 'Admin',
+                        email: ADMIN_EMAIL,
+                        plan: 'admin'
+                    }));
+                    
+                    alert('✅ Admin login successful!');
+                    window.location.href = 'admin/index.html';
+                    return;
                 }
 
+                // Regular user login
+                console.log('Attempting regular user login...');
+                const response = await fetch(`${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
+                const data = await response.json();
+
+                console.log('Login response:', data);
+
+                if (data.success && data.user) {
+                    console.log('✅ User login successful');
+                    
+                    // Save user data
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    
+                    alert('✅ Login successful!');
+                    window.location.href = 'index.html';
+                } else {
+                    alert('❌ Invalid email or password');
+                }
+
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('❌ Login failed. Please try again.');
+            } finally {
+                loginBtn.textContent = 'Sign In';
+                loginBtn.disabled = false;
+            }
+        }
+
+        // Handle signup
+        async function handleSignup() {
+            const fullName = document.getElementById('signup-fullname').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+
+            if (!fullName || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+
+            // Check if email is admin email
+            if (email === ADMIN_EMAIL) {
+                alert('❌ This email is reserved for admin');
+                return;
+            }
+
+            const signupBtn = document.getElementById('signup-btn');
+            signupBtn.textContent = 'Creating account...';
+            signupBtn.disabled = true;
+
+            try {
+                // Check if user exists
+                console.log('Checking if user exists...');
+                const checkResponse = await fetch(`${SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(email)}`);
+                const existingUser = await checkResponse.json();
+
+                if (existingUser && existingUser.email) {
+                    alert('❌ Email already registered. Please login.');
+                    switchToLogin();
+                    signupBtn.textContent = 'Create Account';
+                    signupBtn.disabled = false;
+                    return;
+                }
+
+                // Create user
+                console.log('Creating new user...');
                 const formData = new URLSearchParams();
                 formData.append('action', 'createUser');
-                formData.append('fullName', userData.fullName);
-                formData.append('email', userData.email);
-                formData.append('password', userData.password);
-                formData.append('membership', 'free');
-                formData.append('role', 'user');
+                formData.append('fullName', fullName);
+                formData.append('email', email);
+                formData.append('password', password);
 
-                await fetch(this.SCRIPT_URL, {
+                const createResponse = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: formData.toString()
                 });
 
-                const newUserResponse = await fetch(`${this.SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(userData.email)}`);
-                const newUserData = await newUserResponse.json();
-                
-                if (newUserData.user) {
-                    localStorage.setItem('current_user', JSON.stringify(newUserData.user));
-                    return newUserData.user;
+                const createData = await createResponse.json();
+                console.log('Create user response:', createData);
+
+                if (createData.success) {
+                    // Get user data
+                    const userResponse = await fetch(`${SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(email)}`);
+                    const userData = await userResponse.json();
+
+                    // Save user data
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
+
+                    alert('✅ Account created successfully!');
+                    window.location.href = 'index.html';
+                } else {
+                    alert('❌ Failed to create account. Please try again.');
                 }
 
-                throw new Error('Signup failed');
             } catch (error) {
-                console.error('Signup failed:', error);
-                throw error;
+                console.error('Signup error:', error);
+                alert('❌ Signup failed. Please try again.');
+            } finally {
+                signupBtn.textContent = 'Create Account';
+                signupBtn.disabled = false;
             }
         }
-    };
 
-    async function handleLogin(event) {
-        event.preventDefault();
-        
-        const email = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-password').value;
-
-        const submitBtn = event.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Logging in...';
-        submitBtn.disabled = true;
-
-        try {
-            const user = await AuthAPI.login(email, password);
-            
-            if (user.role === 'admin') {
-                window.location.href = 'admin/index.html';
-            } else {
-                window.location.href = 'index.html';
+        // Enter key to submit
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (document.getElementById('login-form').classList.contains('active')) {
+                    handleLogin();
+                } else {
+                    handleSignup();
+                }
             }
-        } catch (error) {
-            alert(error.message || 'Login failed');
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        }
-    }
+        });
 
-    async function handleSignup(event) {
-        event.preventDefault();
-        
-        const fullName = document.getElementById('signup-fullname').value.trim();
-        const email = document.getElementById('signup-email').value.trim();
-        const password = document.getElementById('signup-password').value;
-        const confirmPassword = document.getElementById('signup-confirm-password').value;
-
-        if (password !== confirmPassword) {
-            alert('Passwords do not match');
-            return;
-        }
-
-        if (password.length < 6) {
-            alert('Password must be at least 6 characters');
-            return;
-        }
-
-        const submitBtn = event.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Creating account...';
-        submitBtn.disabled = true;
-
-        try {
-            await AuthAPI.signup({ fullName, email, password });
-            window.location.href = 'index.html';
-        } catch (error) {
-            alert(error.message || 'Signup failed');
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        }
-    }
-
-    function switchToSignup() {
-        document.getElementById('login-form').classList.remove('active');
-        document.getElementById('signup-form').classList.add('active');
-    }
-
-    function switchToLogin() {
-        document.getElementById('signup-form').classList.remove('active');
-        document.getElementById('login-form').classList.add('active');
-    }
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                if (user.userId === 'admin') {
+                    window.location.href = 'admin/index.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }
+        });
     </script>
 </body>
 </html>
