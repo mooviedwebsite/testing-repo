@@ -1,63 +1,67 @@
 /* ========================================
-   USER AUTHENTICATION SYSTEM - FIXED
+   USER AUTHENTICATION - SIMPLIFIED
 ======================================== */
 
 const UserAuth = {
     currentUser: null,
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
 
     // Initialize
     init() {
-        console.log('🔐 UserAuth initializing...');
-        this.loadCurrentUser();
+        console.log('🔐 UserAuth Init');
+        this.loadUser();
         this.updateUI();
     },
 
-    // Load current user from localStorage
-    loadCurrentUser() {
-        const userData = localStorage.getItem('currentUser');
-        if (userData) {
+    // Load user from localStorage
+    loadUser() {
+        const data = localStorage.getItem('currentUser');
+        if (data) {
             try {
-                this.currentUser = JSON.parse(userData);
+                this.currentUser = JSON.parse(data);
                 console.log('✅ User loaded:', this.currentUser.email);
-            } catch (error) {
-                console.error('Failed to parse user data:', error);
+            } catch (e) {
+                console.error('❌ Parse error:', e);
                 localStorage.removeItem('currentUser');
-                this.currentUser = null;
             }
         } else {
-            console.log('❌ No user logged in');
+            console.log('ℹ️ No user logged in');
         }
     },
 
-  // Update UI based on auth state
-updateUI() {
-    console.log('🎨 Updating UI...');
-    
-    const loginLink = document.querySelector('.login-link');
-    const userAccount = document.querySelector('.user-account');
-
-    if (this.currentUser) {
-        console.log('👤 User is logged in, showing user menu');
+    // Update UI
+    updateUI() {
+        console.log('🎨 Updating UI...');
         
-        // Hide login link
-        if (loginLink) {
-            loginLink.style.display = 'none';
+        const loginLink = document.getElementById('login-link');
+        const userAccount = document.getElementById('user-account');
+
+        console.log('Login Link:', loginLink);
+        console.log('User Account:', userAccount);
+
+        if (!loginLink || !userAccount) {
+            console.error('❌ Elements not found!');
+            return;
         }
 
-        // Show user account
-        if (userAccount) {
+        if (this.currentUser) {
+            console.log('👤 Showing user menu');
+            
+            // Hide login link
+            loginLink.style.display = 'none';
+            
+            // Show user account
             userAccount.style.display = 'block';
             
-            // Create user menu HTML
-            const planBadgeClass = this.getPlanBadgeClass(this.currentUser.plan);
+            // Get plan class
+            const planClass = this.getPlanClass(this.currentUser.plan);
             
+            // Create menu HTML
             userAccount.innerHTML = `
                 <div class="user-menu">
-                    <button class="user-btn" id="user-menu-btn">
+                    <button class="user-btn" id="user-menu-button">
                         <span class="user-icon">👤</span>
                         <span class="user-name">${this.currentUser.fullName || 'User'}</span>
-                        <span class="user-plan ${planBadgeClass}">${this.currentUser.plan.toUpperCase()}</span>
+                        <span class="user-plan ${planClass}">${this.currentUser.plan.toUpperCase()}</span>
                     </button>
                     <div class="user-dropdown" id="user-dropdown">
                         <a href="profile.html">
@@ -75,7 +79,7 @@ updateUI() {
                             </a>
                         ` : ''}
                         <div class="dropdown-divider"></div>
-                        <a href="#" id="logout-link">
+                        <a href="#" id="logout-btn">
                             <span class="dropdown-icon">🚪</span>
                             <span>Logout</span>
                         </a>
@@ -83,140 +87,88 @@ updateUI() {
                 </div>
             `;
             
-            // Add event listeners after HTML is created
+            console.log('✅ Menu HTML created');
+            
+            // Add event listeners
             setTimeout(() => {
-                const menuBtn = document.getElementById('user-menu-btn');
-                const logoutLink = document.getElementById('logout-link');
-                
-                if (menuBtn) {
-                    menuBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const dropdown = document.getElementById('user-dropdown');
-                        if (dropdown) {
-                            dropdown.classList.toggle('active');
-                            console.log('Dropdown toggled:', dropdown.classList.contains('active'));
-                        }
-                    });
-                }
-                
-                if (logoutLink) {
-                    logoutLink.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        this.logout();
-                    });
-                }
+                this.attachListeners();
             }, 100);
             
-            console.log('✅ User menu created');
-        }
-    } else {
-        console.log('🔓 No user logged in, showing login link');
-        
-        // Show login link
-        if (loginLink) {
+        } else {
+            console.log('🔓 Showing login link');
             loginLink.style.display = 'inline-block';
+            userAccount.style.display = 'none';
+        }
+    },
+
+    // Attach event listeners
+    attachListeners() {
+        const menuBtn = document.getElementById('user-menu-button');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+        if (menuBtn) {
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleDropdown();
+            });
+            console.log('✅ Menu button listener attached');
         }
         
-        // Hide user account
-        if (userAccount) {
-            userAccount.style.display = 'none';
-            userAccount.innerHTML = '';
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.logout();
+            });
+            console.log('✅ Logout button listener attached');
         }
-    }
-},
+    },
 
-    // Get plan badge class
-    getPlanBadgeClass(plan) {
-        const planMap = {
+    // Toggle dropdown
+    toggleDropdown() {
+        const dropdown = document.getElementById('user-dropdown');
+        if (dropdown) {
+            const isActive = dropdown.classList.contains('active');
+            dropdown.classList.toggle('active');
+            console.log('🔽 Dropdown toggled:', !isActive);
+        }
+    },
+
+    // Get plan class
+    getPlanClass(plan) {
+        const classes = {
             'free': 'plan-free',
             'pro': 'plan-pro',
             'premium': 'plan-premium',
             'gold': 'plan-gold',
             'admin': 'plan-admin'
         };
-        return planMap[plan.toLowerCase()] || 'plan-free';
+        return classes[plan.toLowerCase()] || 'plan-free';
     },
-
-    // Toggle user menu
-toggleMenu(event) {
-    console.log('🖱️ Toggle menu clicked');
-    
-    if (event) {
-        event.stopPropagation();
-        console.log('Event stopped');
-    }
-    
-    const dropdown = document.getElementById('user-dropdown');
-    console.log('Dropdown element:', dropdown);
-    
-    if (dropdown) {
-        const isActive = dropdown.classList.contains('active');
-        console.log('Is currently active:', isActive);
-        
-        // Close all dropdowns first
-        document.querySelectorAll('.user-dropdown').forEach(d => {
-            d.classList.remove('active');
-        });
-        
-        // Toggle current dropdown
-        if (!isActive) {
-            dropdown.classList.add('active');
-            console.log('✅ Dropdown opened - active class added');
-            console.log('Dropdown classes:', dropdown.className);
-        } else {
-            console.log('✅ Dropdown closed');
-        }
-    } else {
-        console.error('❌ Dropdown element not found!');
-    }
-},
 
     // Logout
     logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            console.log('🚪 Logging out...');
+        if (confirm('Logout?')) {
+            console.log('🚪 Logging out');
             localStorage.removeItem('currentUser');
             sessionStorage.removeItem('adminAuth');
-            this.currentUser = null;
             window.location.href = 'auth.html';
         }
-    },
-
-    // Check if user is logged in
-    requireAuth() {
-        if (!this.currentUser) {
-            alert('Please login to continue');
-            window.location.href = 'auth.html';
-            return false;
-        }
-        return true;
-    },
-
-    // Check if user is admin
-    isAdmin() {
-        return this.currentUser && this.currentUser.userId === 'admin';
     }
 };
 
-// Initialize on page load
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('📄 DOM loaded, initializing UserAuth...');
-        UserAuth.init();
-    });
+// Initialize when DOM loads
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('📄 DOM Ready');
+    UserAuth.init();
+});
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        const userMenu = document.querySelector('.user-menu');
-        const dropdown = document.getElementById('user-dropdown');
-        
-        if (dropdown && !e.target.closest('.user-menu')) {
-            dropdown.classList.remove('active');
-        }
-    });
-}
+// Close dropdown on outside click
+document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown && !e.target.closest('.user-menu')) {
+        dropdown.classList.remove('active');
+    }
+});
 
-// Export for use in other scripts
-if (typeof window !== 'undefined') {
-    window.UserAuth = UserAuth;
-}
+// Export
+window.UserAuth = UserAuth;
