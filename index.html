@@ -7,6 +7,141 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/netflix-cards.css">
+    <link rel="stylesheet" href="css/netflix-modal.css">
+    
+    <style>
+        /* USER MENU INLINE CSS - IN CASE EXTERNAL CSS NOT LOADED */
+        .user-account {
+            position: relative;
+            display: none;
+        }
+        
+        .user-menu {
+            position: relative;
+        }
+        
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .user-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .user-icon {
+            font-size: 20px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .user-plan {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .plan-free { background: #6B7280; color: #fff; }
+        .plan-pro { background: #3B82F6; color: #fff; }
+        .plan-premium { background: #8B5CF6; color: #fff; }
+        .plan-gold { background: linear-gradient(135deg, #F59E0B, #FBBF24); color: #fff; }
+        .plan-admin { background: #E50914; color: #fff; }
+        
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 220px;
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.25s ease;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .user-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .user-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        .user-dropdown a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            padding-left: 22px;
+        }
+        
+        .dropdown-icon {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+        }
+        
+        .login-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #E50914;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .login-link:hover {
+            background: #B20710;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -19,42 +154,52 @@
                 <a href="search.html">Search</a>
                 <a href="bookmarks.html">My List</a>
                 <a href="membership.html">Membership</a>
-                <div class="user-account"></div>
-                <a href="auth.html" class="login-link">Login</a>
+                
+                <!-- User Account Menu (Will be populated by JavaScript) -->
+                <div class="user-account" id="user-account"></div>
+                
+                <!-- Login Link (Hidden when logged in) -->
+                <a href="auth.html" class="login-link" id="login-link">Login</a>
             </nav>
         </div>
     </header>
 
     <main class="main">
         <div class="container">
-            <section class="hero-section">
-                <h1>Welcome to GitHub CMS</h1>
-                <p>Unlimited movies, TV shows, and more</p>
+            <section class="hero-section" style="padding: 60px 0; text-align: center;">
+                <h1 style="font-size: 48px; margin-bottom: 20px;">Welcome to GitHub CMS</h1>
+                <p style="font-size: 20px; color: rgba(255,255,255,0.7);">Unlimited movies, TV shows, and more</p>
             </section>
 
-            <section class="content-section">
-                <h2>Featured Content</h2>
+            <section class="content-section" style="margin-top: 40px;">
+                <h2 style="font-size: 24px; margin-bottom: 20px;">Featured Content</h2>
                 <div class="netflix-grid" id="featured-grid"></div>
             </section>
         </div>
     </main>
 
-    <footer class="footer">
+    <footer class="footer" style="margin-top: 80px; padding: 40px 0; text-align: center; background: rgba(255,255,255,0.03);">
         <div class="container">
             <p>&copy; 2026 GitHub CMS</p>
         </div>
     </footer>
 
+    <!-- Load Scripts -->
     <script src="js/user-auth.js"></script>
     <script src="js/netflix-cards.js"></script>
     <script>
+        // Load content
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Page loaded');
+            
+            // Load posts
             try {
                 const response = await fetch('data/posts-registry.json');
                 const data = await response.json();
                 NetflixCards.renderCards(data.posts.slice(0, 12), 'featured-grid');
+                console.log('✅ Content loaded');
             } catch (error) {
-                console.error('Failed to load:', error);
+                console.error('❌ Failed to load content:', error);
             }
         });
     </script>
