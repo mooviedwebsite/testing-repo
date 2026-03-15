@@ -4,730 +4,358 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - GitHub CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/admin.css">
-    <style>
-        /* Additional Netflix-Style Admin CSS */
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-        }
-        .stat-card:nth-child(2) {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        .stat-card:nth-child(3) {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-        .stat-card:nth-child(4) {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255,255,255,0.1);
-            border-top-color: #6366f1;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay" style="display: none;">
-        <div class="loading-spinner"></div>
-    </div>
-
-    <!-- Login Screen -->
-    <div id="auth-screen" class="auth-screen">
-        <div class="auth-container">
-            <h1>🔐 Admin Panel Login</h1>
-            <p>Login with your admin credentials</p>
-            
-            <form onsubmit="handleAdminLogin(event)" id="admin-login-form">
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="admin-email" required placeholder="rawindunethsara93@gmail.com" autocomplete="email">
-                </div>
-                
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="admin-password" required placeholder="••••••••" autocomplete="current-password">
-                </div>
-                
-                <button type="submit" class="btn-primary" id="login-btn">Login</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="admin-panel" style="display: none;">
+    <div class="admin-container">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>GitHub CMS</h2>
-                <p id="admin-user-name" style="font-size: 0.875rem; color: var(--admin-text-muted);"></p>
+                <h1>ADMIN PANEL</h1>
             </div>
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" data-page="dashboard">
-                    <span class="icon">📊</span>
+                <a href="#" class="nav-item active" onclick="navigateTo('dashboard')">
+                    <span class="nav-icon">📊</span>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="nav-item" data-page="users">
-                    <span class="icon">👥</span>
+                <a href="#" class="nav-item" onclick="navigateTo('users')">
+                    <span class="nav-icon">👥</span>
                     <span>Users</span>
-                    <span class="nav-badge" id="users-badge">0</span>
+                    <span class="nav-badge" id="users-count">0</span>
                 </a>
-                <a href="#" class="nav-item" data-page="payments">
-                    <span class="icon">💳</span>
+                <a href="#" class="nav-item" onclick="navigateTo('subscriptions')">
+                    <span class="nav-icon">💎</span>
+                    <span>Subscriptions</span>
+                    <span class="nav-badge" id="subscriptions-count">0</span>
+                </a>
+                <a href="#" class="nav-item" onclick="navigateTo('payments')">
+                    <span class="nav-icon">💳</span>
                     <span>Payments</span>
-                    <span class="nav-badge pending" id="payments-badge">0</span>
+                    <span class="nav-badge pending" id="pending-payments">0</span>
                 </a>
-                <a href="#" class="nav-item" data-page="comments">
-                    <span class="icon">💬</span>
+                <a href="#" class="nav-item" onclick="navigateTo('comments')">
+                    <span class="nav-icon">💬</span>
                     <span>Comments</span>
-                    <span class="nav-badge" id="comments-badge">0</span>
+                    <span class="nav-badge" id="comments-count">0</span>
                 </a>
-                <a href="#" class="nav-item" data-page="activities">
-                    <span class="icon">📋</span>
+                <a href="#" class="nav-item" onclick="navigateTo('activities')">
+                    <span class="nav-icon">📝</span>
                     <span>Activities</span>
                 </a>
-                <a href="#" class="nav-item" id="logout-btn">
-                    <span class="icon">🚪</span>
-                    <span>Logout</span>
+                <a href="#" class="nav-item" onclick="navigateTo('settings')">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Payment Settings</span>
                 </a>
             </nav>
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Bar -->
-            <header class="topbar">
-                <h1 id="page-title">Dashboard</h1>
-                <div class="topbar-actions">
-                    <button id="refresh-btn" class="btn-icon" title="Refresh Data">🔄</button>
-                    <a href="../index.html" target="_blank" class="btn-icon" title="View Site">🌐</a>
-                </div>
-            </header>
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
 
-            <!-- Content Area -->
-            <div class="content-area">
-                <!-- Dashboard Page -->
-                <div id="dashboard-page" class="page active">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">👥</div>
-                            <div class="stat-info">
-                                <h3 id="total-users">0</h3>
-                                <p>Total Users</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">💰</div>
-                            <div class="stat-info">
-                                <h3 id="total-revenue">$0</h3>
-                                <p>Total Revenue</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">💳</div>
-                            <div class="stat-info">
-                                <h3 id="pending-payments">0</h3>
-                                <p>Pending Payments</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">💬</div>
-                            <div class="stat-info">
-                                <h3 id="total-comments">0</h3>
-                                <p>Total Comments</p>
-                            </div>
+            <!-- Dashboard Page -->
+            <div class="page active" id="page-dashboard">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <button class="btn-refresh" onclick="loadAllData()">🔄 Refresh</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8);">👥</div>
+                        <div class="stat-info">
+                            <h3 id="stat-users">0</h3>
+                            <p>Total Users</p>
                         </div>
                     </div>
-
-                    <div class="dashboard-grid">
-                        <div class="dashboard-card">
-                            <h3>Recent Users</h3>
-                            <div id="recent-users-list"></div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">💎</div>
+                        <div class="stat-info">
+                            <h3 id="stat-active-subs">0</h3>
+                            <p>Active Subscriptions</p>
                         </div>
-                        <div class="dashboard-card">
-                            <h3>Recent Activities</h3>
-                            <div id="recent-activities-list"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">💳</div>
+                        <div class="stat-info">
+                            <h3 id="stat-pending">0</h3>
+                            <p>Pending Payments</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">💬</div>
+                        <div class="stat-info">
+                            <h3 id="stat-comments">0</h3>
+                            <p>Total Comments</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Users Page -->
-                <div id="users-page" class="page">
-                    <div class="page-header">
-                        <h2>All Users</h2>
-                        <input type="text" id="users-search" placeholder="Search users..." class="search-input">
+                <div class="dashboard-sections">
+                    <!-- Recent Users -->
+                    <div class="dashboard-section">
+                        <h2>Recent Users</h2>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Plan</th>
+                                        <th>Joined</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-users">
+                                    <tr><td colspan="4">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div id="users-table" class="data-table"></div>
+
+                    <!-- Recent Activities -->
+                    <div class="dashboard-section">
+                        <h2>Recent Activities</h2>
+                        <div class="activity-list" id="recent-activities">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Page -->
+            <div class="page" id="page-users">
+                <div class="page-header">
+                    <h1>All Users</h1>
+                    <input type="text" class="search-input" placeholder="Search users..." onkeyup="filterTable('users-table', this.value)">
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="users-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                                <th>Plan</th>
+                                <th>Created</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr><td colspan="8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Subscriptions Page -->
+            <div class="page" id="page-subscriptions">
+                <div class="page-header">
+                    <h1>Subscriptions</h1>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterSubscriptions('all')">All</button>
+                        <button class="filter-tab" onclick="filterSubscriptions('active')">Active</button>
+                        <button class="filter-tab" onclick="filterSubscriptions('pro')">Pro</button>
+                        <button class="filter-tab" onclick="filterSubscriptions('premium')">Premium</button>
+                        <button class="filter-tab" onclick="filterSubscriptions('gold')">Gold</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="subscriptions-table">
+                        <thead>
+                            <tr>
+                                <th>User Email</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Start Date</th>
+                                <th>Expiry Date</th>
+                                <th>Payment Method</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subscriptions-tbody">
+                            <tr><td colspan="7">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payments Page -->
+            <div class="page" id="page-payments">
+                <div class="page-header">
+                    <h1>Payments</h1>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterPayments('all')">All</button>
+                        <button class="filter-tab" onclick="filterPayments('pending')">Pending</button>
+                        <button class="filter-tab" onclick="filterPayments('approved')">Approved</button>
+                        <button class="filter-tab" onclick="filterPayments('rejected')">Rejected</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="payments-table">
+                        <thead>
+                            <tr>
+                                <th>Payment ID</th>
+                                <th>User</th>
+                                <th>Plan</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Transaction ID</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-tbody">
+                            <tr><td colspan="9">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Comments Page -->
+            <div class="page" id="page-comments">
+                <div class="page-header">
+                    <h1>All Comments</h1>
+                    <input type="text" class="search-input" placeholder="Search comments..." onkeyup="filterTable('comments-table', this.value)">
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="comments-table">
+                        <thead>
+                            <tr>
+                                <th>Comment ID</th>
+                                <th>Post ID</th>
+                                <th>User</th>
+                                <th>Text</th>
+                                <th>Timestamp</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comments-tbody">
+                            <tr><td colspan="6">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Activities Page -->
+            <div class="page" id="page-activities">
+                <div class="page-header">
+                    <h1>All Activities</h1>
+                    <input type="text" class="search-input" placeholder="Search activities..." onkeyup="filterTable('activities-table', this.value)">
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="activities-table">
+                        <thead>
+                            <tr>
+                                <th>Activity ID</th>
+                                <th>User ID</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activities-tbody">
+                            <tr><td colspan="5">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page" id="page-settings">
+                <div class="page-header">
+                    <h1>Payment Settings</h1>
+                    <button class="btn-save" onclick="savePaymentSettings()">💾 Save Settings</button>
                 </div>
 
-                <!-- Payments Page -->
-                <div id="payments-page" class="page">
-                    <div class="page-header">
-                        <h2>Pending Payments</h2>
-                        <button id="refresh-payments" class="btn-secondary">Refresh</button>
+                <div class="settings-container">
+                    <!-- PayPal Settings -->
+                    <div class="settings-card">
+                        <h3>🅿️ PayPal Configuration</h3>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="paypal-enabled" checked>
+                                Enable PayPal
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>PayPal Business Email</label>
+                            <input type="email" id="paypal-email" placeholder="your-paypal@business.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Business Name</label>
+                            <input type="text" id="paypal-business" placeholder="GitHub CMS">
+                        </div>
                     </div>
-                    <div id="payments-list" class="data-table"></div>
-                </div>
 
-                <!-- Comments Page -->
-                <div id="comments-page" class="page">
-                    <div class="page-header">
-                        <h2>All Comments</h2>
-                        <button id="refresh-comments" class="btn-secondary">Refresh</button>
+                    <!-- Bank Settings -->
+                    <div class="settings-card">
+                        <h3>🏦 Bank Transfer Configuration</h3>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="bank-enabled" checked>
+                                Enable Bank Transfer
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Bank Name</label>
+                            <input type="text" id="bank-name" placeholder="Commercial Bank of Ceylon">
+                        </div>
+                        <div class="form-group">
+                            <label>Account Number</label>
+                            <input type="text" id="bank-account" placeholder="1234567890">
+                        </div>
+                        <div class="form-group">
+                            <label>Account Name</label>
+                            <input type="text" id="bank-account-name" placeholder="Your Business Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Branch</label>
+                            <input type="text" id="bank-branch" placeholder="Colombo 03">
+                        </div>
+                        <div class="form-group">
+                            <label>SWIFT Code</label>
+                            <input type="text" id="bank-swift" placeholder="CCEYLKLX">
+                        </div>
                     </div>
-                    <div id="comments-list" class="data-table"></div>
-                </div>
 
-                <!-- Activities Page -->
-                <div id="activities-page" class="page">
-                    <div class="page-header">
-                        <h2>User Activities</h2>
-                        <select id="activity-filter" class="filter-select">
-                            <option value="">All Activities</option>
-                            <option value="login">Logins</option>
-                            <option value="comment">Comments</option>
-                            <option value="payment">Payments</option>
-                        </select>
+                    <!-- PayHere Settings -->
+                    <div class="settings-card">
+                        <h3>💳 PayHere Configuration</h3>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="payhere-enabled" checked>
+                                Enable PayHere
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Merchant ID</label>
+                            <input type="text" id="payhere-merchant-id" placeholder="1221149">
+                        </div>
+                        <div class="form-group">
+                            <label>Merchant Secret</label>
+                            <input type="password" id="payhere-merchant-secret" placeholder="Your merchant secret">
+                        </div>
+                        <div class="form-group">
+                            <label>Business Name</label>
+                            <input type="text" id="payhere-business" placeholder="GitHub CMS">
+                        </div>
                     </div>
-                    <div id="activities-list" class="activity-list"></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Admin API -->
-    <script>
-    const AdminAPI = {
-        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
-        ADMIN_EMAIL: 'rawindunethsara93@gmail.com',
-        ADMIN_PASSWORD: 'Rnd@12114',
-
-        showLoading() {
-            document.getElementById('loading-overlay').style.display = 'flex';
-        },
-
-        hideLoading() {
-            document.getElementById('loading-overlay').style.display = 'none';
-        },
-
-        async getAllUsers() {
-            const response = await fetch(`${this.SCRIPT_URL}?action=getAllUsers`);
-            const data = await response.json();
-            return data.users || [];
-        },
-
-        async getAllPayments() {
-            const response = await fetch(`${this.SCRIPT_URL}?action=getAllPayments`);
-            const data = await response.json();
-            return data.payments || [];
-        },
-
-        async getAllComments() {
-            const response = await fetch(`${this.SCRIPT_URL}?action=getAllComments`);
-            const data = await response.json();
-            return data.comments || [];
-        },
-
-        async getActivities() {
-            const response = await fetch(`${this.SCRIPT_URL}?action=getActivities`);
-            const data = await response.json();
-            return data.activities || [];
-        },
-
-        async getStats() {
-            const response = await fetch(`${this.SCRIPT_URL}?action=getStats`);
-            const data = await response.json();
-            return data.stats || {};
-        },
-
-        async updateUser(userId, updates) {
-            const formData = new URLSearchParams();
-            formData.append('action', 'updateUser');
-            formData.append('userId', userId);
-            Object.keys(updates).forEach(key => {
-                formData.append(key, updates[key]);
-            });
-
-            await fetch(this.SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-        },
-
-        async deleteUser(userId) {
-            const formData = new URLSearchParams();
-            formData.append('action', 'deleteUser');
-            formData.append('userId', userId);
-
-            await fetch(this.SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-        },
-
-        async updatePayment(paymentId, status) {
-            const formData = new URLSearchParams();
-            formData.append('action', 'updatePayment');
-            formData.append('paymentId', paymentId);
-            formData.append('status', status);
-
-            await fetch(this.SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-        },
-
-        async deleteComment(commentId) {
-            const formData = new URLSearchParams();
-            formData.append('action', 'deleteComment');
-            formData.append('commentId', commentId);
-            formData.append('userId', 'admin');
-
-            await fetch(this.SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-        }
-    };
-
-    let currentPage = 'dashboard';
-    let allUsers = [];
-    let allPayments = [];
-    let allComments = [];
-    let allActivities = [];
-
-    // Handle Admin Login
-    async function handleAdminLogin(event) {
-        event.preventDefault();
-        
-        const email = document.getElementById('admin-email').value.trim();
-        const password = document.getElementById('admin-password').value;
-        const loginBtn = document.getElementById('login-btn');
-
-        if (email !== AdminAPI.ADMIN_EMAIL || password !== AdminAPI.ADMIN_PASSWORD) {
-            alert('❌ Invalid credentials');
-            return;
-        }
-
-        loginBtn.textContent = 'Logging in...';
-        loginBtn.disabled = true;
-
-        try {
-            const adminUser = {
-                userId: 'admin',
-                fullName: 'Administrator',
-                email: AdminAPI.ADMIN_EMAIL,
-                role: 'admin'
-            };
-
-            localStorage.setItem('admin_user', JSON.stringify(adminUser));
-            
-            showAdminPanel();
-            await loadAllData();
-        } catch (error) {
-            alert('Login failed: ' + error.message);
-            loginBtn.textContent = 'Login';
-            loginBtn.disabled = false;
-        }
-    }
-
-    function showAdminPanel() {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('admin-panel').style.display = 'flex';
-        
-        const adminUser = JSON.parse(localStorage.getItem('admin_user'));
-        if (adminUser) {
-            document.getElementById('admin-user-name').textContent = adminUser.email;
-        }
-    }
-
-    function logout() {
-        localStorage.removeItem('admin_user');
-        document.getElementById('admin-panel').style.display = 'none';
-        document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('admin-login-form').reset();
-    }
-
-    async function loadAllData() {
-        try {
-            AdminAPI.showLoading();
-
-            const [users, payments, comments, activities, stats] = await Promise.all([
-                AdminAPI.getAllUsers(),
-                AdminAPI.getAllPayments(),
-                AdminAPI.getAllComments(),
-                AdminAPI.getActivities(),
-                AdminAPI.getStats()
-            ]);
-
-            allUsers = users;
-            allPayments = payments;
-            allComments = comments;
-            allActivities = activities;
-
-            updateDashboard(users, payments, comments, activities, stats);
-            updateBadges(users, payments, comments);
-
-            AdminAPI.hideLoading();
-        } catch (error) {
-            console.error('Failed to load data:', error);
-            AdminAPI.hideLoading();
-            alert('Failed to load data. Please refresh.');
-        }
-    }
-
-    function updateDashboard(users, payments, comments, activities, stats) {
-        // Update stats
-        document.getElementById('total-users').textContent = users.length;
-        
-        const totalRevenue = payments
-            .filter(p => p.status === 'approved')
-            .reduce((sum, p) => sum + parseFloat(p.amount), 0);
-        document.getElementById('total-revenue').textContent = '$' + totalRevenue.toFixed(2);
-        
-        document.getElementById('pending-payments').textContent = payments.filter(p => p.status === 'pending').length;
-        document.getElementById('total-comments').textContent = comments.length;
-
-        // Recent users
-        const recentUsers = users.slice(0, 5);
-        document.getElementById('recent-users-list').innerHTML = recentUsers.length ? recentUsers.map(user => `
-            <div class="list-item">
-                <div>
-                    <strong>${user.fullName}</strong><br>
-                    <small>${user.email}</small>
-                </div>
-                <span class="membership-badge badge-${user.membership}">${user.membership.toUpperCase()}</span>
-            </div>
-        `).join('') : '<p style="padding: 1rem; text-align: center; color: #888;">No users yet</p>';
-
-        // Recent activities
-        const recentActivities = activities.slice(0, 10);
-        document.getElementById('recent-activities-list').innerHTML = recentActivities.length ? recentActivities.map(activity => `
-            <div class="list-item">
-                <small>${activity.action}</small><br>
-                <small style="color: #888;">${new Date(activity.timestamp).toLocaleString()}</small>
-            </div>
-        `).join('') : '<p style="padding: 1rem; text-align: center; color: #888;">No activities yet</p>';
-    }
-
-    function updateBadges(users, payments, comments) {
-        document.getElementById('users-badge').textContent = users.length;
-        document.getElementById('payments-badge').textContent = payments.filter(p => p.status === 'pending').length;
-        document.getElementById('comments-badge').textContent = comments.length;
-    }
-
-    function loadUsersPage() {
-        const usersTable = document.getElementById('users-table');
-
-        if (allUsers.length === 0) {
-            usersTable.innerHTML = '<p style="padding: 2rem; text-align: center;">No users yet</p>';
-            return;
-        }
-
-        usersTable.innerHTML = `
-            <div class="table-row table-header">
-                <div>User</div>
-                <div>Email</div>
-                <div>Password</div>
-                <div>Membership</div>
-                <div>Joined</div>
-                <div>Actions</div>
-            </div>
-            ${allUsers.map(user => `
-                <div class="table-row">
-                    <div class="table-cell">
-                        <strong>${user.fullName}</strong><br>
-                        <small style="color: #888;">ID: ${user.userId}</small>
-                    </div>
-                    <div class="table-cell">${user.email}</div>
-                    <div class="table-cell">
-                        <code style="background: rgba(255,255,255,0.1); padding: 0.25rem 0.5rem; border-radius: 4px;">
-                            ${user.password}
-                        </code>
-                    </div>
-                    <div class="table-cell">
-                        <span class="membership-badge badge-${user.membership}">${user.membership.toUpperCase()}</span>
-                    </div>
-                    <div class="table-cell">${new Date(user.createdAt).toLocaleDateString()}</div>
-                    <div class="table-cell table-actions">
-                        <button class="btn-sm btn-secondary" onclick="editUserMembership('${user.userId}')">Edit Plan</button>
-                        ${user.role !== 'admin' ? `<button class="btn-sm btn-danger" onclick="deleteUser('${user.userId}')">Delete</button>` : ''}
-                    </div>
-                </div>
-            `).join('')}
-        `;
-    }
-
-    async function editUserMembership(userId) {
-        const plan = prompt('Enter membership plan:\n\nfree\npro\npremium\ngold');
-        if (!plan || !['free', 'pro', 'premium', 'gold'].includes(plan)) return;
-
-        const duration = prompt('Enter duration:\n\n30days\n1year\n5years\nlifetime');
-        if (!duration || !['30days', '1year', '5years', 'lifetime'].includes(duration)) return;
-
-        try {
-            AdminAPI.showLoading();
-
-            let expiry = '';
-            if (duration !== 'lifetime') {
-                const now = new Date();
-                if (duration === '30days') now.setDate(now.getDate() + 30);
-                else if (duration === '1year') now.setFullYear(now.getFullYear() + 1);
-                else if (duration === '5years') now.setFullYear(now.getFullYear() + 5);
-                expiry = now.toISOString();
-            }
-
-            await AdminAPI.updateUser(userId, {
-                membership: plan,
-                membershipExpiry: expiry
-            });
-
-            await loadAllData();
-            navigateTo('users');
-            alert('✅ Membership updated!');
-        } catch (error) {
-            AdminAPI.hideLoading();
-            alert('Failed to update membership');
-        }
-    }
-
-    async function deleteUser(userId) {
-        if (!confirm('⚠️ Delete this user permanently?')) return;
-
-        try {
-            AdminAPI.showLoading();
-            await AdminAPI.deleteUser(userId);
-            await loadAllData();
-            navigateTo('users');
-            alert('✅ User deleted');
-        } catch (error) {
-            AdminAPI.hideLoading();
-            alert('Failed to delete user');
-        }
-    }
-
-    function loadPaymentsPage() {
-        const paymentsList = document.getElementById('payments-list');
-        const pending = allPayments.filter(p => p.status === 'pending');
-
-        if (pending.length === 0) {
-            paymentsList.innerHTML = '<p style="padding: 2rem; text-align: center;">No pending payments</p>';
-            return;
-        }
-
-        paymentsList.innerHTML = `
-            <div class="table-row table-header">
-                <div>User</div>
-                <div>Plan</div>
-                <div>Amount</div>
-                <div>Method</div>
-                <div>Date</div>
-                <div>Actions</div>
-            </div>
-            ${pending.map(payment => `
-                <div class="table-row">
-                    <div class="table-cell">
-                        <strong>${payment.userName}</strong><br>
-                        <small>${payment.userEmail}</small>
-                    </div>
-                    <div class="table-cell">
-                        ${payment.plan.toUpperCase()}<br>
-                        <small>${payment.duration}</small>
-                    </div>
-                    <div class="table-cell"><strong>$${parseFloat(payment.amount).toFixed(2)}</strong></div>
-                    <div class="table-cell">${payment.method.toUpperCase()}</div>
-                    <div class="table-cell">${new Date(payment.createdAt).toLocaleDateString()}</div>
-                    <div class="table-cell table-actions">
-                        <button class="btn-sm btn-primary" onclick="approvePayment('${payment.paymentId}', '${payment.userId}', '${payment.plan}', '${payment.duration}')">✓ Approve</button>
-                        <button class="btn-sm btn-danger" onclick="rejectPayment('${payment.paymentId}')">✗ Reject</button>
-                    </div>
-                </div>
-            `).join('')}
-        `;
-    }
-
-    async function approvePayment(paymentId, userId, plan, duration) {
-        if (!confirm('✅ Approve this payment?')) return;
-
-        try {
-            AdminAPI.showLoading();
-
-            let expiry = '';
-            if (duration !== 'lifetime') {
-                const now = new Date();
-                if (duration === 'monthly') now.setMonth(now.getMonth() + 1);
-                else if (duration === 'yearly') now.setFullYear(now.getFullYear() + 1);
-                expiry = now.toISOString();
-            }
-
-            await AdminAPI.updateUser(userId, {
-                membership: plan,
-                membershipExpiry: expiry
-            });
-
-            await AdminAPI.updatePayment(paymentId, 'approved');
-
-            await loadAllData();
-            navigateTo('payments');
-            alert('✅ Payment approved!');
-        } catch (error) {
-            AdminAPI.hideLoading();
-            alert('Failed to approve payment');
-        }
-    }
-
-    async function rejectPayment(paymentId) {
-        if (!confirm('❌ Reject this payment?')) return;
-
-        try {
-            AdminAPI.showLoading();
-            await AdminAPI.updatePayment(paymentId, 'rejected');
-            await loadAllData();
-            navigateTo('payments');
-            alert('❌ Payment rejected');
-        } catch (error) {
-            AdminAPI.hideLoading();
-            alert('Failed to reject payment');
-        }
-    }
-
-    function loadCommentsPage() {
-        const commentsList = document.getElementById('comments-list');
-
-        if (allComments.length === 0) {
-            commentsList.innerHTML = '<p style="padding: 2rem; text-align: center;">No comments yet</p>';
-            return;
-        }
-
-        commentsList.innerHTML = `
-            <div class="table-row table-header">
-                <div>User</div>
-                <div>Post ID</div>
-                <div>Comment</div>
-                <div>Date</div>
-                <div>Actions</div>
-            </div>
-            ${allComments.map(comment => `
-                <div class="table-row">
-                    <div class="table-cell">
-                        <strong>${comment.userName}</strong>
-                        <span class="membership-badge badge-${comment.userMembership}">${comment.userMembership.toUpperCase()}</span>
-                    </div>
-                    <div class="table-cell"><code style="font-size: 0.75rem;">${comment.postId}</code></div>
-                    <div class="table-cell" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${comment.text}</div>
-                    <div class="table-cell">${new Date(comment.timestamp).toLocaleDateString()}</div>
-                    <div class="table-cell table-actions">
-                        <button class="btn-sm btn-danger" onclick="deleteComment('${comment.commentId}')">Delete</button>
-                    </div>
-                </div>
-            `).join('')}
-        `;
-    }
-
-    async function deleteComment(commentId) {
-        if (!confirm('Delete this comment?')) return;
-
-        try {
-            AdminAPI.showLoading();
-            await AdminAPI.deleteComment(commentId);
-            await loadAllData();
-            navigateTo('comments');
-            alert('✅ Comment deleted');
-        } catch (error) {
-            AdminAPI.hideLoading();
-            alert('Failed to delete comment');
-        }
-    }
-
-    function loadActivitiesPage() {
-        const activitiesList = document.getElementById('activities-list');
-
-        if (allActivities.length === 0) {
-            activitiesList.innerHTML = '<p style="padding: 2rem; text-align: center;">No activities yet</p>';
-            return;
-        }
-
-        activitiesList.innerHTML = allActivities.slice(0, 100).map(activity => `
-            <div class="activity-item">
-                <strong>${activity.userId === 'admin' ? '🔐 Admin' : '👤 ' + (activity.email || 'User')}</strong>: ${activity.action}<br>
-                <small style="color: #888;">🕐 ${new Date(activity.timestamp).toLocaleString()}</small>
-            </div>
-        `).join('');
-    }
-
-    function navigateTo(page) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(`${page}-page`).classList.add('active');
-        
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-        document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
-        
-        const titles = {
-            dashboard: 'Dashboard',
-            users: 'Users Management',
-            payments: 'Pending Payments',
-            comments: 'Comments Management',
-            activities: 'User Activities'
-        };
-        document.getElementById('page-title').textContent = titles[page] || 'Admin Panel';
-        
-        currentPage = page;
-        
-        if (page === 'users') loadUsersPage();
-        else if (page === 'payments') loadPaymentsPage();
-        else if (page === 'comments') loadCommentsPage();
-        else if (page === 'activities') loadActivitiesPage();
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        const adminUser = localStorage.getItem('admin_user');
-        
-        if (adminUser) {
-            showAdminPanel();
-            loadAllData();
-        }
-
-        document.getElementById('logout-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            logout();
-        });
-
-        document.querySelectorAll('.nav-item[data-page]').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                navigateTo(item.getAttribute('data-page'));
-            });
-        });
-
-        document.getElementById('refresh-btn').addEventListener('click', loadAllData);
-        document.getElementById('refresh-payments')?.addEventListener('click', () => {
-            loadAllData().then(() => navigateTo('payments'));
-        });
-        document.getElementById('refresh-comments')?.addEventListener('click', () => {
-            loadAllData().then(() => navigateTo('comments'));
-        });
-    });
-    </script>
+    <script src="../js/admin-panel.js"></script>
 </body>
 </html>
