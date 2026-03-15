@@ -1,0 +1,103 @@
+{
+  "paypal": {
+    "enabled": true,
+    "email": "your-paypal@business.com",
+    "businessName": "GitHub CMS"
+  },
+  "bank": {
+    "enabled": true,
+    "bankName": "Commercial Bank of Ceylon",
+    "accountNumber": "1234567890",
+    "accountName": "Your Business Name",
+    "branch": "Colombo 03",
+    "branchCode": "001",
+    "swift": "CCEYLKLX",
+    "currency": "LKR"
+  },
+  "payhere": {
+    "enabled": true,
+    "merchantId": "1221149",
+    "merchantSecret": "YOUR_MERCHANT_SECRET",
+    "apiUrl": "https://sandbox.payhere.lk/pay/checkout",
+    "currency": "LKR",
+    "businessName": "GitHub CMS"
+  },
+  "plans": {
+    "free": {
+      "name": "Free",
+      "priceUSD": 0,
+      "priceLKR": 0,
+      "duration": "forever",
+      "features": [
+        "Basic content access",
+        "Watch with ads",
+        "Standard quality (480p)",
+        "1 device",
+        "Limited library"
+      ],
+      "color": "#6B7280"
+    },
+    "pro": {
+      "name": "Pro",
+      "priceUSD": 2,
+      "priceLKR": 600,
+      "duration": "monthly",
+      "features": [
+        "Everything in Free",
+        "Ad-free streaming",
+        "HD quality (1080p)",
+        "Download content",
+        "2 devices simultaneously",
+        "Advanced search",
+        "Watchlist sync",
+        "Email notifications"
+      ],
+      "color": "#3B82F6",
+      "popular": true
+    },
+    "premium": {
+      "name": "Premium",
+      "priceUSD": 10,
+      "priceLKR": 3000,
+      "duration": "monthly",
+      "features": [
+        "Everything in Pro",
+        "4K Ultra HD quality",
+        "Dolby Atmos audio",
+        "4 devices simultaneously",
+        "Exclusive early access",
+        "Behind-the-scenes content",
+        "Premium support",
+        "No buffering priority",
+        "Offline downloads (unlimited)"
+      ],
+      "color": "#8B5CF6"
+    },
+    "gold": {
+      "name": "Gold",
+      "priceUSD": 30,
+      "priceLKR": 9000,
+      "duration": "lifetime",
+      "features": [
+        "Everything in Premium",
+        "Lifetime access - Pay once, use forever",
+        "All future content included",
+        "Unlimited devices",
+        "VIP customer support",
+        "Beta features access",
+        "Community forum access",
+        "Annual exclusive perks",
+        "Transferable license"
+      ],
+      "color": "#F59E0B",
+      "special": true
+    }
+  },
+  "emailSettings": {
+    "fromName": "GitHub CMS",
+    "fromEmail": "noreply@githubcms.com",
+    "replyTo": "support@githubcms.com",
+    "footerText": "You're receiving this email because you have an account with GitHub CMS.",
+    "unsubscribeText": "Don't want to receive these emails? Update your preferences in account settings."
+  }
+}
