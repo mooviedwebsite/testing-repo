@@ -30,80 +30,100 @@ const UserAuth = {
         }
     },
 
-    // Update UI based on auth state
-    updateUI() {
-        console.log('🎨 Updating UI...');
+  // Update UI based on auth state
+updateUI() {
+    console.log('🎨 Updating UI...');
+    
+    const loginLink = document.querySelector('.login-link');
+    const userAccount = document.querySelector('.user-account');
+
+    if (this.currentUser) {
+        console.log('👤 User is logged in, showing user menu');
         
-        const loginLink = document.querySelector('.login-link');
-        const userAccount = document.querySelector('.user-account');
-
-        console.log('Login link element:', loginLink);
-        console.log('User account element:', userAccount);
-
-        if (this.currentUser) {
-            console.log('👤 User is logged in, showing user menu');
-            
-            // Hide login link
-            if (loginLink) {
-                loginLink.style.display = 'none';
-                console.log('✅ Login link hidden');
-            }
-
-            // Show user account
-            if (userAccount) {
-                userAccount.style.display = 'block';
-                
-                // Create user menu HTML
-                const planBadgeClass = this.getPlanBadgeClass(this.currentUser.plan);
-                
-                userAccount.innerHTML = `
-                    <div class="user-menu">
-                        <button class="user-btn" onclick="UserAuth.toggleMenu(event)">
-                            <span class="user-icon">👤</span>
-                            <span class="user-name">${this.currentUser.fullName || 'User'}</span>
-                            <span class="user-plan ${planBadgeClass}">${this.currentUser.plan.toUpperCase()}</span>
-                        </button>
-                        <div class="user-dropdown" id="user-dropdown">
-                            <a href="profile.html">
-                                <span class="dropdown-icon">👤</span>
-                                <span>Profile</span>
-                            </a>
-                            <a href="membership.html">
-                                <span class="dropdown-icon">💎</span>
-                                <span>Membership</span>
-                            </a>
-                            ${this.currentUser.userId === 'admin' ? `
-                                <a href="admin/index.html">
-                                    <span class="dropdown-icon">⚙️</span>
-                                    <span>Admin Panel</span>
-                                </a>
-                            ` : ''}
-                            <div class="dropdown-divider"></div>
-                            <a href="#" onclick="UserAuth.logout(); return false;">
-                                <span class="dropdown-icon">🚪</span>
-                                <span>Logout</span>
-                            </a>
-                        </div>
-                    </div>
-                `;
-                
-                console.log('✅ User menu created');
-            }
-        } else {
-            console.log('🔓 No user logged in, showing login link');
-            
-            // Show login link
-            if (loginLink) {
-                loginLink.style.display = 'inline-block';
-            }
-            
-            // Hide user account
-            if (userAccount) {
-                userAccount.style.display = 'none';
-                userAccount.innerHTML = '';
-            }
+        // Hide login link
+        if (loginLink) {
+            loginLink.style.display = 'none';
         }
-    },
+
+        // Show user account
+        if (userAccount) {
+            userAccount.style.display = 'block';
+            
+            // Create user menu HTML
+            const planBadgeClass = this.getPlanBadgeClass(this.currentUser.plan);
+            
+            userAccount.innerHTML = `
+                <div class="user-menu">
+                    <button class="user-btn" id="user-menu-btn">
+                        <span class="user-icon">👤</span>
+                        <span class="user-name">${this.currentUser.fullName || 'User'}</span>
+                        <span class="user-plan ${planBadgeClass}">${this.currentUser.plan.toUpperCase()}</span>
+                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <a href="profile.html">
+                            <span class="dropdown-icon">👤</span>
+                            <span>Profile</span>
+                        </a>
+                        <a href="membership.html">
+                            <span class="dropdown-icon">💎</span>
+                            <span>Membership</span>
+                        </a>
+                        ${this.currentUser.userId === 'admin' ? `
+                            <a href="admin/index.html">
+                                <span class="dropdown-icon">⚙️</span>
+                                <span>Admin Panel</span>
+                            </a>
+                        ` : ''}
+                        <div class="dropdown-divider"></div>
+                        <a href="#" id="logout-link">
+                            <span class="dropdown-icon">🚪</span>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners after HTML is created
+            setTimeout(() => {
+                const menuBtn = document.getElementById('user-menu-btn');
+                const logoutLink = document.getElementById('logout-link');
+                
+                if (menuBtn) {
+                    menuBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const dropdown = document.getElementById('user-dropdown');
+                        if (dropdown) {
+                            dropdown.classList.toggle('active');
+                            console.log('Dropdown toggled:', dropdown.classList.contains('active'));
+                        }
+                    });
+                }
+                
+                if (logoutLink) {
+                    logoutLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.logout();
+                    });
+                }
+            }, 100);
+            
+            console.log('✅ User menu created');
+        }
+    } else {
+        console.log('🔓 No user logged in, showing login link');
+        
+        // Show login link
+        if (loginLink) {
+            loginLink.style.display = 'inline-block';
+        }
+        
+        // Hide user account
+        if (userAccount) {
+            userAccount.style.display = 'none';
+            userAccount.innerHTML = '';
+        }
+    }
+},
 
     // Get plan badge class
     getPlanBadgeClass(plan) {
