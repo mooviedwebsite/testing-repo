@@ -4,127 +4,275 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub CMS - Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/netflix-cards.css">
     <link rel="stylesheet" href="css/netflix-modal.css">
     
     <style>
-        /* USER MENU INLINE CSS - IN CASE EXTERNAL CSS NOT LOADED */
+        /* ========================================
+           NETFLIX USER MENU - INLINE CSS
+        ======================================== */
+        
         .user-account {
             position: relative;
             display: none;
         }
-        
-        .user-menu {
+
+        .netflix-user-menu {
             position: relative;
         }
-        
-        .user-btn {
+
+        /* User Trigger Button */
+        .netflix-user-trigger {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
+            gap: 8px;
+            padding: 4px;
+            background: transparent;
+            border: none;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-family: 'Poppins', sans-serif;
         }
-        
-        .user-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
+
+        .netflix-user-trigger:hover {
+            opacity: 0.8;
         }
-        
-        .user-icon {
-            font-size: 20px;
-        }
-        
-        .user-name {
-            font-weight: 600;
-            max-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .user-plan {
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 10px;
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #E50914, #B20710);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            font-size: 16px;
         }
-        
-        .plan-free { background: #6B7280; color: #fff; }
-        .plan-pro { background: #3B82F6; color: #fff; }
-        .plan-premium { background: #8B5CF6; color: #fff; }
-        .plan-gold { background: linear-gradient(135deg, #F59E0B, #FBBF24); color: #fff; }
-        .plan-admin { background: #E50914; color: #fff; }
-        
-        .user-dropdown {
+
+        .dropdown-arrow {
+            color: #fff;
+            transition: transform 0.2s ease;
+        }
+
+        .netflix-user-trigger:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* User Panel */
+        .netflix-user-panel {
             position: absolute;
-            top: calc(100% + 10px);
+            top: calc(100% + 15px);
             right: 0;
-            min-width: 220px;
-            background: #1a1a1a;
+            width: 340px;
+            background: #181818;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: all 0.25s ease;
-            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10000;
             overflow: hidden;
         }
-        
-        .user-dropdown.active {
+
+        .netflix-user-panel.active {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
-        
-        .user-dropdown a {
+
+        /* Panel Header */
+        .panel-header {
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.1), transparent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info-card {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .user-avatar-large {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #E50914, #B20710);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-details h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .user-email {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 0 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .user-plan-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+
+        /* Stats Grid */
+        .panel-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1px;
+            margin: 0;
+        }
+
+        .stat-item {
+            padding: 16px 12px;
+            background: #181818;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Quick Actions */
+        .panel-actions {
+            padding: 12px 8px;
+        }
+
+        .action-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 18px;
-            color: rgba(255, 255, 255, 0.85);
+            padding: 12px 16px;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
+            border-radius: 8px;
             transition: all 0.2s ease;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
         }
-        
-        .user-dropdown a:last-child {
-            border-bottom: none;
-        }
-        
-        .user-dropdown a:hover {
+
+        .action-item:hover {
             background: rgba(255, 255, 255, 0.08);
             color: #fff;
-            padding-left: 22px;
         }
-        
-        .dropdown-icon {
-            font-size: 18px;
-            width: 20px;
+
+        .action-item.admin-link:hover {
+            background: rgba(229, 9, 20, 0.1);
+        }
+
+        .action-icon {
+            font-size: 20px;
+            width: 24px;
             text-align: center;
         }
-        
-        .dropdown-divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 8px 0;
+
+        .action-text {
+            flex: 1;
+            font-size: 15px;
+            font-weight: 500;
         }
-        
+
+        .action-badge {
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .action-badge.upgrade {
+            background: #3B82F6;
+            color: #fff;
+        }
+
+        /* Panel Footer */
+        .panel-footer {
+            padding: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .logout-btn:hover {
+            background: rgba(229, 9, 20, 0.1);
+            border-color: rgba(229, 9, 20, 0.3);
+            color: #E50914;
+        }
+
+        /* Login Link */
         .login-link {
             display: inline-block;
             padding: 10px 20px;
@@ -136,18 +284,66 @@
             font-size: 14px;
             transition: all 0.2s ease;
         }
-        
+
         .login-link:hover {
             background: #B20710;
             transform: translateY(-2px);
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .netflix-user-panel {
+                width: 320px;
+                right: -10px;
+            }
+            
+            .panel-header {
+                padding: 20px;
+            }
+            
+            .user-avatar-large {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+            
+            .user-details h3 {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .netflix-user-panel {
+                width: 300px;
+                right: -20px;
+            }
+            
+            .panel-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .stat-item {
+                padding: 12px 8px;
+            }
+            
+            .stat-icon {
+                font-size: 20px;
+            }
+            
+            .stat-value {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="logo">
-                <h1>GITHUB CMS</h1>
+                <a href="index.html">
+                    <h1>GITHUB CMS</h1>
+                </a>
             </div>
             <nav class="nav">
                 <a href="index.html" class="active">Home</a>
@@ -155,53 +351,312 @@
                 <a href="bookmarks.html">My List</a>
                 <a href="membership.html">Membership</a>
                 
-                <!-- User Account Menu (Will be populated by JavaScript) -->
-                <div class="user-account" id="user-account"></div>
+                <!-- Netflix User Menu (Populated by JS) -->
+                <div class="user-account"></div>
                 
                 <!-- Login Link (Hidden when logged in) -->
-                <a href="auth.html" class="login-link" id="login-link">Login</a>
+                <a href="auth.html" class="login-link">Login</a>
             </nav>
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="main">
         <div class="container">
-            <section class="hero-section" style="padding: 60px 0; text-align: center;">
-                <h1 style="font-size: 48px; margin-bottom: 20px;">Welcome to GitHub CMS</h1>
-                <p style="font-size: 20px; color: rgba(255,255,255,0.7);">Unlimited movies, TV shows, and more</p>
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <h1 class="hero-title">Welcome to GitHub CMS</h1>
+                <p class="hero-subtitle">Unlimited movies, TV shows, and more</p>
+                <div class="hero-actions">
+                    <a href="search.html" class="btn-hero-primary">
+                        <span>▶</span>
+                        <span>Explore Now</span>
+                    </a>
+                    <a href="membership.html" class="btn-hero-secondary">
+                        <span>ℹ</span>
+                        <span>Learn More</span>
+                    </a>
+                </div>
             </section>
 
-            <section class="content-section" style="margin-top: 40px;">
-                <h2 style="font-size: 24px; margin-bottom: 20px;">Featured Content</h2>
-                <div class="netflix-grid" id="featured-grid"></div>
+            <!-- Featured Content -->
+            <section class="content-section">
+                <h2 class="section-title">Featured Content</h2>
+                <div class="netflix-grid" id="featured-grid">
+                    <!-- Cards will be rendered here by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Trending Now -->
+            <section class="content-section">
+                <h2 class="section-title">Trending Now</h2>
+                <div class="netflix-grid" id="trending-grid">
+                    <!-- Cards will be rendered here -->
+                </div>
+            </section>
+
+            <!-- New Releases -->
+            <section class="content-section">
+                <h2 class="section-title">New Releases</h2>
+                <div class="netflix-grid" id="new-grid">
+                    <!-- Cards will be rendered here -->
+                </div>
             </section>
         </div>
     </main>
 
-    <footer class="footer" style="margin-top: 80px; padding: 40px 0; text-align: center; background: rgba(255,255,255,0.03);">
+    <!-- Footer -->
+    <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 GitHub CMS</p>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>GitHub CMS</h3>
+                    <p>Your premium streaming platform</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="search.html">Search</a></li>
+                        <li><a href="bookmarks.html">My List</a></li>
+                        <li><a href="membership.html">Membership</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">YouTube</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 GitHub CMS. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
-    <!-- Load Scripts -->
+    <!-- Scripts -->
     <script src="js/user-auth.js"></script>
     <script src="js/netflix-cards.js"></script>
+    
     <script>
-        // Load content
+        // Load content when page loads
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('🚀 Page loaded');
             
-            // Load posts
             try {
+                // Load posts registry
                 const response = await fetch('data/posts-registry.json');
                 const data = await response.json();
-                NetflixCards.renderCards(data.posts.slice(0, 12), 'featured-grid');
-                console.log('✅ Content loaded');
+                
+                console.log('✅ Posts loaded:', data.posts.length);
+                
+                // Render featured content (first 12 posts)
+                if (window.NetflixCards) {
+                    NetflixCards.renderCards(data.posts.slice(0, 12), 'featured-grid');
+                    console.log('✅ Featured grid rendered');
+                    
+                    // Render trending (next 12 posts)
+                    NetflixCards.renderCards(data.posts.slice(12, 24), 'trending-grid');
+                    console.log('✅ Trending grid rendered');
+                    
+                    // Render new releases (next 12 posts)
+                    NetflixCards.renderCards(data.posts.slice(24, 36), 'new-grid');
+                    console.log('✅ New releases grid rendered');
+                } else {
+                    console.error('❌ NetflixCards not found');
+                }
+                
             } catch (error) {
                 console.error('❌ Failed to load content:', error);
             }
         });
     </script>
+    
+    <style>
+        /* Hero Section Styles */
+        .hero-section {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(180deg, rgba(229, 9, 20, 0.1) 0%, transparent 100%);
+            border-radius: 12px;
+            margin-bottom: 60px;
+        }
+
+        .hero-title {
+            font-size: 56px;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 20px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0 0 40px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero-primary,
+        .btn-hero-secondary {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-hero-primary {
+            background: #E50914;
+            color: #fff;
+        }
+
+        .btn-hero-primary:hover {
+            background: #B20710;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.4);
+        }
+
+        .btn-hero-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-hero-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        /* Content Section */
+        .content-section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 24px;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: #141414;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 60px 0 20px;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3,
+        .footer-section h4 {
+            color: #fff;
+            margin: 0 0 16px;
+            font-weight: 700;
+        }
+
+        .footer-section h3 {
+            font-size: 24px;
+        }
+
+        .footer-section h4 {
+            font-size: 16px;
+        }
+
+        .footer-section p {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: #E50914;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-bottom p {
+            color: rgba(255, 255, 255, 0.5);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
+            .btn-hero-primary,
+            .btn-hero-secondary {
+                padding: 14px 24px;
+                font-size: 16px;
+            }
+
+            .section-title {
+                font-size: 22px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+    </style>
 </body>
 </html>
