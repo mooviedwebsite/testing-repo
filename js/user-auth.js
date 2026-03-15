@@ -1,18 +1,16 @@
 /* ========================================
-   USER AUTHENTICATION - SIMPLIFIED
+   NETFLIX STYLE USER MENU PANEL
 ======================================== */
 
 const UserAuth = {
     currentUser: null,
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
 
-    // Initialize
     init() {
-        console.log('🔐 UserAuth Init');
         this.loadUser();
         this.updateUI();
     },
 
-    // Load user from localStorage
     loadUser() {
         const data = localStorage.getItem('currentUser');
         if (data) {
@@ -20,98 +18,165 @@ const UserAuth = {
                 this.currentUser = JSON.parse(data);
                 console.log('✅ User loaded:', this.currentUser.email);
             } catch (e) {
-                console.error('❌ Parse error:', e);
                 localStorage.removeItem('currentUser');
             }
-        } else {
-            console.log('ℹ️ No user logged in');
         }
     },
 
-    // Update UI
-    updateUI() {
-        console.log('🎨 Updating UI...');
-        
-        const loginLink = document.getElementById('login-link');
-        const userAccount = document.getElementById('user-account');
+    async updateUI() {
+        const loginLink = document.querySelector('.login-link');
+        const userAccount = document.querySelector('.user-account');
 
-        console.log('Login Link:', loginLink);
-        console.log('User Account:', userAccount);
-
-        if (!loginLink || !userAccount) {
-            console.error('❌ Elements not found!');
-            return;
-        }
+        if (!userAccount) return;
 
         if (this.currentUser) {
-            console.log('👤 Showing user menu');
-            
-            // Hide login link
-            loginLink.style.display = 'none';
-            
-            // Show user account
+            if (loginLink) loginLink.style.display = 'none';
             userAccount.style.display = 'block';
             
-            // Get plan class
-            const planClass = this.getPlanClass(this.currentUser.plan);
+            // Get subscription info
+            let subscription = null;
+            try {
+                const response = await fetch(`${this.SCRIPT_URL}?action=getUserSubscription&userId=${this.currentUser.userId}`);
+                subscription = await response.json();
+            } catch (e) {
+                console.log('Could not load subscription');
+            }
+
+            // Get saved count
+            const savedPosts = JSON.parse(localStorage.getItem('netflix_saved') || '[]');
+            const savedCount = savedPosts.length;
+
+            // Create Netflix-style menu
+            userAccount.innerHTML = this.createNetflixMenu(subscription, savedCount);
             
-            // Create menu HTML
-            userAccount.innerHTML = `
-                <div class="user-menu">
-                    <button class="user-btn" id="user-menu-button">
-                        <span class="user-icon">👤</span>
-                        <span class="user-name">${this.currentUser.fullName || 'User'}</span>
-                        <span class="user-plan ${planClass}">${this.currentUser.plan.toUpperCase()}</span>
-                    </button>
-                    <div class="user-dropdown" id="user-dropdown">
-                        <a href="profile.html">
-                            <span class="dropdown-icon">👤</span>
-                            <span>Profile</span>
-                        </a>
-                        <a href="membership.html">
-                            <span class="dropdown-icon">💎</span>
-                            <span>Membership</span>
-                        </a>
-                        ${this.currentUser.userId === 'admin' ? `
-                            <a href="admin/index.html">
-                                <span class="dropdown-icon">⚙️</span>
-                                <span>Admin Panel</span>
-                            </a>
-                        ` : ''}
-                        <div class="dropdown-divider"></div>
-                        <a href="#" id="logout-btn">
-                            <span class="dropdown-icon">🚪</span>
-                            <span>Logout</span>
-                        </a>
-                    </div>
-                </div>
-            `;
-            
-            console.log('✅ Menu HTML created');
-            
-            // Add event listeners
-            setTimeout(() => {
-                this.attachListeners();
-            }, 100);
+            // Attach listeners
+            setTimeout(() => this.attachListeners(), 100);
             
         } else {
-            console.log('🔓 Showing login link');
-            loginLink.style.display = 'inline-block';
+            if (loginLink) loginLink.style.display = 'inline-block';
             userAccount.style.display = 'none';
         }
     },
 
-    // Attach event listeners
+    createNetflixMenu(subscription, savedCount) {
+        const planColors = {
+            'free': '#6B7280',
+            'pro': '#3B82F6',
+            'premium': '#8B5CF6',
+            'gold': 'linear-gradient(135deg, #F59E0B, #FBBF24)',
+            'admin': '#E50914'
+        };
+
+        const planColor = planColors[this.currentUser.plan] || planColors.free;
+        const isGradient = this.currentUser.plan === 'gold';
+
+        // Format expiry date
+        let expiryText = 'Active';
+        if (subscription && subscription.expiryDate && subscription.expiryDate !== 'lifetime') {
+            const expiry = new Date(subscription.expiryDate);
+            expiryText = 'Expires ' + expiry.toLocaleDateString();
+        } else if (subscription && subscription.expiryDate === 'lifetime') {
+            expiryText = 'Lifetime Access';
+        }
+
+        return `
+            <div class="netflix-user-menu">
+                <button class="netflix-user-trigger" id="netflix-user-btn">
+                    <div class="user-avatar">
+                        <span>${this.currentUser.fullName.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 6l4 4 4-4"/>
+                    </svg>
+                </button>
+                
+                <div class="netflix-user-panel" id="netflix-user-panel">
+                    <!-- User Header -->
+                    <div class="panel-header">
+                        <div class="user-info-card">
+                            <div class="user-avatar-large">
+                                <span>${this.currentUser.fullName.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div class="user-details">
+                                <h3>${this.currentUser.fullName}</h3>
+                                <p class="user-email">${this.currentUser.email}</p>
+                                <div class="user-plan-badge" style="background: ${isGradient ? planColor : 'none'}; background-color: ${isGradient ? 'transparent' : planColor};">
+                                    ${this.currentUser.plan.toUpperCase()} MEMBER
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="panel-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-info">
+                                <span class="stat-value">${savedCount}</span>
+                                <span class="stat-label">My List</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">💎</div>
+                            <div class="stat-info">
+                                <span class="stat-value">${this.currentUser.plan.toUpperCase()}</span>
+                                <span class="stat-label">Plan</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">⏰</div>
+                            <div class="stat-info">
+                                <span class="stat-value">${expiryText}</span>
+                                <span class="stat-label">Status</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="panel-actions">
+                        <a href="bookmarks.html" class="action-item">
+                            <span class="action-icon">📖</span>
+                            <span class="action-text">My List</span>
+                            <span class="action-badge">${savedCount}</span>
+                        </a>
+                        <a href="membership.html" class="action-item">
+                            <span class="action-icon">💳</span>
+                            <span class="action-text">Membership</span>
+                            ${this.currentUser.plan === 'free' ? '<span class="action-badge upgrade">Upgrade</span>' : ''}
+                        </a>
+                        <a href="profile.html" class="action-item">
+                            <span class="action-icon">⚙️</span>
+                            <span class="action-text">Settings</span>
+                        </a>
+                        ${this.currentUser.userId === 'admin' ? `
+                            <a href="admin/index.html" class="action-item admin-link">
+                                <span class="action-icon">👑</span>
+                                <span class="action-text">Admin Panel</span>
+                            </a>
+                        ` : ''}
+                    </div>
+
+                    <!-- Logout -->
+                    <div class="panel-footer">
+                        <button class="logout-btn" id="netflix-logout-btn">
+                            <span>🚪</span>
+                            <span>Sign Out</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
     attachListeners() {
-        const menuBtn = document.getElementById('user-menu-button');
-        const logoutBtn = document.getElementById('logout-btn');
+        const triggerBtn = document.getElementById('netflix-user-btn');
+        const logoutBtn = document.getElementById('netflix-logout-btn');
         
-        if (menuBtn) {
-            menuBtn.addEventListener('click', (e) => {
+        if (triggerBtn) {
+            triggerBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.toggleDropdown();
+                this.togglePanel();
             });
-            console.log('✅ Menu button listener attached');
         }
         
         if (logoutBtn) {
@@ -119,36 +184,18 @@ const UserAuth = {
                 e.preventDefault();
                 this.logout();
             });
-            console.log('✅ Logout button listener attached');
         }
     },
 
-    // Toggle dropdown
-    toggleDropdown() {
-        const dropdown = document.getElementById('user-dropdown');
-        if (dropdown) {
-            const isActive = dropdown.classList.contains('active');
-            dropdown.classList.toggle('active');
-            console.log('🔽 Dropdown toggled:', !isActive);
+    togglePanel() {
+        const panel = document.getElementById('netflix-user-panel');
+        if (panel) {
+            panel.classList.toggle('active');
         }
     },
 
-    // Get plan class
-    getPlanClass(plan) {
-        const classes = {
-            'free': 'plan-free',
-            'pro': 'plan-pro',
-            'premium': 'plan-premium',
-            'gold': 'plan-gold',
-            'admin': 'plan-admin'
-        };
-        return classes[plan.toLowerCase()] || 'plan-free';
-    },
-
-    // Logout
     logout() {
-        if (confirm('Logout?')) {
-            console.log('🚪 Logging out');
+        if (confirm('Sign out of GitHub CMS?')) {
             localStorage.removeItem('currentUser');
             sessionStorage.removeItem('adminAuth');
             window.location.href = 'auth.html';
@@ -156,19 +203,15 @@ const UserAuth = {
     }
 };
 
-// Initialize when DOM loads
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('📄 DOM Ready');
-    UserAuth.init();
-});
+// Initialize
+document.addEventListener('DOMContentLoaded', () => UserAuth.init());
 
-// Close dropdown on outside click
+// Close panel on outside click
 document.addEventListener('click', (e) => {
-    const dropdown = document.getElementById('user-dropdown');
-    if (dropdown && !e.target.closest('.user-menu')) {
-        dropdown.classList.remove('active');
+    const panel = document.getElementById('netflix-user-panel');
+    if (panel && !e.target.closest('.netflix-user-menu')) {
+        panel.classList.remove('active');
     }
 });
 
-// Export
 window.UserAuth = UserAuth;
