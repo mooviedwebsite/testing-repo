@@ -8,6 +8,87 @@
     <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body>
+    <!-- Add this in the admin panel header -->
+<div class="admin-header">
+    <div class="container">
+        <div class="admin-logo">
+            <h1>⚙️ Admin Panel</h1>
+        </div>
+        <div class="admin-nav">
+            <span id="admin-user-email">Loading...</span>
+            <button onclick="logout()" class="btn-logout">🚪 Logout</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Display admin email in header
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                const user = JSON.parse(currentUser);
+                const emailElement = document.getElementById('admin-user-email');
+                if (emailElement) {
+                    emailElement.textContent = user.email;
+                }
+            } catch (e) {
+                console.error('Error displaying email:', e);
+            }
+        }
+    });
+</script>
+
+<style>
+    .admin-header {
+        background: #1a1a1a;
+        border-bottom: 2px solid #E50914;
+        padding: 15px 0;
+        margin-bottom: 30px;
+    }
+    
+    .admin-header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .admin-logo h1 {
+        color: #fff;
+        font-size: 24px;
+        margin: 0;
+    }
+    
+    .admin-nav {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .admin-nav span {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+    }
+    
+    .btn-logout {
+        padding: 8px 16px;
+        background: rgba(229, 9, 20, 0.1);
+        border: 1px solid rgba(229, 9, 20, 0.3);
+        border-radius: 6px;
+        color: #E50914;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-logout:hover {
+        background: rgba(229, 9, 20, 0.2);
+        border-color: #E50914;
+    }
+</style>
     <div class="admin-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -357,59 +438,84 @@
     </div>
 
     <script src="../js/admin-panel.js"></script>
-    <script>
+  <script>
     /* ========================================
-       ADMIN AUTHENTICATION CHECK
+       ADMIN AUTHENTICATION - FIXED
     ======================================== */
 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
     const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
-    const ADMIN_PASSWORD = 'Rnd@12114';
 
     // Check authentication
     function checkAuth() {
-        console.log('Checking admin authentication...');
+        console.log('🔐 Checking admin authentication...');
         
-        // Check session storage
+        // Check if admin session exists
         const isAuthenticated = sessionStorage.getItem('adminAuth');
-        console.log('Session auth:', isAuthenticated);
-        
-        // Check localStorage for user
         const currentUser = localStorage.getItem('currentUser');
-        console.log('Current user:', currentUser);
         
-        if (isAuthenticated === 'true' && currentUser) {
-            try {
-                const user = JSON.parse(currentUser);
-                console.log('User data:', user);
-                
-                if (user.userId === 'admin' && user.email === ADMIN_EMAIL) {
-                    console.log('✅ Admin authenticated');
-                    return true;
-                }
-            } catch (error) {
-                console.error('Failed to parse user data:', error);
-            }
+        console.log('Session adminAuth:', isAuthenticated);
+        console.log('LocalStorage currentUser:', currentUser);
+        
+        if (!currentUser) {
+            console.log('❌ No user data found');
+            alert('⚠️ Please login first');
+            window.location.href = '../auth.html';
+            return false;
         }
         
-        console.log('❌ Admin authentication failed');
-        alert('⚠️ Admin access required. Please login.');
-        window.location.href = '../auth.html';
-        return false;
+        try {
+            const user = JSON.parse(currentUser);
+            console.log('User data:', user);
+            
+            // Check if user is admin
+            if (user.userId === 'admin' && user.email === ADMIN_EMAIL) {
+                console.log('✅ Admin authenticated');
+                
+                // Ensure admin has gold plan
+                if (user.plan !== 'gold') {
+                    user.plan = 'gold';
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                }
+                
+                // Set admin session if not set
+                if (isAuthenticated !== 'true') {
+                    sessionStorage.setItem('adminAuth', 'true');
+                }
+                
+                return true;
+            } else {
+                console.log('❌ User is not admin');
+                alert('⚠️ Admin access only. You are logged in as: ' + user.email);
+                window.location.href = '../index.html';
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ Parse error:', error);
+            alert('⚠️ Invalid session. Please login again.');
+            localStorage.removeItem('currentUser');
+            sessionStorage.removeItem('adminAuth');
+            window.location.href = '../auth.html';
+            return false;
+        }
     }
 
     // Logout
     function logout() {
-        if (confirm('Are you sure you want to logout?')) {
+        if (confirm('Sign out from admin panel?')) {
             sessionStorage.removeItem('adminAuth');
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('userSubscription');
             window.location.href = '../auth.html';
         }
     }
 
-    // Check auth on page load
+    // Check auth on load
     if (!checkAuth()) {
         throw new Error('Authentication failed');
     }
+    
+    console.log('✅ Admin panel ready');
 </script>
 <script src="../js/admin-panel.js"></script>
 </body>
