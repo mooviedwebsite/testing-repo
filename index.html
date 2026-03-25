@@ -451,39 +451,62 @@
     <script src="js/user-auth.js"></script>
     <script src="js/netflix-cards.js"></script>
     
-    <script>
-        // Load content when page loads
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('🚀 Page loaded');
-            
+  <script>
+    /* ========================================
+       ADMIN AUTHENTICATION - FIXED
+    ======================================== */
+
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
+    const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
+
+    // Check authentication
+    function checkAuth() {
+        console.log('🔐 Checking admin authentication...');
+        
+        const isAuthenticated = sessionStorage.getItem('adminAuth');
+        const currentUser = localStorage.getItem('currentUser');
+        
+        if (isAuthenticated === 'true' && currentUser) {
             try {
-                // Load posts registry
-                const response = await fetch('data/posts-registry.json');
-                const data = await response.json();
+                const user = JSON.parse(currentUser);
                 
-                console.log('✅ Posts loaded:', data.posts.length);
-                
-                // Render featured content (first 12 posts)
-                if (window.NetflixCards) {
-                    NetflixCards.renderCards(data.posts.slice(0, 12), 'featured-grid');
-                    console.log('✅ Featured grid rendered');
+                // Check if user is admin
+                if (user.userId === 'admin' && user.email === ADMIN_EMAIL) {
+                    console.log('✅ Admin authenticated');
                     
-                    // Render trending (next 12 posts)
-                    NetflixCards.renderCards(data.posts.slice(12, 24), 'trending-grid');
-                    console.log('✅ Trending grid rendered');
+                    // Update user plan to gold in localStorage
+                    user.plan = 'gold';
+                    localStorage.setItem('currentUser', JSON.stringify(user));
                     
-                    // Render new releases (next 12 posts)
-                    NetflixCards.renderCards(data.posts.slice(24, 36), 'new-grid');
-                    console.log('✅ New releases grid rendered');
-                } else {
-                    console.error('❌ NetflixCards not found');
+                    return true;
                 }
-                
             } catch (error) {
-                console.error('❌ Failed to load content:', error);
+                console.error('Parse error:', error);
             }
-        });
-    </script>
+        }
+        
+        console.log('❌ Admin authentication failed');
+        alert('⚠️ Admin access required. Please login.');
+        window.location.href = '../auth.html';
+        return false;
+    }
+
+    // Logout
+    function logout() {
+        if (confirm('Sign out from admin panel?')) {
+            sessionStorage.removeItem('adminAuth');
+            localStorage.removeItem('currentUser');
+            window.location.href = '../auth.html';
+        }
+    }
+
+    // Check auth on load
+    if (!checkAuth()) {
+        throw new Error('Authentication failed');
+    }
+    
+    console.log('✅ Admin panel loaded');
+</script>
     
     <style>
         /* Hero Section Styles */
