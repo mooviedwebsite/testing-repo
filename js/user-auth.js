@@ -1,14 +1,16 @@
 /* ========================================
-   NETFLIX STYLE USER MENU PANEL
+   NETFLIX USER MENU - OPTIMIZED & FAST
 ======================================== */
 
 const UserAuth = {
     currentUser: null,
+    subscription: null,
     SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec',
 
     init() {
         this.loadUser();
-        this.updateUI();
+        this.updateUIInstantly(); // Show menu immediately
+        this.loadSubscriptionAsync(); // Load subscription in background
     },
 
     loadUser() {
@@ -23,7 +25,8 @@ const UserAuth = {
         }
     },
 
-    async updateUI() {
+    // Show menu instantly with cached data
+    updateUIInstantly() {
         const loginLink = document.querySelector('.login-link');
         const userAccount = document.querySelector('.user-account');
 
@@ -33,24 +36,15 @@ const UserAuth = {
             if (loginLink) loginLink.style.display = 'none';
             userAccount.style.display = 'block';
             
-            // Get subscription info
-            let subscription = null;
-            try {
-                const response = await fetch(`${this.SCRIPT_URL}?action=getUserSubscription&userId=${this.currentUser.userId}`);
-                subscription = await response.json();
-            } catch (e) {
-                console.log('Could not load subscription');
-            }
-
-            // Get saved count
+            // Get saved count instantly from localStorage
             const savedPosts = JSON.parse(localStorage.getItem('netflix_saved') || '[]');
             const savedCount = savedPosts.length;
 
-            // Create Netflix-style menu
-            userAccount.innerHTML = this.createNetflixMenu(subscription, savedCount);
+            // Show menu immediately with cached/default data
+            userAccount.innerHTML = this.createNetflixMenu(null, savedCount);
             
             // Attach listeners
-            setTimeout(() => this.attachListeners(), 100);
+            setTimeout(() => this.attachListeners(), 50);
             
         } else {
             if (loginLink) loginLink.style.display = 'inline-block';
@@ -58,25 +52,84 @@ const UserAuth = {
         }
     },
 
+    // Load subscription data in background and update
+    async loadSubscriptionAsync() {
+        if (!this.currentUser) return;
+
+        try {
+            const response = await fetch(`${this.SCRIPT_URL}?action=getUserSubscription&userId=${this.currentUser.userId}`, {
+                method: 'GET',
+                cache: 'no-cache'
+            });
+            const data = await response.json();
+            
+            if (data && data.plan) {
+                this.subscription = data;
+                
+                // Update user plan if different
+                if (data.plan !== this.currentUser.plan) {
+                    this.currentUser.plan = data.plan;
+                    localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                }
+                
+                // Update the menu with real subscription data
+                this.updateSubscriptionDisplay();
+                console.log('✅ Subscription loaded:', data.plan);
+            }
+        } catch (e) {
+            console.log('⚠️ Could not load subscription (using cached data)');
+        }
+    },
+
+    // Update only the subscription parts of the menu
+    updateSubscriptionDisplay() {
+        if (!this.subscription) return;
+
+        // Update plan badge
+        const planBadge = document.querySelector('.user-plan-badge');
+        if (planBadge) {
+            const planColor = this.getPlanColor(this.subscription.plan);
+            const isGradient = this.subscription.plan === 'gold';
+            planBadge.style.background = isGradient ? planColor : 'none';
+            planBadge.style.backgroundColor = isGradient ? 'transparent' : planColor;
+            planBadge.textContent = this.subscription.plan.toUpperCase() + ' MEMBER';
+        }
+
+        // Update plan stat
+        const planStat = document.querySelector('.stat-value-plan');
+        if (planStat) {
+            planStat.textContent = this.subscription.plan.toUpperCase();
+        }
+
+        // Update status stat
+        const statusStat = document.querySelector('.stat-value-status');
+        if (statusStat) {
+            let expiryText = 'Active';
+            if (this.subscription.expiryDate && this.subscription.expiryDate !== 'lifetime') {
+                const expiry = new Date(this.subscription.expiryDate);
+                expiryText = 'Exp ' + expiry.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            } else if (this.subscription.expiryDate === 'lifetime') {
+                expiryText = 'Lifetime';
+            }
+            statusStat.textContent = expiryText;
+        }
+    },
+
     createNetflixMenu(subscription, savedCount) {
-        const planColors = {
-            'free': '#6B7280',
-            'pro': '#3B82F6',
-            'premium': '#8B5CF6',
-            'gold': 'linear-gradient(135deg, #F59E0B, #FBBF24)',
-            'admin': '#E50914'
-        };
+        // Use current user plan (already updated from login)
+        const plan = this.currentUser.plan || 'free';
+        const planColor = this.getPlanColor(plan);
+        const isGradient = plan === 'gold' || plan === 'admin';
 
-        const planColor = planColors[this.currentUser.plan] || planColors.free;
-        const isGradient = this.currentUser.plan === 'gold';
-
-        // Format expiry date
+        // Default expiry text
         let expiryText = 'Active';
         if (subscription && subscription.expiryDate && subscription.expiryDate !== 'lifetime') {
             const expiry = new Date(subscription.expiryDate);
-            expiryText = 'Expires ' + expiry.toLocaleDateString();
+            expiryText = 'Exp ' + expiry.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         } else if (subscription && subscription.expiryDate === 'lifetime') {
-            expiryText = 'Lifetime Access';
+            expiryText = 'Lifetime';
+        } else if (plan === 'gold' || plan === 'admin') {
+            expiryText = 'Lifetime';
         }
 
         return `
@@ -101,7 +154,7 @@ const UserAuth = {
                                 <h3>${this.currentUser.fullName}</h3>
                                 <p class="user-email">${this.currentUser.email}</p>
                                 <div class="user-plan-badge" style="background: ${isGradient ? planColor : 'none'}; background-color: ${isGradient ? 'transparent' : planColor};">
-                                    ${this.currentUser.plan.toUpperCase()} MEMBER
+                                    ${plan.toUpperCase()} MEMBER
                                 </div>
                             </div>
                         </div>
@@ -119,14 +172,14 @@ const UserAuth = {
                         <div class="stat-item">
                             <div class="stat-icon">💎</div>
                             <div class="stat-info">
-                                <span class="stat-value">${this.currentUser.plan.toUpperCase()}</span>
+                                <span class="stat-value stat-value-plan">${plan.toUpperCase()}</span>
                                 <span class="stat-label">Plan</span>
                             </div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-icon">⏰</div>
                             <div class="stat-info">
-                                <span class="stat-value">${expiryText}</span>
+                                <span class="stat-value stat-value-status">${expiryText}</span>
                                 <span class="stat-label">Status</span>
                             </div>
                         </div>
@@ -137,12 +190,12 @@ const UserAuth = {
                         <a href="bookmarks.html" class="action-item">
                             <span class="action-icon">📖</span>
                             <span class="action-text">My List</span>
-                            <span class="action-badge">${savedCount}</span>
+                            ${savedCount > 0 ? `<span class="action-badge">${savedCount}</span>` : ''}
                         </a>
                         <a href="membership.html" class="action-item">
                             <span class="action-icon">💳</span>
                             <span class="action-text">Membership</span>
-                            ${this.currentUser.plan === 'free' ? '<span class="action-badge upgrade">Upgrade</span>' : ''}
+                            ${plan === 'free' ? '<span class="action-badge upgrade">Upgrade</span>' : ''}
                         </a>
                         <a href="profile.html" class="action-item">
                             <span class="action-icon">⚙️</span>
@@ -166,6 +219,17 @@ const UserAuth = {
                 </div>
             </div>
         `;
+    },
+
+    getPlanColor(plan) {
+        const colors = {
+            'free': '#6B7280',
+            'pro': '#3B82F6',
+            'premium': '#8B5CF6',
+            'gold': 'linear-gradient(135deg, #F59E0B, #FBBF24)',
+            'admin': 'linear-gradient(135deg, #F59E0B, #FBBF24)' // Admin gets gold color
+        };
+        return colors[plan.toLowerCase()] || colors.free;
     },
 
     attachListeners() {
@@ -203,7 +267,7 @@ const UserAuth = {
     }
 };
 
-// Initialize
+// Initialize immediately
 document.addEventListener('DOMContentLoaded', () => UserAuth.init());
 
 // Close panel on outside click
