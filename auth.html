@@ -228,19 +228,19 @@
             btn.disabled = true;
 
             try {
-                // Check admin
-                if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                    sessionStorage.setItem('adminAuth', 'true');
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        userId: 'admin',
-                        fullName: 'Admin',
-                        email: ADMIN_EMAIL,
-                        plan: 'admin'
-                    }));
-                    alert('✅ Admin login successful!');
-                    window.location.href = 'admin/index.html';
-                    return;
-                }
+              // Check admin
+if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    sessionStorage.setItem('adminAuth', 'true');
+    localStorage.setItem('currentUser', JSON.stringify({
+        userId: 'admin',
+        fullName: 'Admin',
+        email: ADMIN_EMAIL,
+        plan: 'gold' // Admin gets gold plan
+    }));
+    alert('✅ Admin login successful!');
+    window.location.href = 'admin/index.html';
+    return;
+}
 
                 // Regular user
                 const response = await fetch(`${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
