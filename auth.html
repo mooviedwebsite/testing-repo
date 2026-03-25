@@ -6,7 +6,11 @@
     <title>Login - GitHub CMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
         
         body {
             font-family: 'Poppins', sans-serif;
@@ -131,6 +135,7 @@
             color: #E50914;
             text-decoration: none;
             font-weight: 600;
+            cursor: pointer;
         }
 
         .form-footer a:hover {
@@ -163,7 +168,7 @@
                 <button class="btn-primary" id="login-btn">Sign In</button>
 
                 <div class="form-footer">
-                    <p>Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+                    <p>Don't have an account? <a id="show-signup">Sign up</a></p>
                 </div>
             </div>
 
@@ -189,7 +194,7 @@
                 <button class="btn-primary" id="signup-btn">Create Account</button>
 
                 <div class="form-footer">
-                    <p>Already have an account? <a href="#" id="show-login">Sign in</a></p>
+                    <p>Already have an account? <a id="show-login">Sign in</a></p>
                 </div>
             </div>
         </div>
@@ -200,20 +205,19 @@
         const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
         const ADMIN_PASSWORD = 'Rnd@12114';
 
-        // Switch forms
-        document.getElementById('show-signup').addEventListener('click', (e) => {
-            e.preventDefault();
+        // Switch to signup
+        document.getElementById('show-signup').addEventListener('click', () => {
             document.getElementById('login-form').classList.remove('active');
             document.getElementById('signup-form').classList.add('active');
         });
 
-        document.getElementById('show-login').addEventListener('click', (e) => {
-            e.preventDefault();
+        // Switch to login
+        document.getElementById('show-login').addEventListener('click', () => {
             document.getElementById('signup-form').classList.remove('active');
             document.getElementById('login-form').classList.add('active');
         });
 
-        // Login
+        // Login Handler
         document.getElementById('login-btn').addEventListener('click', async () => {
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
@@ -228,26 +232,71 @@
             btn.disabled = true;
 
             try {
-              // Check admin
-if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-    sessionStorage.setItem('adminAuth', 'true');
-    localStorage.setItem('currentUser', JSON.stringify({
-        userId: 'admin',
-        fullName: 'Admin',
-        email: ADMIN_EMAIL,
-        plan: 'gold' // Admin gets gold plan
-    }));
-    alert('✅ Admin login successful!');
-    window.location.href = 'admin/index.html';
-    return;
-}
+                // CHECK ADMIN FIRST
+                if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                    console.log('✅ Admin login');
+                    
+                    // Set admin session with GOLD plan
+                    sessionStorage.setItem('adminAuth', 'true');
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        userId: 'admin',
+                        fullName: 'Admin',
+                        email: ADMIN_EMAIL,
+                        plan: 'gold', // Admin gets gold plan
+                        created: new Date().toISOString(),
+                        lastLogin: new Date().toISOString()
+                    }));
+                    
+                    // Cache admin subscription
+                    localStorage.setItem('userSubscription', JSON.stringify({
+                        subscriptionId: 'sub-admin',
+                        userId: 'admin',
+                        userEmail: ADMIN_EMAIL,
+                        plan: 'gold',
+                        status: 'active',
+                        startDate: new Date().toISOString(),
+                        expiryDate: 'lifetime',
+                        autoRenew: false,
+                        paymentMethod: 'admin',
+                        lastPaymentId: '',
+                        created: new Date().toISOString(),
+                        updated: new Date().toISOString()
+                    }));
+                    
+                    alert('✅ Admin login successful!');
+                    window.location.href = 'admin/index.html';
+                    return;
+                }
 
-                // Regular user
+                // REGULAR USER LOGIN
+                console.log('Attempting user login...');
                 const response = await fetch(`${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
                 const data = await response.json();
 
+                console.log('Login response:', data);
+
                 if (data.success && data.user) {
+                    console.log('✅ User login successful');
+                    
+                    // Save user data
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    
+                    // Pre-cache subscription data for faster menu load
+                    try {
+                        const subResponse = await fetch(`${SCRIPT_URL}?action=getUserSubscription&userId=${data.user.userId}`);
+                        const subData = await subResponse.json();
+                        if (subData && subData.plan) {
+                            localStorage.setItem('userSubscription', JSON.stringify(subData));
+                            console.log('✅ Subscription cached:', subData.plan);
+                            
+                            // Update user plan from subscription
+                            data.user.plan = subData.plan;
+                            localStorage.setItem('currentUser', JSON.stringify(data.user));
+                        }
+                    } catch (e) {
+                        console.log('⚠️ Could not cache subscription');
+                    }
+                    
                     alert('✅ Login successful!');
                     window.location.href = 'index.html';
                 } else {
@@ -262,7 +311,7 @@ if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
             }
         });
 
-        // Signup
+        // Signup Handler
         document.getElementById('signup-btn').addEventListener('click', async () => {
             const fullName = document.getElementById('signup-fullname').value.trim();
             const email = document.getElementById('signup-email').value.trim();
@@ -279,33 +328,73 @@ if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
                 return;
             }
 
+            if (email === ADMIN_EMAIL) {
+                alert('❌ This email is reserved for admin');
+                return;
+            }
+
             btn.textContent = 'Creating account...';
             btn.disabled = true;
 
             try {
+                // Check if user exists
+                const checkResponse = await fetch(`${SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(email)}`);
+                const existingUser = await checkResponse.json();
+
+                if (existingUser && existingUser.email) {
+                    alert('❌ Email already registered. Please login.');
+                    document.getElementById('signup-form').classList.remove('active');
+                    document.getElementById('login-form').classList.add('active');
+                    btn.textContent = 'Create Account';
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Create user
+                console.log('Creating new user...');
                 const formData = new URLSearchParams();
                 formData.append('action', 'createUser');
                 formData.append('fullName', fullName);
                 formData.append('email', email);
                 formData.append('password', password);
 
-                const response = await fetch(SCRIPT_URL, {
+                const createResponse = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: formData.toString()
                 });
 
-                const data = await response.json();
+                const createData = await createResponse.json();
+                console.log('Create user response:', createData);
 
-                if (data.success) {
+                if (createData.success) {
+                    // Get user data
                     const userResponse = await fetch(`${SCRIPT_URL}?action=getUserByEmail&email=${encodeURIComponent(email)}`);
                     const userData = await userResponse.json();
-                    
+
+                    // Save user data
                     localStorage.setItem('currentUser', JSON.stringify(userData));
+                    
+                    // Cache free subscription
+                    localStorage.setItem('userSubscription', JSON.stringify({
+                        subscriptionId: createData.userId,
+                        userId: createData.userId,
+                        userEmail: email,
+                        plan: 'free',
+                        status: 'active',
+                        startDate: new Date().toISOString(),
+                        expiryDate: 'lifetime',
+                        autoRenew: false,
+                        paymentMethod: 'free',
+                        lastPaymentId: '',
+                        created: new Date().toISOString(),
+                        updated: new Date().toISOString()
+                    }));
+
                     alert('✅ Account created successfully!');
                     window.location.href = 'index.html';
                 } else {
-                    alert('❌ Failed to create account');
+                    alert('❌ Failed to create account. Please try again.');
                 }
             } catch (error) {
                 console.error('Signup error:', error);
@@ -316,13 +405,30 @@ if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
             }
         });
 
-        // Enter key
+        // Enter key to submit
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 if (document.getElementById('login-form').classList.contains('active')) {
                     document.getElementById('login-btn').click();
                 } else {
                     document.getElementById('signup-btn').click();
+                }
+            }
+        });
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    if (user.userId === 'admin') {
+                        window.location.href = 'admin/index.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } catch (e) {
+                    console.error('Parse error:', e);
                 }
             }
         });
