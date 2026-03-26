@@ -6,19 +6,14 @@
     <title>Admin Panel - GitHub CMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Poppins', sans-serif;
             background: #0a0a0a;
             color: #fff;
         }
 
-        /* Header */
         .admin-header {
             background: linear-gradient(135deg, #1a1a1a 0%, #141414 100%);
             border-bottom: 2px solid #E50914;
@@ -36,12 +31,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .admin-logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .admin-logo h1 {
@@ -55,7 +46,8 @@
         .admin-nav {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .admin-user-info {
@@ -77,17 +69,9 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 16px;
         }
 
-        .admin-user-info span {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .btn-home,
-        .btn-logout {
+        .btn-home, .btn-logout, .btn-sheets {
             padding: 10px 20px;
             border-radius: 8px;
             font-weight: 600;
@@ -98,6 +82,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            border: none;
         }
 
         .btn-home {
@@ -106,8 +91,10 @@
             color: #fff;
         }
 
-        .btn-home:hover {
-            background: rgba(255, 255, 255, 0.15);
+        .btn-sheets {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22C55E;
         }
 
         .btn-logout {
@@ -116,19 +103,55 @@
             color: #E50914;
         }
 
-        .btn-logout:hover {
-            background: rgba(229, 9, 20, 0.2);
-            border-color: #E50914;
+        .btn-home:hover, .btn-sheets:hover, .btn-logout:hover {
+            transform: translateY(-2px);
         }
 
-        /* Main Container */
         .admin-container {
             max-width: 1600px;
             margin: 0 auto;
             padding: 30px;
         }
 
-        /* Navigation Tabs */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .admin-tabs {
             display: flex;
             gap: 10px;
@@ -149,9 +172,6 @@
             cursor: pointer;
             border-radius: 8px;
             transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .tab-btn:hover {
@@ -164,62 +184,6 @@
             color: #fff;
         }
 
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 24px;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.2);
-            border-color: rgba(229, 9, 20, 0.3);
-        }
-
-        .stat-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            background: rgba(229, 9, 20, 0.1);
-        }
-
-        .stat-info h3 {
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.6);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: 800;
-            color: #fff;
-            margin-top: 8px;
-        }
-
-        /* Tab Content */
         .tab-content {
             display: none;
         }
@@ -234,7 +198,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Tables */
         .data-table {
             background: rgba(255, 255, 255, 0.03);
             border-radius: 12px;
@@ -246,11 +209,6 @@
             background: rgba(229, 9, 20, 0.1);
             padding: 20px 24px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .table-header h2 {
-            font-size: 20px;
-            font-weight: 700;
         }
 
         table {
@@ -269,7 +227,6 @@
             font-weight: 700;
             color: rgba(255, 255, 255, 0.7);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         td {
@@ -278,15 +235,10 @@
             font-size: 14px;
         }
 
-        tbody tr {
-            transition: background 0.2s ease;
-        }
-
         tbody tr:hover {
             background: rgba(255, 255, 255, 0.03);
         }
 
-        /* Badges */
         .badge {
             display: inline-block;
             padding: 4px 12px;
@@ -294,7 +246,6 @@
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .badge-free { background: #6B7280; color: #fff; }
@@ -303,11 +254,8 @@
         .badge-gold { background: linear-gradient(135deg, #F59E0B, #FBBF24); color: #fff; }
         .badge-pending { background: rgba(251, 191, 36, 0.2); color: #FBBF24; }
         .badge-approved { background: rgba(34, 197, 94, 0.2); color: #22C55E; }
-        .badge-rejected { background: rgba(239, 68, 68, 0.2); color: #EF4444; }
         .badge-active { background: rgba(34, 197, 94, 0.2); color: #22C55E; }
-        .badge-cancelled { background: rgba(107, 114, 128, 0.2); color: #6B7280; }
 
-        /* Action Buttons */
         .btn-action {
             padding: 8px 16px;
             border-radius: 6px;
@@ -325,28 +273,10 @@
             border: 1px solid rgba(34, 197, 94, 0.3);
         }
 
-        .btn-approve:hover {
-            background: rgba(34, 197, 94, 0.2);
-        }
-
         .btn-reject {
             background: rgba(239, 68, 68, 0.1);
             color: #EF4444;
             border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-reject:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
-
-        .btn-edit {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3B82F6;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-edit:hover {
-            background: rgba(59, 130, 246, 0.2);
         }
 
         .btn-delete {
@@ -355,86 +285,6 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
-        .btn-delete:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
-
-        /* Payment Settings Form */
-        .settings-form {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 30px;
-        }
-
-        .form-section {
-            margin-bottom: 30px;
-        }
-
-        .form-section h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #E50914;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.2s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #E50914;
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .btn-save {
-            padding: 14px 32px;
-            background: #E50914;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-save:hover {
-            background: #B20710;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.4);
-        }
-
-        /* Loading State */
         .loading {
             text-align: center;
             padding: 60px 20px;
@@ -454,51 +304,46 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
             color: rgba(255, 255, 255, 0.5);
         }
 
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
         }
 
-        /* Responsive */
+        .error-box h3 {
+            color: #EF4444;
+            margin-bottom: 10px;
+        }
+
+        .success-box {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .success-box h3 {
+            color: #22C55E;
+            margin-bottom: 10px;
+        }
+
         @media (max-width: 768px) {
-            .admin-container {
-                padding: 20px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-tabs {
-                overflow-x: auto;
-                flex-wrap: nowrap;
-            }
-
-            .table-responsive {
-                overflow-x: auto;
-            }
-
-            .header-container {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .admin-nav {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
+            .admin-container { padding: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .header-container { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="admin-header">
         <div class="header-container">
             <div class="admin-logo">
@@ -511,169 +356,74 @@
                     </div>
                     <span id="admin-email">Loading...</span>
                 </div>
+                <a href="https://docs.google.com/spreadsheets/d/1si2VC7we2EvO9udgEjPT6wd4yml_Ufd4lABx2_bk85w/edit" target="_blank" class="btn-sheets">📊 Open Sheets</a>
                 <a href="../index.html" class="btn-home">🏠 Home</a>
                 <button onclick="logout()" class="btn-logout">🚪 Logout</button>
             </div>
         </div>
     </div>
 
-    <!-- Main Container -->
     <div class="admin-container">
+        <!-- Connection Status -->
+        <div id="connection-status"></div>
+
         <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-info">
-                        <h3>Total Users</h3>
-                    </div>
-                </div>
-                <div class="stat-value" id="stat-users">0</div>
+                <div class="stat-icon">👥</div>
+                <div class="stat-value" id="stat-users">-</div>
+                <div class="stat-label">Total Users</div>
             </div>
-
             <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon">💳</div>
-                    <div class="stat-info">
-                        <h3>Total Payments</h3>
-                    </div>
-                </div>
-                <div class="stat-value" id="stat-payments">0</div>
+                <div class="stat-icon">💳</div>
+                <div class="stat-value" id="stat-payments">-</div>
+                <div class="stat-label">Total Payments</div>
             </div>
-
             <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon">⏳</div>
-                    <div class="stat-info">
-                        <h3>Pending Approvals</h3>
-                    </div>
-                </div>
-                <div class="stat-value" id="stat-pending">0</div>
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value" id="stat-pending">-</div>
+                <div class="stat-label">Pending</div>
             </div>
-
             <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon">💬</div>
-                    <div class="stat-info">
-                        <h3>Total Comments</h3>
-                    </div>
-                </div>
-                <div class="stat-value" id="stat-comments">0</div>
+                <div class="stat-icon">💎</div>
+                <div class="stat-value" id="stat-subscriptions">-</div>
+                <div class="stat-label">Subscriptions</div>
             </div>
         </div>
 
-        <!-- Navigation Tabs -->
+        <!-- Tabs -->
         <div class="admin-tabs">
-            <button class="tab-btn active" onclick="switchTab('dashboard')">
-                📊 Dashboard
-            </button>
-            <button class="tab-btn" onclick="switchTab('users')">
-                👥 Users
-            </button>
-            <button class="tab-btn" onclick="switchTab('subscriptions')">
-                💎 Subscriptions
-            </button>
-            <button class="tab-btn" onclick="switchTab('payments')">
-                💳 Payments
-            </button>
-            <button class="tab-btn" onclick="switchTab('comments')">
-                💬 Comments
-            </button>
-            <button class="tab-btn" onclick="switchTab('settings')">
-                ⚙️ Settings
-            </button>
-        </div>
-
-        <!-- Dashboard Tab -->
-        <div id="tab-dashboard" class="tab-content active">
-            <div class="data-table">
-                <div class="table-header">
-                    <h2>📈 Recent Activity</h2>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Activity ID</th>
-                                <th>User ID</th>
-                                <th>Action</th>
-                                <th>Details</th>
-                                <th>Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody id="activities-table">
-                            <tr>
-                                <td colspan="5" class="loading">
-                                    <div class="loading-spinner"></div>
-                                    <p>Loading activities...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <button class="tab-btn active" onclick="switchTab('users')">👥 Users</button>
+            <button class="tab-btn" onclick="switchTab('payments')">💳 Payments</button>
+            <button class="tab-btn" onclick="switchTab('subscriptions')">💎 Subscriptions</button>
+            <button class="tab-btn" onclick="switchTab('comments')">💬 Comments</button>
         </div>
 
         <!-- Users Tab -->
-        <div id="tab-users" class="tab-content">
+        <div id="tab-users" class="tab-content active">
             <div class="data-table">
                 <div class="table-header">
                     <h2>👥 All Users</h2>
                 </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Full Name</th>
-                                <th>Email</th>
-                                <th>Plan</th>
-                                <th>Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table">
-                            <tr>
-                                <td colspan="6" class="loading">
-                                    <div class="loading-spinner"></div>
-                                    <p>Loading users...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Subscriptions Tab -->
-        <div id="tab-subscriptions" class="tab-content">
-            <div class="data-table">
-                <div class="table-header">
-                    <h2>💎 All Subscriptions</h2>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Subscription ID</th>
-                                <th>User Email</th>
-                                <th>Plan</th>
-                                <th>Status</th>
-                                <th>Start Date</th>
-                                <th>Expiry Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="subscriptions-table">
-                            <tr>
-                                <td colspan="7" class="loading">
-                                    <div class="loading-spinner"></div>
-                                    <p>Loading subscriptions...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Full Name</th>
+                            <th>Plan</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table">
+                        <tr>
+                            <td colspan="5" class="loading">
+                                <div class="loading-spinner"></div>
+                                <p>Loading users...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -683,30 +433,55 @@
                 <div class="table-header">
                     <h2>💳 Payment Requests</h2>
                 </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Payment ID</th>
-                                <th>User</th>
-                                <th>Plan</th>
-                                <th>Amount</th>
-                                <th>Method</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="payments-table">
-                            <tr>
-                                <td colspan="8" class="loading">
-                                    <div class="loading-spinner"></div>
-                                    <p>Loading payments...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Plan</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments-table">
+                        <tr>
+                            <td colspan="7" class="loading">
+                                <div class="loading-spinner"></div>
+                                <p>Loading payments...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Subscriptions Tab -->
+        <div id="tab-subscriptions" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h2>💎 Subscriptions</h2>
                 </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User Email</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>Expiry</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subscriptions-table">
+                        <tr>
+                            <td colspan="5" class="loading">
+                                <div class="loading-spinner"></div>
+                                <p>Loading subscriptions...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -714,670 +489,326 @@
         <div id="tab-comments" class="tab-content">
             <div class="data-table">
                 <div class="table-header">
-                    <h2>💬 All Comments</h2>
+                    <h2>💬 Comments</h2>
                 </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Comment ID</th>
-                                <th>Post ID</th>
-                                <th>User</th>
-                                <th>Comment</th>
-                                <th>Timestamp</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="comments-table">
-                            <tr>
-                                <td colspan="6" class="loading">
-                                    <div class="loading-spinner"></div>
-                                    <p>Loading comments...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings Tab -->
-        <div id="tab-settings" class="tab-content">
-            <div class="settings-form">
-                <h2 style="margin-bottom: 30px; font-size: 24px;">⚙️ Payment Settings</h2>
-
-                <!-- PayHere Settings -->
-                <div class="form-section">
-                    <h3>💳 PayHere Configuration (Sri Lanka)</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Merchant ID</label>
-                            <input type="text" id="payhere-merchant-id" placeholder="1234567">
-                        </div>
-                        <div class="form-group">
-                            <label>Merchant Secret</label>
-                            <input type="text" id="payhere-merchant-secret" placeholder="Enter merchant secret">
-                        </div>
-                        <div class="form-group">
-                            <label>Business Name</label>
-                            <input type="text" id="payhere-business-name" placeholder="GitHub CMS">
-                        </div>
-                        <div class="form-group">
-                            <label>Environment</label>
-                            <select id="payhere-environment">
-                                <option value="sandbox">Sandbox (Testing)</option>
-                                <option value="live">Live (Production)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PayPal Settings -->
-                <div class="form-section">
-                    <h3>💰 PayPal Configuration</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>PayPal Email</label>
-                            <input type="email" id="paypal-email" placeholder="your@paypal.com">
-                        </div>
-                        <div class="form-group">
-                            <label>Business Name</label>
-                            <input type="text" id="paypal-business-name" placeholder="GitHub CMS">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bank Transfer Settings -->
-                <div class="form-section">
-                    <h3>🏦 Bank Transfer Configuration</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Bank Name</label>
-                            <input type="text" id="bank-name" placeholder="Commercial Bank">
-                        </div>
-                        <div class="form-group">
-                            <label>Account Number</label>
-                            <input type="text" id="bank-account-number" placeholder="1234567890">
-                        </div>
-                        <div class="form-group">
-                            <label>Account Name</label>
-                            <input type="text" id="bank-account-name" placeholder="GitHub CMS">
-                        </div>
-                        <div class="form-group">
-                            <label>Branch</label>
-                            <input type="text" id="bank-branch" placeholder="Colombo Branch">
-                        </div>
-                        <div class="form-group">
-                            <label>Branch Code</label>
-                            <input type="text" id="bank-branch-code" placeholder="001">
-                        </div>
-                        <div class="form-group">
-                            <label>SWIFT Code</label>
-                            <input type="text" id="bank-swift" placeholder="CCEYLKLX">
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn-save" onclick="saveSettings()">💾 Save Settings</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Post ID</th>
+                            <th>Comment</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comments-table">
+                        <tr>
+                            <td colspan="5" class="loading">
+                                <div class="loading-spinner"></div>
+                                <p>Loading comments...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-<script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
-    const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
+        const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
 
-    let allData = {
-        users: [],
-        payments: [],
-        subscriptions: [],
-        comments: [],
-        activities: []
-    };
+        let allData = {
+            users: [],
+            payments: [],
+            subscriptions: [],
+            comments: []
+        };
 
-    // Check Authentication
-    function checkAuth() {
-        const currentUser = localStorage.getItem('currentUser');
-        
-        if (!currentUser) {
-            alert('⚠️ Please login first');
-            window.location.href = '../auth.html';
-            return false;
-        }
-        
-        let user;
-        try {
-            user = JSON.parse(currentUser);
-        } catch (error) {
-            alert('⚠️ Invalid session. Please login again.');
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = '../auth.html';
-            return false;
-        }
-        
-        if (user.userId !== 'admin' || user.email !== ADMIN_EMAIL) {
-            alert('⚠️ Admin access only.\n\nYou are logged in as: ' + user.email);
-            window.location.href = '../index.html';
-            return false;
-        }
-        
-        // Display admin info
-        document.getElementById('admin-email').textContent = user.email;
-        document.getElementById('admin-avatar').textContent = user.fullName.charAt(0).toUpperCase();
-        
-        // Ensure admin has gold plan
-        if (user.plan !== 'gold') {
-            user.plan = 'gold';
-            localStorage.setItem('currentUser', JSON.stringify(user));
-        }
-        
-        sessionStorage.setItem('adminAuth', 'true');
-        return true;
-    }
-
-    // Logout
-    function logout() {
-        if (confirm('Sign out from admin panel?')) {
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('userSubscription');
-            sessionStorage.removeItem('adminAuth');
-            window.location.href = '../auth.html';
-        }
-    }
-
-    // Switch Tabs
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        document.getElementById('tab-' + tabName).classList.add('active');
-        event.target.classList.add('active');
-    }
-
-    // Safe Fetch with Error Handling
-    async function safeFetch(url, actionName) {
-        try {
-            console.log(`🔄 Fetching ${actionName}...`);
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        // Check Auth
+        function checkAuth() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('⚠️ Please login first');
+                window.location.href = '../auth.html';
+                return false;
             }
-            
-            const data = await response.json();
-            console.log(`✅ ${actionName} response:`, data);
-            
-            // Handle different response formats
-            if (Array.isArray(data)) {
-                return data;
-            } else if (data && typeof data === 'object') {
-                return data;
-            } else {
-                console.warn(`⚠️ ${actionName} returned unexpected format:`, data);
-                return [];
-            }
-        } catch (error) {
-            console.error(`❌ Error fetching ${actionName}:`, error);
-            return null;
-        }
-    }
 
-    // Load All Data
-    async function loadAllData() {
-        console.log('📊 Starting to load all data...');
-        
-        try {
-            // Load stats first
-            console.log('Loading stats...');
-            const stats = await safeFetch(`${SCRIPT_URL}?action=getStats`, 'Stats');
-            
-            if (stats) {
+            let user;
+            try {
+                user = JSON.parse(currentUser);
+            } catch (error) {
+                alert('⚠️ Invalid session');
+                window.location.href = '../auth.html';
+                return false;
+            }
+
+            if (user.userId !== 'admin' || user.email !== ADMIN_EMAIL) {
+                alert('⚠️ Admin only: ' + user.email);
+                window.location.href = '../index.html';
+                return false;
+            }
+
+            document.getElementById('admin-email').textContent = user.email;
+            document.getElementById('admin-avatar').textContent = user.fullName.charAt(0).toUpperCase();
+
+            if (user.plan !== 'gold') {
+                user.plan = 'gold';
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            }
+
+            sessionStorage.setItem('adminAuth', 'true');
+            return true;
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Sign out?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = '../auth.html';
+            }
+        }
+
+        // Switch Tab
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Load Data
+        async function loadAllData() {
+            console.log('📊 Loading data from:', SCRIPT_URL);
+            showStatus('Loading...', 'info');
+
+            try {
+                // Test connection first
+                const testResponse = await fetch(SCRIPT_URL + '?action=getStats');
+                if (!testResponse.ok) {
+                    throw new Error('Connection failed: ' + testResponse.status);
+                }
+
+                const stats = await testResponse.json();
+                console.log('✅ Stats:', stats);
+
+                if (stats.error) {
+                    throw new Error(stats.error);
+                }
+
+                // Update stats
                 document.getElementById('stat-users').textContent = stats.totalUsers || 0;
                 document.getElementById('stat-payments').textContent = stats.totalPayments || 0;
                 document.getElementById('stat-pending').textContent = stats.pendingPayments || 0;
-                document.getElementById('stat-comments').textContent = stats.totalComments || 0;
-                console.log('✅ Stats loaded:', stats);
+                document.getElementById('stat-subscriptions').textContent = stats.totalUsers || 0;
+
+                // Load all data
+                const [users, payments, subscriptions, comments] = await Promise.all([
+                    fetch(SCRIPT_URL + '?action=getAllUsers').then(r => r.json()),
+                    fetch(SCRIPT_URL + '?action=getAllPayments').then(r => r.json()),
+                    fetch(SCRIPT_URL + '?action=getAllSubscriptions').then(r => r.json()),
+                    fetch(SCRIPT_URL + '?action=getAllComments').then(r => r.json())
+                ]);
+
+                allData = {
+                    users: Array.isArray(users) ? users : [],
+                    payments: Array.isArray(payments) ? payments : [],
+                    subscriptions: Array.isArray(subscriptions) ? subscriptions : [],
+                    comments: Array.isArray(comments) ? comments : []
+                };
+
+                renderUsers();
+                renderPayments();
+                renderSubscriptions();
+                renderComments();
+
+                showStatus('✅ Data loaded successfully!', 'success');
+
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showStatus('❌ Error: ' + error.message + '. Check Google Sheets permissions and redeploy Apps Script.', 'error');
+            }
+        }
+
+        // Show Status
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('connection-status');
+            const className = type === 'error' ? 'error-box' : (type === 'success' ? 'success-box' : 'info-box');
+            statusDiv.innerHTML = `<div class="${className}"><h3>${message}</h3></div>`;
+            if (type !== 'error') {
+                setTimeout(() => statusDiv.innerHTML = '', 3000);
+            }
+        }
+
+        // Render Functions
+        function renderUsers() {
+            const tbody = document.getElementById('users-table');
+            if (!allData.users || allData.users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No users found. Create users via signup page.</td></tr>';
+                return;
             }
 
-            // Load users
-            console.log('Loading users...');
-            const users = await safeFetch(`${SCRIPT_URL}?action=getAllUsers`, 'Users');
-            allData.users = Array.isArray(users) ? users : [];
-            console.log(`✅ Loaded ${allData.users.length} users`);
-            renderUsers();
-
-            // Load payments
-            console.log('Loading payments...');
-            const payments = await safeFetch(`${SCRIPT_URL}?action=getAllPayments`, 'Payments');
-            allData.payments = Array.isArray(payments) ? payments : [];
-            console.log(`✅ Loaded ${allData.payments.length} payments`);
-            renderPayments();
-
-            // Load subscriptions
-            console.log('Loading subscriptions...');
-            const subscriptions = await safeFetch(`${SCRIPT_URL}?action=getAllSubscriptions`, 'Subscriptions');
-            allData.subscriptions = Array.isArray(subscriptions) ? subscriptions : [];
-            console.log(`✅ Loaded ${allData.subscriptions.length} subscriptions`);
-            renderSubscriptions();
-
-            // Load comments
-            console.log('Loading comments...');
-            const comments = await safeFetch(`${SCRIPT_URL}?action=getAllComments`, 'Comments');
-            allData.comments = Array.isArray(comments) ? comments : [];
-            console.log(`✅ Loaded ${allData.comments.length} comments`);
-            renderComments();
-
-            // Load activities
-            console.log('Loading activities...');
-            const activities = await safeFetch(`${SCRIPT_URL}?action=getActivities`, 'Activities');
-            allData.activities = Array.isArray(activities) ? activities : [];
-            console.log(`✅ Loaded ${allData.activities.length} activities`);
-            renderActivities();
-
-            console.log('✅ All data loaded successfully!');
-            console.log('Final data:', allData);
-
-        } catch (error) {
-            console.error('❌ Critical error loading data:', error);
-            alert('Failed to load admin data.\n\nError: ' + error.message + '\n\nCheck browser console for details.');
-        }
-    }
-
-    // Render Users Table
-    function renderUsers() {
-        const tbody = document.getElementById('users-table');
-        
-        if (!allData.users || allData.users.length === 0) {
-            tbody.innerHTML = `
+            tbody.innerHTML = allData.users.map(u => `
                 <tr>
-                    <td colspan="6" class="empty-state">
-                        <div class="empty-state-icon">👥</div>
-                        <p>No users found</p>
+                    <td>${u.email || 'N/A'}</td>
+                    <td>${u.fullName || 'N/A'}</td>
+                    <td><span class="badge badge-${u.plan || 'free'}">${(u.plan || 'free').toUpperCase()}</span></td>
+                    <td>${u.created ? new Date(u.created).toLocaleDateString() : 'N/A'}</td>
+                    <td><button class="btn-action btn-delete" onclick="deleteUser('${u.userId}')">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPayments() {
+            const tbody = document.getElementById('payments-table');
+            if (!allData.payments || allData.payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No payments yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allData.payments.map(p => `
+                <tr>
+                    <td>${p.userName || 'N/A'}</td>
+                    <td><span class="badge badge-${p.plan}">${(p.plan || 'N/A').toUpperCase()}</span></td>
+                    <td>$${p.amountUSD || 0} / LKR ${p.amountLKR || 0}</td>
+                    <td>${p.method || 'N/A'}</td>
+                    <td><span class="badge badge-${p.status}">${(p.status || 'pending').toUpperCase()}</span></td>
+                    <td>${p.created ? new Date(p.created).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        ${p.status === 'pending' ? `
+                            <button class="btn-action btn-approve" onclick="approvePayment('${p.paymentId}')">Approve</button>
+                            <button class="btn-action btn-reject" onclick="rejectPayment('${p.paymentId}')">Reject</button>
+                        ` : '-'}
                     </td>
                 </tr>
-            `;
-            return;
+            `).join('');
         }
 
-        tbody.innerHTML = allData.users.map(user => `
-            <tr>
-                <td>${user.userId || 'N/A'}</td>
-                <td>${user.fullName || 'N/A'}</td>
-                <td>${user.email || 'N/A'}</td>
-                <td><span class="badge badge-${user.plan || 'free'}">${(user.plan || 'free').toUpperCase()}</span></td>
-                <td>${user.created ? new Date(user.created).toLocaleDateString() : 'N/A'}</td>
-                <td>
-                    <button class="btn-action btn-edit" onclick="editUser('${user.userId}')">Edit</button>
-                    <button class="btn-action btn-delete" onclick="deleteUser('${user.userId}')">Delete</button>
-                </td>
-            </tr>
-        `).join('');
-    }
+        function renderSubscriptions() {
+            const tbody = document.getElementById('subscriptions-table');
+            if (!allData.subscriptions || allData.subscriptions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No subscriptions.</td></tr>';
+                return;
+            }
 
-    // Render Payments Table
-    function renderPayments() {
-        const tbody = document.getElementById('payments-table');
-        
-        if (!allData.payments || allData.payments.length === 0) {
-            tbody.innerHTML = `
+            tbody.innerHTML = allData.subscriptions.map(s => `
                 <tr>
-                    <td colspan="8" class="empty-state">
-                        <div class="empty-state-icon">💳</div>
-                        <p>No payments found</p>
-                    </td>
+                    <td>${s.userEmail || 'N/A'}</td>
+                    <td><span class="badge badge-${s.plan}">${(s.plan || 'free').toUpperCase()}</span></td>
+                    <td><span class="badge badge-${s.status}">${(s.status || 'active').toUpperCase()}</span></td>
+                    <td>${s.startDate ? new Date(s.startDate).toLocaleDateString() : 'N/A'}</td>
+                    <td>${s.expiryDate === 'lifetime' ? 'Lifetime' : (s.expiryDate ? new Date(s.expiryDate).toLocaleDateString() : 'N/A')}</td>
                 </tr>
-            `;
-            return;
+            `).join('');
         }
 
-        tbody.innerHTML = allData.payments.map(payment => `
-            <tr>
-                <td>${payment.paymentId || 'N/A'}</td>
-                <td>${payment.userName || 'N/A'}</td>
-                <td><span class="badge badge-${payment.plan || 'free'}">${(payment.plan || 'N/A').toUpperCase()}</span></td>
-                <td>$${payment.amountUSD || 0} / LKR ${payment.amountLKR || 0}</td>
-                <td>${payment.method || 'N/A'}</td>
-                <td><span class="badge badge-${payment.status || 'pending'}">${(payment.status || 'pending').toUpperCase()}</span></td>
-                <td>${payment.created ? new Date(payment.created).toLocaleDateString() : 'N/A'}</td>
-                <td>
-                    ${payment.status === 'pending' ? `
-                        <button class="btn-action btn-approve" onclick="approvePayment('${payment.paymentId}')">Approve</button>
-                        <button class="btn-action btn-reject" onclick="rejectPayment('${payment.paymentId}')">Reject</button>
-                    ` : '-'}
-                </td>
-            </tr>
-        `).join('');
-    }
+        function renderComments() {
+            const tbody = document.getElementById('comments-table');
+            if (!allData.comments || allData.comments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No comments yet.</td></tr>';
+                return;
+            }
 
-    // Render Subscriptions Table
-    function renderSubscriptions() {
-        const tbody = document.getElementById('subscriptions-table');
-        
-        if (!allData.subscriptions || allData.subscriptions.length === 0) {
-            tbody.innerHTML = `
+            tbody.innerHTML = allData.comments.map(c => `
                 <tr>
-                    <td colspan="7" class="empty-state">
-                        <div class="empty-state-icon">💎</div>
-                        <p>No subscriptions found</p>
-                    </td>
+                    <td>${c.userName || 'N/A'}</td>
+                    <td>${c.postId || 'N/A'}</td>
+                    <td>${c.text ? c.text.substring(0, 50) + '...' : 'N/A'}</td>
+                    <td>${c.timestamp ? new Date(c.timestamp).toLocaleDateString() : 'N/A'}</td>
+                    <td><button class="btn-action btn-delete" onclick="deleteComment('${c.commentId}')">Delete</button></td>
                 </tr>
-            `;
-            return;
+            `).join('');
         }
 
-        tbody.innerHTML = allData.subscriptions.map(sub => `
-            <tr>
-                <td>${sub.subscriptionId || 'N/A'}</td>
-                <td>${sub.userEmail || 'N/A'}</td>
-                <td><span class="badge badge-${sub.plan || 'free'}">${(sub.plan || 'free').toUpperCase()}</span></td>
-                <td><span class="badge badge-${sub.status || 'active'}">${(sub.status || 'active').toUpperCase()}</span></td>
-                <td>${sub.startDate ? new Date(sub.startDate).toLocaleDateString() : 'N/A'}</td>
-                <td>${sub.expiryDate === 'lifetime' ? 'Lifetime' : (sub.expiryDate ? new Date(sub.expiryDate).toLocaleDateString() : 'N/A')}</td>
-                <td>
-                    <button class="btn-action btn-edit" onclick="editSubscription('${sub.subscriptionId}')">Edit</button>
-                </td>
-            </tr>
-        `).join('');
-    }
+        // Action Functions
+        async function approvePayment(paymentId) {
+            if (!confirm('Approve this payment?')) return;
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'updatePayment');
+                formData.append('paymentId', paymentId);
+                formData.append('status', 'approved');
 
-    // Render Comments Table
-    function renderComments() {
-        const tbody = document.getElementById('comments-table');
-        
-        if (!allData.comments || allData.comments.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="empty-state">
-                        <div class="empty-state-icon">💬</div>
-                        <p>No comments found</p>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
 
-        tbody.innerHTML = allData.comments.map(comment => `
-            <tr>
-                <td>${comment.commentId || 'N/A'}</td>
-                <td>${comment.postId || 'N/A'}</td>
-                <td>${comment.userName || 'N/A'}</td>
-                <td>${comment.text ? (comment.text.substring(0, 50) + (comment.text.length > 50 ? '...' : '')) : 'N/A'}</td>
-                <td>${comment.timestamp ? new Date(comment.timestamp).toLocaleDateString() : 'N/A'}</td>
-                <td>
-                    <button class="btn-action btn-delete" onclick="deleteComment('${comment.commentId}')">Delete</button>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // Render Activities Table
-    function renderActivities() {
-        const tbody = document.getElementById('activities-table');
-        
-        if (!allData.activities || allData.activities.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <p>No activities found</p>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        const recentActivities = allData.activities.slice(0, 20);
-
-        tbody.innerHTML = recentActivities.map(activity => `
-            <tr>
-                <td>${activity.activityId || 'N/A'}</td>
-                <td>${activity.userId || 'N/A'}</td>
-                <td>${activity.action || 'N/A'}</td>
-                <td>${activity.details || 'N/A'}</td>
-                <td>${activity.timestamp ? new Date(activity.timestamp).toLocaleString() : 'N/A'}</td>
-            </tr>
-        `).join('');
-    }
-
-    // Approve Payment
-    async function approvePayment(paymentId) {
-        if (!confirm('Approve this payment?')) return;
-
-        try {
-            const formData = new URLSearchParams();
-            formData.append('action', 'updatePayment');
-            formData.append('paymentId', paymentId);
-            formData.append('status', 'approved');
-
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert('✅ Payment approved!');
-                loadAllData();
-            } else {
-                alert('❌ Failed to approve payment');
+                if (data.success) {
+                    alert('✅ Payment approved!');
+                    loadAllData();
+                } else {
+                    alert('❌ Failed');
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('❌ Error approving payment');
         }
-    }
 
-    // Reject Payment
-    async function rejectPayment(paymentId) {
-        if (!confirm('Reject this payment?')) return;
+        async function rejectPayment(paymentId) {
+            if (!confirm('Reject?')) return;
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'updatePayment');
+                formData.append('paymentId', paymentId);
+                formData.append('status', 'rejected');
 
-        try {
-            const formData = new URLSearchParams();
-            formData.append('action', 'updatePayment');
-            formData.append('paymentId', paymentId);
-            formData.append('status', 'rejected');
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
+                const data = await response.json();
 
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert('✅ Payment rejected');
-                loadAllData();
-            } else {
-                alert('❌ Failed to reject payment');
+                if (data.success) {
+                    alert('✅ Rejected');
+                    loadAllData();
+                }
+            } catch (error) {
+                alert('❌ Error');
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('❌ Error rejecting payment');
         }
-    }
 
-    // Delete User
-    async function deleteUser(userId) {
-        if (!confirm('Delete this user? This cannot be undone.')) return;
+        async function deleteUser(userId) {
+            if (!confirm('Delete user?')) return;
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'deleteUser');
+                formData.append('userId', userId);
 
-        try {
-            const formData = new URLSearchParams();
-            formData.append('action', 'deleteUser');
-            formData.append('userId', userId);
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
+                const data = await response.json();
 
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert('✅ User deleted');
-                loadAllData();
-            } else {
-                alert('❌ Failed to delete user');
+                if (data.success) {
+                    alert('✅ Deleted');
+                    loadAllData();
+                }
+            } catch (error) {
+                alert('❌ Error');
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('❌ Error deleting user');
         }
-    }
 
-    // Delete Comment
-    async function deleteComment(commentId) {
-        if (!confirm('Delete this comment?')) return;
+        async function deleteComment(commentId) {
+            if (!confirm('Delete comment?')) return;
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'deleteComment');
+                formData.append('commentId', commentId);
 
-        try {
-            const formData = new URLSearchParams();
-            formData.append('action', 'deleteComment');
-            formData.append('commentId', commentId);
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
+                const data = await response.json();
 
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert('✅ Comment deleted');
-                loadAllData();
-            } else {
-                alert('❌ Failed to delete comment');
+                if (data.success) {
+                    alert('✅ Deleted');
+                    loadAllData();
+                }
+            } catch (error) {
+                alert('❌ Error');
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('❌ Error deleting comment');
         }
-    }
 
-    // Edit User (Placeholder)
-    function editUser(userId) {
-        const newPlan = prompt('Enter new plan (free, pro, premium, gold):');
-        if (newPlan && ['free', 'pro', 'premium', 'gold'].includes(newPlan.toLowerCase())) {
-            updateUserPlan(userId, newPlan.toLowerCase());
+        // Init
+        if (checkAuth()) {
+            loadAllData();
         }
-    }
-
-    // Update User Plan
-    async function updateUserPlan(userId, plan) {
-        try {
-            const formData = new URLSearchParams();
-            formData.append('action', 'updateUser');
-            formData.append('userId', userId);
-            formData.append('plan', plan);
-
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert('✅ User plan updated!');
-                loadAllData();
-            } else {
-                alert('❌ Failed to update plan');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('❌ Error updating plan');
-        }
-    }
-
-    // Edit Subscription (Placeholder)
-    function editSubscription(subscriptionId) {
-        alert('Edit subscription: ' + subscriptionId + '\n\nFeature coming soon!');
-    }
-
-    // Load Payment Settings
-    async function loadPaymentSettings() {
-        try {
-            const response = await fetch('../data/admin-membership-info.json');
-            const config = await response.json();
-
-            // PayHere
-            document.getElementById('payhere-merchant-id').value = config.payhere?.merchantId || '';
-            document.getElementById('payhere-merchant-secret').value = config.payhere?.merchantSecret || '';
-            document.getElementById('payhere-business-name').value = config.payhere?.businessName || '';
-            document.getElementById('payhere-environment').value = config.payhere?.environment || 'sandbox';
-
-            // PayPal
-            document.getElementById('paypal-email').value = config.paypal?.email || '';
-            document.getElementById('paypal-business-name').value = config.paypal?.businessName || '';
-
-            // Bank
-            document.getElementById('bank-name').value = config.bank?.bankName || '';
-            document.getElementById('bank-account-number').value = config.bank?.accountNumber || '';
-            document.getElementById('bank-account-name').value = config.bank?.accountName || '';
-            document.getElementById('bank-branch').value = config.bank?.branch || '';
-            document.getElementById('bank-branch-code').value = config.bank?.branchCode || '';
-            document.getElementById('bank-swift').value = config.bank?.swift || '';
-
-            console.log('✅ Settings loaded');
-        } catch (error) {
-            console.error('Error loading settings:', error);
-        }
-    }
-
-    // Save Payment Settings
-    function saveSettings() {
-        const settings = {
-            payhere: {
-                enabled: true,
-                merchantId: document.getElementById('payhere-merchant-id').value,
-                merchantSecret: document.getElementById('payhere-merchant-secret').value,
-                businessName: document.getElementById('payhere-business-name').value,
-                environment: document.getElementById('payhere-environment').value,
-                apiUrl: document.getElementById('payhere-environment').value === 'live' 
-                    ? 'https://www.payhere.lk/pay/checkout' 
-                    : 'https://sandbox.payhere.lk/pay/checkout',
-                currency: 'LKR'
-            },
-            paypal: {
-                enabled: true,
-                email: document.getElementById('paypal-email').value,
-                businessName: document.getElementById('paypal-business-name').value,
-                currency: 'USD'
-            },
-            bank: {
-                enabled: true,
-                bankName: document.getElementById('bank-name').value,
-                accountNumber: document.getElementById('bank-account-number').value,
-                accountName: document.getElementById('bank-account-name').value,
-                branch: document.getElementById('bank-branch').value,
-                branchCode: document.getElementById('bank-branch-code').value,
-                swift: document.getElementById('bank-swift').value,
-                currency: 'LKR'
-            }
-        };
-
-        console.log('💾 Settings to save:', settings);
-        alert('⚠️ Settings saved to console.\n\nTo apply these settings:\n1. Open browser console (F12)\n2. Copy the JSON output\n3. Update data/admin-membership-info.json\n4. Commit to GitHub');
-        console.log('📋 Copy this JSON to data/admin-membership-info.json:');
-        console.log(JSON.stringify(settings, null, 2));
-    }
-
-    // Initialize
-    if (checkAuth()) {
-        console.log('🚀 Admin panel initializing...');
-        loadAllData();
-        loadPaymentSettings();
-    }
-</script>
+    </script>
 </body>
 </html>
