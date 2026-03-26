@@ -823,444 +823,561 @@
         </div>
     </div>
 
-    <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
-        const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
+    const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
 
-        let allData = {
-            users: [],
-            payments: [],
-            subscriptions: [],
-            comments: [],
-            activities: []
-        };
+    let allData = {
+        users: [],
+        payments: [],
+        subscriptions: [],
+        comments: [],
+        activities: []
+    };
 
-        // Check Authentication
-        function checkAuth() {
-            const currentUser = localStorage.getItem('currentUser');
-            
-            if (!currentUser) {
-                alert('⚠️ Please login first');
-                window.location.href = '../auth.html';
-                return false;
-            }
-            
-            let user;
-            try {
-                user = JSON.parse(currentUser);
-            } catch (error) {
-                alert('⚠️ Invalid session. Please login again.');
-                localStorage.clear();
-                sessionStorage.clear();
-                window.location.href = '../auth.html';
-                return false;
-            }
-            
-            if (user.userId !== 'admin' || user.email !== ADMIN_EMAIL) {
-                alert('⚠️ Admin access only.\n\nYou are logged in as: ' + user.email);
-                window.location.href = '../index.html';
-                return false;
-            }
-            
-            // Display admin info
-            document.getElementById('admin-email').textContent = user.email;
-            document.getElementById('admin-avatar').textContent = user.fullName.charAt(0).toUpperCase();
-            
-            // Ensure admin has gold plan
-            if (user.plan !== 'gold') {
-                user.plan = 'gold';
-                localStorage.setItem('currentUser', JSON.stringify(user));
-            }
-            
-            sessionStorage.setItem('adminAuth', 'true');
-            return true;
+    // Check Authentication
+    function checkAuth() {
+        const currentUser = localStorage.getItem('currentUser');
+        
+        if (!currentUser) {
+            alert('⚠️ Please login first');
+            window.location.href = '../auth.html';
+            return false;
         }
+        
+        let user;
+        try {
+            user = JSON.parse(currentUser);
+        } catch (error) {
+            alert('⚠️ Invalid session. Please login again.');
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '../auth.html';
+            return false;
+        }
+        
+        if (user.userId !== 'admin' || user.email !== ADMIN_EMAIL) {
+            alert('⚠️ Admin access only.\n\nYou are logged in as: ' + user.email);
+            window.location.href = '../index.html';
+            return false;
+        }
+        
+        // Display admin info
+        document.getElementById('admin-email').textContent = user.email;
+        document.getElementById('admin-avatar').textContent = user.fullName.charAt(0).toUpperCase();
+        
+        // Ensure admin has gold plan
+        if (user.plan !== 'gold') {
+            user.plan = 'gold';
+            localStorage.setItem('currentUser', JSON.stringify(user));
+        }
+        
+        sessionStorage.setItem('adminAuth', 'true');
+        return true;
+    }
 
-        // Logout
-        function logout() {
-            if (confirm('Sign out from admin panel?')) {
-                localStorage.removeItem('currentUser');
-                localStorage.removeItem('userSubscription');
-                sessionStorage.removeItem('adminAuth');
-                window.location.href = '../auth.html';
+    // Logout
+    function logout() {
+        if (confirm('Sign out from admin panel?')) {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userSubscription');
+            sessionStorage.removeItem('adminAuth');
+            window.location.href = '../auth.html';
+        }
+    }
+
+    // Switch Tabs
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        document.getElementById('tab-' + tabName).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // Safe Fetch with Error Handling
+    async function safeFetch(url, actionName) {
+        try {
+            console.log(`🔄 Fetching ${actionName}...`);
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
+            const data = await response.json();
+            console.log(`✅ ${actionName} response:`, data);
+            
+            // Handle different response formats
+            if (Array.isArray(data)) {
+                return data;
+            } else if (data && typeof data === 'object') {
+                return data;
+            } else {
+                console.warn(`⚠️ ${actionName} returned unexpected format:`, data);
+                return [];
+            }
+        } catch (error) {
+            console.error(`❌ Error fetching ${actionName}:`, error);
+            return null;
         }
+    }
 
-        // Switch Tabs
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
+    // Load All Data
+    async function loadAllData() {
+        console.log('📊 Starting to load all data...');
+        
+        try {
+            // Load stats first
+            console.log('Loading stats...');
+            const stats = await safeFetch(`${SCRIPT_URL}?action=getStats`, 'Stats');
             
-            // Remove active from all buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById('tab-' + tabName).classList.add('active');
-            
-            // Set button active
-            event.target.classList.add('active');
-        }
-
-        // Load All Data
-        async function loadAllData() {
-            console.log('📊 Loading all data...');
-            
-            try {
-                // Load all data in parallel
-                const [users, payments, subscriptions, comments, activities, stats] = await Promise.all([
-                    fetch(`${SCRIPT_URL}?action=getAllUsers`).then(r => r.json()),
-                    fetch(`${SCRIPT_URL}?action=getAllPayments`).then(r => r.json()),
-                    fetch(`${SCRIPT_URL}?action=getAllSubscriptions`).then(r => r.json()),
-                    fetch(`${SCRIPT_URL}?action=getAllComments`).then(r => r.json()),
-                    fetch(`${SCRIPT_URL}?action=getActivities`).then(r => r.json()),
-                    fetch(`${SCRIPT_URL}?action=getStats`).then(r => r.json())
-                ]);
-
-                allData = { users, payments, subscriptions, comments, activities };
-
-                // Update stats
+            if (stats) {
                 document.getElementById('stat-users').textContent = stats.totalUsers || 0;
                 document.getElementById('stat-payments').textContent = stats.totalPayments || 0;
                 document.getElementById('stat-pending').textContent = stats.pendingPayments || 0;
                 document.getElementById('stat-comments').textContent = stats.totalComments || 0;
-
-                // Render tables
-                renderUsers();
-                renderPayments();
-                renderSubscriptions();
-                renderComments();
-                renderActivities();
-
-                console.log('✅ All data loaded');
-            } catch (error) {
-                console.error('❌ Failed to load data:', error);
-                alert('Failed to load data. Please refresh the page.');
+                console.log('✅ Stats loaded:', stats);
             }
+
+            // Load users
+            console.log('Loading users...');
+            const users = await safeFetch(`${SCRIPT_URL}?action=getAllUsers`, 'Users');
+            allData.users = Array.isArray(users) ? users : [];
+            console.log(`✅ Loaded ${allData.users.length} users`);
+            renderUsers();
+
+            // Load payments
+            console.log('Loading payments...');
+            const payments = await safeFetch(`${SCRIPT_URL}?action=getAllPayments`, 'Payments');
+            allData.payments = Array.isArray(payments) ? payments : [];
+            console.log(`✅ Loaded ${allData.payments.length} payments`);
+            renderPayments();
+
+            // Load subscriptions
+            console.log('Loading subscriptions...');
+            const subscriptions = await safeFetch(`${SCRIPT_URL}?action=getAllSubscriptions`, 'Subscriptions');
+            allData.subscriptions = Array.isArray(subscriptions) ? subscriptions : [];
+            console.log(`✅ Loaded ${allData.subscriptions.length} subscriptions`);
+            renderSubscriptions();
+
+            // Load comments
+            console.log('Loading comments...');
+            const comments = await safeFetch(`${SCRIPT_URL}?action=getAllComments`, 'Comments');
+            allData.comments = Array.isArray(comments) ? comments : [];
+            console.log(`✅ Loaded ${allData.comments.length} comments`);
+            renderComments();
+
+            // Load activities
+            console.log('Loading activities...');
+            const activities = await safeFetch(`${SCRIPT_URL}?action=getActivities`, 'Activities');
+            allData.activities = Array.isArray(activities) ? activities : [];
+            console.log(`✅ Loaded ${allData.activities.length} activities`);
+            renderActivities();
+
+            console.log('✅ All data loaded successfully!');
+            console.log('Final data:', allData);
+
+        } catch (error) {
+            console.error('❌ Critical error loading data:', error);
+            alert('Failed to load admin data.\n\nError: ' + error.message + '\n\nCheck browser console for details.');
         }
+    }
 
-        // Render Users Table
-        function renderUsers() {
-            const tbody = document.getElementById('users-table');
-            
-            if (!allData.users || allData.users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">👥</div><p>No users found</p></td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = allData.users.map(user => `
+    // Render Users Table
+    function renderUsers() {
+        const tbody = document.getElementById('users-table');
+        
+        if (!allData.users || allData.users.length === 0) {
+            tbody.innerHTML = `
                 <tr>
-                    <td>${user.userId}</td>
-                    <td>${user.fullName}</td>
-                    <td>${user.email}</td>
-                    <td><span class="badge badge-${user.plan}">${user.plan.toUpperCase()}</span></td>
-                    <td>${new Date(user.created).toLocaleDateString()}</td>
-                    <td>
-                        <button class="btn-action btn-edit" onclick="editUser('${user.userId}')">Edit</button>
-                        <button class="btn-action btn-delete" onclick="deleteUser('${user.userId}')">Delete</button>
+                    <td colspan="6" class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>No users found</p>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            return;
         }
 
-        // Render Payments Table
-        function renderPayments() {
-            const tbody = document.getElementById('payments-table');
-            
-            if (!allData.payments || allData.payments.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-state-icon">💳</div><p>No payments found</p></td></tr>';
-                return;
-            }
+        tbody.innerHTML = allData.users.map(user => `
+            <tr>
+                <td>${user.userId || 'N/A'}</td>
+                <td>${user.fullName || 'N/A'}</td>
+                <td>${user.email || 'N/A'}</td>
+                <td><span class="badge badge-${user.plan || 'free'}">${(user.plan || 'free').toUpperCase()}</span></td>
+                <td>${user.created ? new Date(user.created).toLocaleDateString() : 'N/A'}</td>
+                <td>
+                    <button class="btn-action btn-edit" onclick="editUser('${user.userId}')">Edit</button>
+                    <button class="btn-action btn-delete" onclick="deleteUser('${user.userId}')">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-            tbody.innerHTML = allData.payments.map(payment => `
+    // Render Payments Table
+    function renderPayments() {
+        const tbody = document.getElementById('payments-table');
+        
+        if (!allData.payments || allData.payments.length === 0) {
+            tbody.innerHTML = `
                 <tr>
-                    <td>${payment.paymentId}</td>
-                    <td>${payment.userName}</td>
-                    <td><span class="badge badge-${payment.plan}">${payment.plan.toUpperCase()}</span></td>
-                    <td>$${payment.amountUSD} / LKR ${payment.amountLKR}</td>
-                    <td>${payment.method}</td>
-                    <td><span class="badge badge-${payment.status}">${payment.status.toUpperCase()}</span></td>
-                    <td>${new Date(payment.created).toLocaleDateString()}</td>
-                    <td>
-                        ${payment.status === 'pending' ? `
-                            <button class="btn-action btn-approve" onclick="approvePayment('${payment.paymentId}')">Approve</button>
-                            <button class="btn-action btn-reject" onclick="rejectPayment('${payment.paymentId}')">Reject</button>
-                        ` : '-'}
+                    <td colspan="8" class="empty-state">
+                        <div class="empty-state-icon">💳</div>
+                        <p>No payments found</p>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            return;
         }
 
-        // Render Subscriptions Table
-        function renderSubscriptions() {
-            const tbody = document.getElementById('subscriptions-table');
-            
-            if (!allData.subscriptions || allData.subscriptions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">💎</div><p>No subscriptions found</p></td></tr>';
-                return;
-            }
+        tbody.innerHTML = allData.payments.map(payment => `
+            <tr>
+                <td>${payment.paymentId || 'N/A'}</td>
+                <td>${payment.userName || 'N/A'}</td>
+                <td><span class="badge badge-${payment.plan || 'free'}">${(payment.plan || 'N/A').toUpperCase()}</span></td>
+                <td>$${payment.amountUSD || 0} / LKR ${payment.amountLKR || 0}</td>
+                <td>${payment.method || 'N/A'}</td>
+                <td><span class="badge badge-${payment.status || 'pending'}">${(payment.status || 'pending').toUpperCase()}</span></td>
+                <td>${payment.created ? new Date(payment.created).toLocaleDateString() : 'N/A'}</td>
+                <td>
+                    ${payment.status === 'pending' ? `
+                        <button class="btn-action btn-approve" onclick="approvePayment('${payment.paymentId}')">Approve</button>
+                        <button class="btn-action btn-reject" onclick="rejectPayment('${payment.paymentId}')">Reject</button>
+                    ` : '-'}
+                </td>
+            </tr>
+        `).join('');
+    }
 
-            tbody.innerHTML = allData.subscriptions.map(sub => `
+    // Render Subscriptions Table
+    function renderSubscriptions() {
+        const tbody = document.getElementById('subscriptions-table');
+        
+        if (!allData.subscriptions || allData.subscriptions.length === 0) {
+            tbody.innerHTML = `
                 <tr>
-                    <td>${sub.subscriptionId}</td>
-                    <td>${sub.userEmail}</td>
-                    <td><span class="badge badge-${sub.plan}">${sub.plan.toUpperCase()}</span></td>
-                    <td><span class="badge badge-${sub.status}">${sub.status.toUpperCase()}</span></td>
-                    <td>${new Date(sub.startDate).toLocaleDateString()}</td>
-                    <td>${sub.expiryDate === 'lifetime' ? 'Lifetime' : new Date(sub.expiryDate).toLocaleDateString()}</td>
-                    <td>
-                        <button class="btn-action btn-edit" onclick="editSubscription('${sub.subscriptionId}')">Edit</button>
+                    <td colspan="7" class="empty-state">
+                        <div class="empty-state-icon">💎</div>
+                        <p>No subscriptions found</p>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            return;
         }
 
-        // Render Comments Table
-        function renderComments() {
-            const tbody = document.getElementById('comments-table');
-            
-            if (!allData.comments || allData.comments.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">💬</div><p>No comments found</p></td></tr>';
-                return;
-            }
+        tbody.innerHTML = allData.subscriptions.map(sub => `
+            <tr>
+                <td>${sub.subscriptionId || 'N/A'}</td>
+                <td>${sub.userEmail || 'N/A'}</td>
+                <td><span class="badge badge-${sub.plan || 'free'}">${(sub.plan || 'free').toUpperCase()}</span></td>
+                <td><span class="badge badge-${sub.status || 'active'}">${(sub.status || 'active').toUpperCase()}</span></td>
+                <td>${sub.startDate ? new Date(sub.startDate).toLocaleDateString() : 'N/A'}</td>
+                <td>${sub.expiryDate === 'lifetime' ? 'Lifetime' : (sub.expiryDate ? new Date(sub.expiryDate).toLocaleDateString() : 'N/A')}</td>
+                <td>
+                    <button class="btn-action btn-edit" onclick="editSubscription('${sub.subscriptionId}')">Edit</button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-            tbody.innerHTML = allData.comments.map(comment => `
+    // Render Comments Table
+    function renderComments() {
+        const tbody = document.getElementById('comments-table');
+        
+        if (!allData.comments || allData.comments.length === 0) {
+            tbody.innerHTML = `
                 <tr>
-                    <td>${comment.commentId}</td>
-                    <td>${comment.postId}</td>
-                    <td>${comment.userName}</td>
-                    <td>${comment.text.substring(0, 50)}${comment.text.length > 50 ? '...' : ''}</td>
-                    <td>${new Date(comment.timestamp).toLocaleDateString()}</td>
-                    <td>
-                        <button class="btn-action btn-delete" onclick="deleteComment('${comment.commentId}')">Delete</button>
+                    <td colspan="6" class="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <p>No comments found</p>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            return;
         }
 
-        // Render Activities Table
-        function renderActivities() {
-            const tbody = document.getElementById('activities-table');
-            
-            if (!allData.activities || allData.activities.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📊</div><p>No activities found</p></td></tr>';
-                return;
-            }
+        tbody.innerHTML = allData.comments.map(comment => `
+            <tr>
+                <td>${comment.commentId || 'N/A'}</td>
+                <td>${comment.postId || 'N/A'}</td>
+                <td>${comment.userName || 'N/A'}</td>
+                <td>${comment.text ? (comment.text.substring(0, 50) + (comment.text.length > 50 ? '...' : '')) : 'N/A'}</td>
+                <td>${comment.timestamp ? new Date(comment.timestamp).toLocaleDateString() : 'N/A'}</td>
+                <td>
+                    <button class="btn-action btn-delete" onclick="deleteComment('${comment.commentId}')">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-            const recentActivities = allData.activities.slice(0, 20);
-
-            tbody.innerHTML = recentActivities.map(activity => `
+    // Render Activities Table
+    function renderActivities() {
+        const tbody = document.getElementById('activities-table');
+        
+        if (!allData.activities || allData.activities.length === 0) {
+            tbody.innerHTML = `
                 <tr>
-                    <td>${activity.activityId}</td>
-                    <td>${activity.userId}</td>
-                    <td>${activity.action}</td>
-                    <td>${activity.details}</td>
-                    <td>${new Date(activity.timestamp).toLocaleString()}</td>
+                    <td colspan="5" class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>No activities found</p>
+                    </td>
                 </tr>
-            `).join('');
+            `;
+            return;
         }
 
-        // Approve Payment
-        async function approvePayment(paymentId) {
-            if (!confirm('Approve this payment?')) return;
+        const recentActivities = allData.activities.slice(0, 20);
 
-            try {
-                const formData = new URLSearchParams();
-                formData.append('action', 'updatePayment');
-                formData.append('paymentId', paymentId);
-                formData.append('status', 'approved');
+        tbody.innerHTML = recentActivities.map(activity => `
+            <tr>
+                <td>${activity.activityId || 'N/A'}</td>
+                <td>${activity.userId || 'N/A'}</td>
+                <td>${activity.action || 'N/A'}</td>
+                <td>${activity.details || 'N/A'}</td>
+                <td>${activity.timestamp ? new Date(activity.timestamp).toLocaleString() : 'N/A'}</td>
+            </tr>
+        `).join('');
+    }
 
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData.toString()
-                });
+    // Approve Payment
+    async function approvePayment(paymentId) {
+        if (!confirm('Approve this payment?')) return;
 
-                const data = await response.json();
+        try {
+            const formData = new URLSearchParams();
+            formData.append('action', 'updatePayment');
+            formData.append('paymentId', paymentId);
+            formData.append('status', 'approved');
 
-                if (data.success) {
-                    alert('✅ Payment approved!');
-                    loadAllData();
-                } else {
-                    alert('❌ Failed to approve payment');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error approving payment');
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('✅ Payment approved!');
+                loadAllData();
+            } else {
+                alert('❌ Failed to approve payment');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error approving payment');
         }
+    }
 
-        // Reject Payment
-        async function rejectPayment(paymentId) {
-            if (!confirm('Reject this payment?')) return;
+    // Reject Payment
+    async function rejectPayment(paymentId) {
+        if (!confirm('Reject this payment?')) return;
 
-            try {
-                const formData = new URLSearchParams();
-                formData.append('action', 'updatePayment');
-                formData.append('paymentId', paymentId);
-                formData.append('status', 'rejected');
+        try {
+            const formData = new URLSearchParams();
+            formData.append('action', 'updatePayment');
+            formData.append('paymentId', paymentId);
+            formData.append('status', 'rejected');
 
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData.toString()
-                });
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (data.success) {
-                    alert('✅ Payment rejected');
-                    loadAllData();
-                } else {
-                    alert('❌ Failed to reject payment');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error rejecting payment');
+            if (data.success) {
+                alert('✅ Payment rejected');
+                loadAllData();
+            } else {
+                alert('❌ Failed to reject payment');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error rejecting payment');
         }
+    }
 
-        // Delete User
-        async function deleteUser(userId) {
-            if (!confirm('Delete this user? This cannot be undone.')) return;
+    // Delete User
+    async function deleteUser(userId) {
+        if (!confirm('Delete this user? This cannot be undone.')) return;
 
-            try {
-                const formData = new URLSearchParams();
-                formData.append('action', 'deleteUser');
-                formData.append('userId', userId);
+        try {
+            const formData = new URLSearchParams();
+            formData.append('action', 'deleteUser');
+            formData.append('userId', userId);
 
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData.toString()
-                });
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (data.success) {
-                    alert('✅ User deleted');
-                    loadAllData();
-                } else {
-                    alert('❌ Failed to delete user');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error deleting user');
+            if (data.success) {
+                alert('✅ User deleted');
+                loadAllData();
+            } else {
+                alert('❌ Failed to delete user');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error deleting user');
         }
+    }
 
-        // Delete Comment
-        async function deleteComment(commentId) {
-            if (!confirm('Delete this comment?')) return;
+    // Delete Comment
+    async function deleteComment(commentId) {
+        if (!confirm('Delete this comment?')) return;
 
-            try {
-                const formData = new URLSearchParams();
-                formData.append('action', 'deleteComment');
-                formData.append('commentId', commentId);
+        try {
+            const formData = new URLSearchParams();
+            formData.append('action', 'deleteComment');
+            formData.append('commentId', commentId);
 
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData.toString()
-                });
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (data.success) {
-                    alert('✅ Comment deleted');
-                    loadAllData();
-                } else {
-                    alert('❌ Failed to delete comment');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error deleting comment');
+            if (data.success) {
+                alert('✅ Comment deleted');
+                loadAllData();
+            } else {
+                alert('❌ Failed to delete comment');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error deleting comment');
         }
+    }
 
-        // Edit User (Placeholder)
-        function editUser(userId) {
-            alert('Edit user feature coming soon!');
+    // Edit User (Placeholder)
+    function editUser(userId) {
+        const newPlan = prompt('Enter new plan (free, pro, premium, gold):');
+        if (newPlan && ['free', 'pro', 'premium', 'gold'].includes(newPlan.toLowerCase())) {
+            updateUserPlan(userId, newPlan.toLowerCase());
         }
+    }
 
-        // Edit Subscription (Placeholder)
-        function editSubscription(subscriptionId) {
-            alert('Edit subscription feature coming soon!');
-        }
+    // Update User Plan
+    async function updateUserPlan(userId, plan) {
+        try {
+            const formData = new URLSearchParams();
+            formData.append('action', 'updateUser');
+            formData.append('userId', userId);
+            formData.append('plan', plan);
 
-        // Load Payment Settings
-        async function loadPaymentSettings() {
-            try {
-                const response = await fetch('../data/admin-membership-info.json');
-                const config = await response.json();
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
 
-                // PayHere
-                document.getElementById('payhere-merchant-id').value = config.payhere?.merchantId || '';
-                document.getElementById('payhere-merchant-secret').value = config.payhere?.merchantSecret || '';
-                document.getElementById('payhere-business-name').value = config.payhere?.businessName || '';
-                document.getElementById('payhere-environment').value = config.payhere?.environment || 'sandbox';
+            const data = await response.json();
 
-                // PayPal
-                document.getElementById('paypal-email').value = config.paypal?.email || '';
-                document.getElementById('paypal-business-name').value = config.paypal?.businessName || '';
-
-                // Bank
-                document.getElementById('bank-name').value = config.bank?.bankName || '';
-                document.getElementById('bank-account-number').value = config.bank?.accountNumber || '';
-                document.getElementById('bank-account-name').value = config.bank?.accountName || '';
-                document.getElementById('bank-branch').value = config.bank?.branch || '';
-                document.getElementById('bank-branch-code').value = config.bank?.branchCode || '';
-                document.getElementById('bank-swift').value = config.bank?.swift || '';
-
-                console.log('✅ Settings loaded');
-            } catch (error) {
-                console.error('Error loading settings:', error);
+            if (data.success) {
+                alert('✅ User plan updated!');
+                loadAllData();
+            } else {
+                alert('❌ Failed to update plan');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error updating plan');
         }
+    }
 
-        // Save Payment Settings
-        function saveSettings() {
-            const settings = {
-                payhere: {
-                    enabled: true,
-                    merchantId: document.getElementById('payhere-merchant-id').value,
-                    merchantSecret: document.getElementById('payhere-merchant-secret').value,
-                    businessName: document.getElementById('payhere-business-name').value,
-                    environment: document.getElementById('payhere-environment').value,
-                    currency: 'LKR'
-                },
-                paypal: {
-                    enabled: true,
-                    email: document.getElementById('paypal-email').value,
-                    businessName: document.getElementById('paypal-business-name').value,
-                    currency: 'USD'
-                },
-                bank: {
-                    enabled: true,
-                    bankName: document.getElementById('bank-name').value,
-                    accountNumber: document.getElementById('bank-account-number').value,
-                    accountName: document.getElementById('bank-account-name').value,
-                    branch: document.getElementById('bank-branch').value,
-                    branchCode: document.getElementById('bank-branch-code').value,
-                    swift: document.getElementById('bank-swift').value,
-                    currency: 'LKR'
-                }
-            };
+    // Edit Subscription (Placeholder)
+    function editSubscription(subscriptionId) {
+        alert('Edit subscription: ' + subscriptionId + '\n\nFeature coming soon!');
+    }
 
-            console.log('💾 Settings to save:', settings);
-            alert('⚠️ Settings saved to console.\n\nTo apply these settings:\n1. Copy the JSON from console\n2. Update data/admin-membership-info.json\n3. Commit to GitHub');
-            console.log('Copy this JSON to data/admin-membership-info.json:');
-            console.log(JSON.stringify(settings, null, 2));
+    // Load Payment Settings
+    async function loadPaymentSettings() {
+        try {
+            const response = await fetch('../data/admin-membership-info.json');
+            const config = await response.json();
+
+            // PayHere
+            document.getElementById('payhere-merchant-id').value = config.payhere?.merchantId || '';
+            document.getElementById('payhere-merchant-secret').value = config.payhere?.merchantSecret || '';
+            document.getElementById('payhere-business-name').value = config.payhere?.businessName || '';
+            document.getElementById('payhere-environment').value = config.payhere?.environment || 'sandbox';
+
+            // PayPal
+            document.getElementById('paypal-email').value = config.paypal?.email || '';
+            document.getElementById('paypal-business-name').value = config.paypal?.businessName || '';
+
+            // Bank
+            document.getElementById('bank-name').value = config.bank?.bankName || '';
+            document.getElementById('bank-account-number').value = config.bank?.accountNumber || '';
+            document.getElementById('bank-account-name').value = config.bank?.accountName || '';
+            document.getElementById('bank-branch').value = config.bank?.branch || '';
+            document.getElementById('bank-branch-code').value = config.bank?.branchCode || '';
+            document.getElementById('bank-swift').value = config.bank?.swift || '';
+
+            console.log('✅ Settings loaded');
+        } catch (error) {
+            console.error('Error loading settings:', error);
         }
+    }
 
-        // Initialize
-        if (checkAuth()) {
-            loadAllData();
-            loadPaymentSettings();
-        }
-    </script>
+    // Save Payment Settings
+    function saveSettings() {
+        const settings = {
+            payhere: {
+                enabled: true,
+                merchantId: document.getElementById('payhere-merchant-id').value,
+                merchantSecret: document.getElementById('payhere-merchant-secret').value,
+                businessName: document.getElementById('payhere-business-name').value,
+                environment: document.getElementById('payhere-environment').value,
+                apiUrl: document.getElementById('payhere-environment').value === 'live' 
+                    ? 'https://www.payhere.lk/pay/checkout' 
+                    : 'https://sandbox.payhere.lk/pay/checkout',
+                currency: 'LKR'
+            },
+            paypal: {
+                enabled: true,
+                email: document.getElementById('paypal-email').value,
+                businessName: document.getElementById('paypal-business-name').value,
+                currency: 'USD'
+            },
+            bank: {
+                enabled: true,
+                bankName: document.getElementById('bank-name').value,
+                accountNumber: document.getElementById('bank-account-number').value,
+                accountName: document.getElementById('bank-account-name').value,
+                branch: document.getElementById('bank-branch').value,
+                branchCode: document.getElementById('bank-branch-code').value,
+                swift: document.getElementById('bank-swift').value,
+                currency: 'LKR'
+            }
+        };
+
+        console.log('💾 Settings to save:', settings);
+        alert('⚠️ Settings saved to console.\n\nTo apply these settings:\n1. Open browser console (F12)\n2. Copy the JSON output\n3. Update data/admin-membership-info.json\n4. Commit to GitHub');
+        console.log('📋 Copy this JSON to data/admin-membership-info.json:');
+        console.log(JSON.stringify(settings, null, 2));
+    }
+
+    // Initialize
+    if (checkAuth()) {
+        console.log('🚀 Admin panel initializing...');
+        loadAllData();
+        loadPaymentSettings();
+    }
+</script>
 </body>
 </html>
