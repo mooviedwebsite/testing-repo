@@ -4,338 +4,594 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - GitHub CMS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/admin.css">
-</head>
-<body>
-    <!-- Add this in the admin panel header -->
-<div class="admin-header">
-    <div class="container">
-        <div class="admin-logo">
-            <h1>⚙️ Admin Panel</h1>
-        </div>
-        <div class="admin-nav">
-            <span id="admin-user-email">Loading...</span>
-            <button onclick="logout()" class="btn-logout">🚪 Logout</button>
-        </div>
-    </div>
-</div>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<script>
-    // Display admin email in header
-    document.addEventListener('DOMContentLoaded', () => {
-        const currentUser = localStorage.getItem('currentUser');
-        if (currentUser) {
-            try {
-                const user = JSON.parse(currentUser);
-                const emailElement = document.getElementById('admin-user-email');
-                if (emailElement) {
-                    emailElement.textContent = user.email;
-                }
-            } catch (e) {
-                console.error('Error displaying email:', e);
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+        }
+
+        /* Header */
+        .admin-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #141414 100%);
+            border-bottom: 2px solid #E50914;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #E50914, #B20710);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .admin-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #F59E0B, #FBBF24);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .admin-user-info span {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-home,
+        .btn-logout {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-home {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-logout {
+            background: rgba(229, 9, 20, 0.1);
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            color: #E50914;
+        }
+
+        .btn-logout:hover {
+            background: rgba(229, 9, 20, 0.2);
+            border-color: #E50914;
+        }
+
+        /* Main Container */
+        .admin-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* Navigation Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .tab-btn.active {
+            background: #E50914;
+            color: #fff;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.2);
+            border-color: rgba(229, 9, 20, 0.3);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(229, 9, 20, 0.1);
+        }
+
+        .stat-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #fff;
+            margin-top: 8px;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tables */
+        .data-table {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table-header {
+            background: rgba(229, 9, 20, 0.1);
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-free { background: #6B7280; color: #fff; }
+        .badge-pro { background: #3B82F6; color: #fff; }
+        .badge-premium { background: #8B5CF6; color: #fff; }
+        .badge-gold { background: linear-gradient(135deg, #F59E0B, #FBBF24); color: #fff; }
+        .badge-pending { background: rgba(251, 191, 36, 0.2); color: #FBBF24; }
+        .badge-approved { background: rgba(34, 197, 94, 0.2); color: #22C55E; }
+        .badge-rejected { background: rgba(239, 68, 68, 0.2); color: #EF4444; }
+        .badge-active { background: rgba(34, 197, 94, 0.2); color: #22C55E; }
+        .badge-cancelled { background: rgba(107, 114, 128, 0.2); color: #6B7280; }
+
+        /* Action Buttons */
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            margin-right: 8px;
+        }
+
+        .btn-approve {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22C55E;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-approve:hover {
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .btn-reject {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-reject:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-edit {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-edit:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Payment Settings Form */
+        .settings-form {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #E50914;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #E50914;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-save {
+            padding: 14px 32px;
+            background: #E50914;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-save:hover {
+            background: #B20710;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.4);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #E50914;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .admin-nav {
+                flex-wrap: wrap;
+                justify-content: center;
             }
         }
-    });
-</script>
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="header-container">
+            <div class="admin-logo">
+                <h1>👑 ADMIN PANEL</h1>
+            </div>
+            <div class="admin-nav">
+                <div class="admin-user-info">
+                    <div class="admin-avatar">
+                        <span id="admin-avatar">A</span>
+                    </div>
+                    <span id="admin-email">Loading...</span>
+                </div>
+                <a href="../index.html" class="btn-home">🏠 Home</a>
+                <button onclick="logout()" class="btn-logout">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
 
-<style>
-    .admin-header {
-        background: #1a1a1a;
-        border-bottom: 2px solid #E50914;
-        padding: 15px 0;
-        margin-bottom: 30px;
-    }
-    
-    .admin-header .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-    
-    .admin-logo h1 {
-        color: #fff;
-        font-size: 24px;
-        margin: 0;
-    }
-    
-    .admin-nav {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-    
-    .admin-nav span {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 14px;
-    }
-    
-    .btn-logout {
-        padding: 8px 16px;
-        background: rgba(229, 9, 20, 0.1);
-        border: 1px solid rgba(229, 9, 20, 0.3);
-        border-radius: 6px;
-        color: #E50914;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .btn-logout:hover {
-        background: rgba(229, 9, 20, 0.2);
-        border-color: #E50914;
-    }
-</style>
+    <!-- Main Container -->
     <div class="admin-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1>ADMIN PANEL</h1>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" onclick="navigateTo('dashboard')">
-                    <span class="nav-icon">📊</span>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="nav-item" onclick="navigateTo('users')">
-                    <span class="nav-icon">👥</span>
-                    <span>Users</span>
-                    <span class="nav-badge" id="users-count">0</span>
-                </a>
-                <a href="#" class="nav-item" onclick="navigateTo('subscriptions')">
-                    <span class="nav-icon">💎</span>
-                    <span>Subscriptions</span>
-                    <span class="nav-badge" id="subscriptions-count">0</span>
-                </a>
-                <a href="#" class="nav-item" onclick="navigateTo('payments')">
-                    <span class="nav-icon">💳</span>
-                    <span>Payments</span>
-                    <span class="nav-badge pending" id="pending-payments">0</span>
-                </a>
-                <a href="#" class="nav-item" onclick="navigateTo('comments')">
-                    <span class="nav-icon">💬</span>
-                    <span>Comments</span>
-                    <span class="nav-badge" id="comments-count">0</span>
-                </a>
-                <a href="#" class="nav-item" onclick="navigateTo('activities')">
-                    <span class="nav-icon">📝</span>
-                    <span>Activities</span>
-                </a>
-                <a href="#" class="nav-item" onclick="navigateTo('settings')">
-                    <span class="nav-icon">⚙️</span>
-                    <span>Payment Settings</span>
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Loading Overlay -->
-            <div class="loading-overlay" id="loading-overlay">
-                <div class="spinner"></div>
-                <p>Loading...</p>
-            </div>
-
-            <!-- Dashboard Page -->
-            <div class="page active" id="page-dashboard">
-                <div class="page-header">
-                    <h1>Dashboard</h1>
-                    <button class="btn-refresh" onclick="loadAllData()">🔄 Refresh</button>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8);">👥</div>
-                        <div class="stat-info">
-                            <h3 id="stat-users">0</h3>
-                            <p>Total Users</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">💎</div>
-                        <div class="stat-info">
-                            <h3 id="stat-active-subs">0</h3>
-                            <p>Active Subscriptions</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">💳</div>
-                        <div class="stat-info">
-                            <h3 id="stat-pending">0</h3>
-                            <p>Pending Payments</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">💬</div>
-                        <div class="stat-info">
-                            <h3 id="stat-comments">0</h3>
-                            <p>Total Comments</p>
-                        </div>
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h3>Total Users</h3>
                     </div>
                 </div>
+                <div class="stat-value" id="stat-users">0</div>
+            </div>
 
-                <div class="dashboard-sections">
-                    <!-- Recent Users -->
-                    <div class="dashboard-section">
-                        <h2>Recent Users</h2>
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Plan</th>
-                                        <th>Joined</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recent-users">
-                                    <tr><td colspan="4">Loading...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activities -->
-                    <div class="dashboard-section">
-                        <h2>Recent Activities</h2>
-                        <div class="activity-list" id="recent-activities">
-                            <p>Loading...</p>
-                        </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">💳</div>
+                    <div class="stat-info">
+                        <h3>Total Payments</h3>
                     </div>
                 </div>
+                <div class="stat-value" id="stat-payments">0</div>
             </div>
 
-            <!-- Users Page -->
-            <div class="page" id="page-users">
-                <div class="page-header">
-                    <h1>All Users</h1>
-                    <input type="text" class="search-input" placeholder="Search users..." onkeyup="filterTable('users-table', this.value)">
-                </div>
-                <div class="table-container">
-                    <table class="data-table" id="users-table">
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Full Name</th>
-                                <th>Email</th>
-                                <th>Password</th>
-                                <th>Plan</th>
-                                <th>Created</th>
-                                <th>Last Login</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-tbody">
-                            <tr><td colspan="8">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Subscriptions Page -->
-            <div class="page" id="page-subscriptions">
-                <div class="page-header">
-                    <h1>Subscriptions</h1>
-                    <div class="filter-tabs">
-                        <button class="filter-tab active" onclick="filterSubscriptions('all')">All</button>
-                        <button class="filter-tab" onclick="filterSubscriptions('active')">Active</button>
-                        <button class="filter-tab" onclick="filterSubscriptions('pro')">Pro</button>
-                        <button class="filter-tab" onclick="filterSubscriptions('premium')">Premium</button>
-                        <button class="filter-tab" onclick="filterSubscriptions('gold')">Gold</button>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <h3>Pending Approvals</h3>
                     </div>
                 </div>
-                <div class="table-container">
-                    <table class="data-table" id="subscriptions-table">
-                        <thead>
-                            <tr>
-                                <th>User Email</th>
-                                <th>Plan</th>
-                                <th>Status</th>
-                                <th>Start Date</th>
-                                <th>Expiry Date</th>
-                                <th>Payment Method</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="subscriptions-tbody">
-                            <tr><td colspan="7">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="stat-value" id="stat-pending">0</div>
             </div>
 
-            <!-- Payments Page -->
-            <div class="page" id="page-payments">
-                <div class="page-header">
-                    <h1>Payments</h1>
-                    <div class="filter-tabs">
-                        <button class="filter-tab active" onclick="filterPayments('all')">All</button>
-                        <button class="filter-tab" onclick="filterPayments('pending')">Pending</button>
-                        <button class="filter-tab" onclick="filterPayments('approved')">Approved</button>
-                        <button class="filter-tab" onclick="filterPayments('rejected')">Rejected</button>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-info">
+                        <h3>Total Comments</h3>
                     </div>
                 </div>
-                <div class="table-container">
-                    <table class="data-table" id="payments-table">
-                        <thead>
-                            <tr>
-                                <th>Payment ID</th>
-                                <th>User</th>
-                                <th>Plan</th>
-                                <th>Amount</th>
-                                <th>Method</th>
-                                <th>Status</th>
-                                <th>Transaction ID</th>
-                                <th>Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="payments-tbody">
-                            <tr><td colspan="9">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="stat-value" id="stat-comments">0</div>
             </div>
+        </div>
 
-            <!-- Comments Page -->
-            <div class="page" id="page-comments">
-                <div class="page-header">
-                    <h1>All Comments</h1>
-                    <input type="text" class="search-input" placeholder="Search comments..." onkeyup="filterTable('comments-table', this.value)">
-                </div>
-                <div class="table-container">
-                    <table class="data-table" id="comments-table">
-                        <thead>
-                            <tr>
-                                <th>Comment ID</th>
-                                <th>Post ID</th>
-                                <th>User</th>
-                                <th>Text</th>
-                                <th>Timestamp</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="comments-tbody">
-                            <tr><td colspan="6">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <!-- Navigation Tabs -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">
+                📊 Dashboard
+            </button>
+            <button class="tab-btn" onclick="switchTab('users')">
+                👥 Users
+            </button>
+            <button class="tab-btn" onclick="switchTab('subscriptions')">
+                💎 Subscriptions
+            </button>
+            <button class="tab-btn" onclick="switchTab('payments')">
+                💳 Payments
+            </button>
+            <button class="tab-btn" onclick="switchTab('comments')">
+                💬 Comments
+            </button>
+            <button class="tab-btn" onclick="switchTab('settings')">
+                ⚙️ Settings
+            </button>
+        </div>
 
-            <!-- Activities Page -->
-            <div class="page" id="page-activities">
-                <div class="page-header">
-                    <h1>All Activities</h1>
-                    <input type="text" class="search-input" placeholder="Search activities..." onkeyup="filterTable('activities-table', this.value)">
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="data-table">
+                <div class="table-header">
+                    <h2>📈 Recent Activity</h2>
                 </div>
-                <div class="table-container">
-                    <table class="data-table" id="activities-table">
+                <div class="table-responsive">
+                    <table>
                         <thead>
                             <tr>
                                 <th>Activity ID</th>
@@ -345,178 +601,666 @@
                                 <th>Timestamp</th>
                             </tr>
                         </thead>
-                        <tbody id="activities-tbody">
-                            <tr><td colspan="5">Loading...</td></tr>
+                        <tbody id="activities-table">
+                            <tr>
+                                <td colspan="5" class="loading">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading activities...</p>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Settings Page -->
-            <div class="page" id="page-settings">
-                <div class="page-header">
-                    <h1>Payment Settings</h1>
-                    <button class="btn-save" onclick="savePaymentSettings()">💾 Save Settings</button>
+        <!-- Users Tab -->
+        <div id="tab-users" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h2>👥 All Users</h2>
                 </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Plan</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading users...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-                <div class="settings-container">
-                    <!-- PayPal Settings -->
-                    <div class="settings-card">
-                        <h3>🅿️ PayPal Configuration</h3>
+        <!-- Subscriptions Tab -->
+        <div id="tab-subscriptions" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h2>💎 All Subscriptions</h2>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subscription ID</th>
+                                <th>User Email</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Start Date</th>
+                                <th>Expiry Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subscriptions-table">
+                            <tr>
+                                <td colspan="7" class="loading">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading subscriptions...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Tab -->
+        <div id="tab-payments" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h2>💳 Payment Requests</h2>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Payment ID</th>
+                                <th>User</th>
+                                <th>Plan</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-table">
+                            <tr>
+                                <td colspan="8" class="loading">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading payments...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments Tab -->
+        <div id="tab-comments" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h2>💬 All Comments</h2>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Comment ID</th>
+                                <th>Post ID</th>
+                                <th>User</th>
+                                <th>Comment</th>
+                                <th>Timestamp</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comments-table">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading comments...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="tab-settings" class="tab-content">
+            <div class="settings-form">
+                <h2 style="margin-bottom: 30px; font-size: 24px;">⚙️ Payment Settings</h2>
+
+                <!-- PayHere Settings -->
+                <div class="form-section">
+                    <h3>💳 PayHere Configuration (Sri Lanka)</h3>
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="paypal-enabled" checked>
-                                Enable PayPal
-                            </label>
+                            <label>Merchant ID</label>
+                            <input type="text" id="payhere-merchant-id" placeholder="1234567">
                         </div>
                         <div class="form-group">
-                            <label>PayPal Business Email</label>
-                            <input type="email" id="paypal-email" placeholder="your-paypal@business.com">
+                            <label>Merchant Secret</label>
+                            <input type="text" id="payhere-merchant-secret" placeholder="Enter merchant secret">
                         </div>
                         <div class="form-group">
                             <label>Business Name</label>
-                            <input type="text" id="paypal-business" placeholder="GitHub CMS">
+                            <input type="text" id="payhere-business-name" placeholder="GitHub CMS">
+                        </div>
+                        <div class="form-group">
+                            <label>Environment</label>
+                            <select id="payhere-environment">
+                                <option value="sandbox">Sandbox (Testing)</option>
+                                <option value="live">Live (Production)</option>
+                            </select>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Bank Settings -->
-                    <div class="settings-card">
-                        <h3>🏦 Bank Transfer Configuration</h3>
+                <!-- PayPal Settings -->
+                <div class="form-section">
+                    <h3>💰 PayPal Configuration</h3>
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="bank-enabled" checked>
-                                Enable Bank Transfer
-                            </label>
+                            <label>PayPal Email</label>
+                            <input type="email" id="paypal-email" placeholder="your@paypal.com">
                         </div>
                         <div class="form-group">
+                            <label>Business Name</label>
+                            <input type="text" id="paypal-business-name" placeholder="GitHub CMS">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Transfer Settings -->
+                <div class="form-section">
+                    <h3>🏦 Bank Transfer Configuration</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
                             <label>Bank Name</label>
-                            <input type="text" id="bank-name" placeholder="Commercial Bank of Ceylon">
+                            <input type="text" id="bank-name" placeholder="Commercial Bank">
                         </div>
                         <div class="form-group">
                             <label>Account Number</label>
-                            <input type="text" id="bank-account" placeholder="1234567890">
+                            <input type="text" id="bank-account-number" placeholder="1234567890">
                         </div>
                         <div class="form-group">
                             <label>Account Name</label>
-                            <input type="text" id="bank-account-name" placeholder="Your Business Name">
+                            <input type="text" id="bank-account-name" placeholder="GitHub CMS">
                         </div>
                         <div class="form-group">
                             <label>Branch</label>
-                            <input type="text" id="bank-branch" placeholder="Colombo 03">
+                            <input type="text" id="bank-branch" placeholder="Colombo Branch">
+                        </div>
+                        <div class="form-group">
+                            <label>Branch Code</label>
+                            <input type="text" id="bank-branch-code" placeholder="001">
                         </div>
                         <div class="form-group">
                             <label>SWIFT Code</label>
                             <input type="text" id="bank-swift" placeholder="CCEYLKLX">
                         </div>
                     </div>
-
-                    <!-- PayHere Settings -->
-                    <div class="settings-card">
-                        <h3>💳 PayHere Configuration</h3>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="payhere-enabled" checked>
-                                Enable PayHere
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>Merchant ID</label>
-                            <input type="text" id="payhere-merchant-id" placeholder="1221149">
-                        </div>
-                        <div class="form-group">
-                            <label>Merchant Secret</label>
-                            <input type="password" id="payhere-merchant-secret" placeholder="Your merchant secret">
-                        </div>
-                        <div class="form-group">
-                            <label>Business Name</label>
-                            <input type="text" id="payhere-business" placeholder="GitHub CMS">
-                        </div>
-                    </div>
                 </div>
+
+                <button class="btn-save" onclick="saveSettings()">💾 Save Settings</button>
             </div>
-        </main>
+        </div>
     </div>
 
-    <script src="../js/admin-panel.js"></script>
-  <script>
-    /* ========================================
-       ADMIN AUTHENTICATION - FIXED
-    ======================================== */
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
+        const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
 
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxhGkwRbJErCE05Z-TejfARFrdmQlp4ijNCSPSfnRlntgmk4re-fXUZiOFEAKLaEtz/exec';
-    const ADMIN_EMAIL = 'rawindunethsara93@gmail.com';
+        let allData = {
+            users: [],
+            payments: [],
+            subscriptions: [],
+            comments: [],
+            activities: []
+        };
 
-    // Check authentication
-    function checkAuth() {
-        console.log('🔐 Checking admin authentication...');
-        
-        // Check if admin session exists
-        const isAuthenticated = sessionStorage.getItem('adminAuth');
-        const currentUser = localStorage.getItem('currentUser');
-        
-        console.log('Session adminAuth:', isAuthenticated);
-        console.log('LocalStorage currentUser:', currentUser);
-        
-        if (!currentUser) {
-            console.log('❌ No user data found');
-            alert('⚠️ Please login first');
-            window.location.href = '../auth.html';
-            return false;
-        }
-        
-        try {
-            const user = JSON.parse(currentUser);
-            console.log('User data:', user);
+        // Check Authentication
+        function checkAuth() {
+            const currentUser = localStorage.getItem('currentUser');
             
-            // Check if user is admin
-            if (user.userId === 'admin' && user.email === ADMIN_EMAIL) {
-                console.log('✅ Admin authenticated');
-                
-                // Ensure admin has gold plan
-                if (user.plan !== 'gold') {
-                    user.plan = 'gold';
-                    localStorage.setItem('currentUser', JSON.stringify(user));
-                }
-                
-                // Set admin session if not set
-                if (isAuthenticated !== 'true') {
-                    sessionStorage.setItem('adminAuth', 'true');
-                }
-                
-                return true;
-            } else {
-                console.log('❌ User is not admin');
-                alert('⚠️ Admin access only. You are logged in as: ' + user.email);
+            if (!currentUser) {
+                alert('⚠️ Please login first');
+                window.location.href = '../auth.html';
+                return false;
+            }
+            
+            let user;
+            try {
+                user = JSON.parse(currentUser);
+            } catch (error) {
+                alert('⚠️ Invalid session. Please login again.');
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = '../auth.html';
+                return false;
+            }
+            
+            if (user.userId !== 'admin' || user.email !== ADMIN_EMAIL) {
+                alert('⚠️ Admin access only.\n\nYou are logged in as: ' + user.email);
                 window.location.href = '../index.html';
                 return false;
             }
-        } catch (error) {
-            console.error('❌ Parse error:', error);
-            alert('⚠️ Invalid session. Please login again.');
-            localStorage.removeItem('currentUser');
-            sessionStorage.removeItem('adminAuth');
-            window.location.href = '../auth.html';
-            return false;
+            
+            // Display admin info
+            document.getElementById('admin-email').textContent = user.email;
+            document.getElementById('admin-avatar').textContent = user.fullName.charAt(0).toUpperCase();
+            
+            // Ensure admin has gold plan
+            if (user.plan !== 'gold') {
+                user.plan = 'gold';
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            }
+            
+            sessionStorage.setItem('adminAuth', 'true');
+            return true;
         }
-    }
 
-    // Logout
-    function logout() {
-        if (confirm('Sign out from admin panel?')) {
-            sessionStorage.removeItem('adminAuth');
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('userSubscription');
-            window.location.href = '../auth.html';
+        // Logout
+        function logout() {
+            if (confirm('Sign out from admin panel?')) {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('userSubscription');
+                sessionStorage.removeItem('adminAuth');
+                window.location.href = '../auth.html';
+            }
         }
-    }
 
-    // Check auth on load
-    if (!checkAuth()) {
-        throw new Error('Authentication failed');
-    }
-    
-    console.log('✅ Admin panel ready');
-</script>
-<script src="../js/admin-panel.js"></script>
+        // Switch Tabs
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // Set button active
+            event.target.classList.add('active');
+        }
+
+        // Load All Data
+        async function loadAllData() {
+            console.log('📊 Loading all data...');
+            
+            try {
+                // Load all data in parallel
+                const [users, payments, subscriptions, comments, activities, stats] = await Promise.all([
+                    fetch(`${SCRIPT_URL}?action=getAllUsers`).then(r => r.json()),
+                    fetch(`${SCRIPT_URL}?action=getAllPayments`).then(r => r.json()),
+                    fetch(`${SCRIPT_URL}?action=getAllSubscriptions`).then(r => r.json()),
+                    fetch(`${SCRIPT_URL}?action=getAllComments`).then(r => r.json()),
+                    fetch(`${SCRIPT_URL}?action=getActivities`).then(r => r.json()),
+                    fetch(`${SCRIPT_URL}?action=getStats`).then(r => r.json())
+                ]);
+
+                allData = { users, payments, subscriptions, comments, activities };
+
+                // Update stats
+                document.getElementById('stat-users').textContent = stats.totalUsers || 0;
+                document.getElementById('stat-payments').textContent = stats.totalPayments || 0;
+                document.getElementById('stat-pending').textContent = stats.pendingPayments || 0;
+                document.getElementById('stat-comments').textContent = stats.totalComments || 0;
+
+                // Render tables
+                renderUsers();
+                renderPayments();
+                renderSubscriptions();
+                renderComments();
+                renderActivities();
+
+                console.log('✅ All data loaded');
+            } catch (error) {
+                console.error('❌ Failed to load data:', error);
+                alert('Failed to load data. Please refresh the page.');
+            }
+        }
+
+        // Render Users Table
+        function renderUsers() {
+            const tbody = document.getElementById('users-table');
+            
+            if (!allData.users || allData.users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">👥</div><p>No users found</p></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allData.users.map(user => `
+                <tr>
+                    <td>${user.userId}</td>
+                    <td>${user.fullName}</td>
+                    <td>${user.email}</td>
+                    <td><span class="badge badge-${user.plan}">${user.plan.toUpperCase()}</span></td>
+                    <td>${new Date(user.created).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="editUser('${user.userId}')">Edit</button>
+                        <button class="btn-action btn-delete" onclick="deleteUser('${user.userId}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Payments Table
+        function renderPayments() {
+            const tbody = document.getElementById('payments-table');
+            
+            if (!allData.payments || allData.payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-state-icon">💳</div><p>No payments found</p></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allData.payments.map(payment => `
+                <tr>
+                    <td>${payment.paymentId}</td>
+                    <td>${payment.userName}</td>
+                    <td><span class="badge badge-${payment.plan}">${payment.plan.toUpperCase()}</span></td>
+                    <td>$${payment.amountUSD} / LKR ${payment.amountLKR}</td>
+                    <td>${payment.method}</td>
+                    <td><span class="badge badge-${payment.status}">${payment.status.toUpperCase()}</span></td>
+                    <td>${new Date(payment.created).toLocaleDateString()}</td>
+                    <td>
+                        ${payment.status === 'pending' ? `
+                            <button class="btn-action btn-approve" onclick="approvePayment('${payment.paymentId}')">Approve</button>
+                            <button class="btn-action btn-reject" onclick="rejectPayment('${payment.paymentId}')">Reject</button>
+                        ` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Subscriptions Table
+        function renderSubscriptions() {
+            const tbody = document.getElementById('subscriptions-table');
+            
+            if (!allData.subscriptions || allData.subscriptions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">💎</div><p>No subscriptions found</p></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allData.subscriptions.map(sub => `
+                <tr>
+                    <td>${sub.subscriptionId}</td>
+                    <td>${sub.userEmail}</td>
+                    <td><span class="badge badge-${sub.plan}">${sub.plan.toUpperCase()}</span></td>
+                    <td><span class="badge badge-${sub.status}">${sub.status.toUpperCase()}</span></td>
+                    <td>${new Date(sub.startDate).toLocaleDateString()}</td>
+                    <td>${sub.expiryDate === 'lifetime' ? 'Lifetime' : new Date(sub.expiryDate).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="editSubscription('${sub.subscriptionId}')">Edit</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Comments Table
+        function renderComments() {
+            const tbody = document.getElementById('comments-table');
+            
+            if (!allData.comments || allData.comments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">💬</div><p>No comments found</p></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allData.comments.map(comment => `
+                <tr>
+                    <td>${comment.commentId}</td>
+                    <td>${comment.postId}</td>
+                    <td>${comment.userName}</td>
+                    <td>${comment.text.substring(0, 50)}${comment.text.length > 50 ? '...' : ''}</td>
+                    <td>${new Date(comment.timestamp).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn-action btn-delete" onclick="deleteComment('${comment.commentId}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Activities Table
+        function renderActivities() {
+            const tbody = document.getElementById('activities-table');
+            
+            if (!allData.activities || allData.activities.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📊</div><p>No activities found</p></td></tr>';
+                return;
+            }
+
+            const recentActivities = allData.activities.slice(0, 20);
+
+            tbody.innerHTML = recentActivities.map(activity => `
+                <tr>
+                    <td>${activity.activityId}</td>
+                    <td>${activity.userId}</td>
+                    <td>${activity.action}</td>
+                    <td>${activity.details}</td>
+                    <td>${new Date(activity.timestamp).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Approve Payment
+        async function approvePayment(paymentId) {
+            if (!confirm('Approve this payment?')) return;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'updatePayment');
+                formData.append('paymentId', paymentId);
+                formData.append('status', 'approved');
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Payment approved!');
+                    loadAllData();
+                } else {
+                    alert('❌ Failed to approve payment');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error approving payment');
+            }
+        }
+
+        // Reject Payment
+        async function rejectPayment(paymentId) {
+            if (!confirm('Reject this payment?')) return;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'updatePayment');
+                formData.append('paymentId', paymentId);
+                formData.append('status', 'rejected');
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Payment rejected');
+                    loadAllData();
+                } else {
+                    alert('❌ Failed to reject payment');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error rejecting payment');
+            }
+        }
+
+        // Delete User
+        async function deleteUser(userId) {
+            if (!confirm('Delete this user? This cannot be undone.')) return;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'deleteUser');
+                formData.append('userId', userId);
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ User deleted');
+                    loadAllData();
+                } else {
+                    alert('❌ Failed to delete user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error deleting user');
+            }
+        }
+
+        // Delete Comment
+        async function deleteComment(commentId) {
+            if (!confirm('Delete this comment?')) return;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'deleteComment');
+                formData.append('commentId', commentId);
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Comment deleted');
+                    loadAllData();
+                } else {
+                    alert('❌ Failed to delete comment');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error deleting comment');
+            }
+        }
+
+        // Edit User (Placeholder)
+        function editUser(userId) {
+            alert('Edit user feature coming soon!');
+        }
+
+        // Edit Subscription (Placeholder)
+        function editSubscription(subscriptionId) {
+            alert('Edit subscription feature coming soon!');
+        }
+
+        // Load Payment Settings
+        async function loadPaymentSettings() {
+            try {
+                const response = await fetch('../data/admin-membership-info.json');
+                const config = await response.json();
+
+                // PayHere
+                document.getElementById('payhere-merchant-id').value = config.payhere?.merchantId || '';
+                document.getElementById('payhere-merchant-secret').value = config.payhere?.merchantSecret || '';
+                document.getElementById('payhere-business-name').value = config.payhere?.businessName || '';
+                document.getElementById('payhere-environment').value = config.payhere?.environment || 'sandbox';
+
+                // PayPal
+                document.getElementById('paypal-email').value = config.paypal?.email || '';
+                document.getElementById('paypal-business-name').value = config.paypal?.businessName || '';
+
+                // Bank
+                document.getElementById('bank-name').value = config.bank?.bankName || '';
+                document.getElementById('bank-account-number').value = config.bank?.accountNumber || '';
+                document.getElementById('bank-account-name').value = config.bank?.accountName || '';
+                document.getElementById('bank-branch').value = config.bank?.branch || '';
+                document.getElementById('bank-branch-code').value = config.bank?.branchCode || '';
+                document.getElementById('bank-swift').value = config.bank?.swift || '';
+
+                console.log('✅ Settings loaded');
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Save Payment Settings
+        function saveSettings() {
+            const settings = {
+                payhere: {
+                    enabled: true,
+                    merchantId: document.getElementById('payhere-merchant-id').value,
+                    merchantSecret: document.getElementById('payhere-merchant-secret').value,
+                    businessName: document.getElementById('payhere-business-name').value,
+                    environment: document.getElementById('payhere-environment').value,
+                    currency: 'LKR'
+                },
+                paypal: {
+                    enabled: true,
+                    email: document.getElementById('paypal-email').value,
+                    businessName: document.getElementById('paypal-business-name').value,
+                    currency: 'USD'
+                },
+                bank: {
+                    enabled: true,
+                    bankName: document.getElementById('bank-name').value,
+                    accountNumber: document.getElementById('bank-account-number').value,
+                    accountName: document.getElementById('bank-account-name').value,
+                    branch: document.getElementById('bank-branch').value,
+                    branchCode: document.getElementById('bank-branch-code').value,
+                    swift: document.getElementById('bank-swift').value,
+                    currency: 'LKR'
+                }
+            };
+
+            console.log('💾 Settings to save:', settings);
+            alert('⚠️ Settings saved to console.\n\nTo apply these settings:\n1. Copy the JSON from console\n2. Update data/admin-membership-info.json\n3. Commit to GitHub');
+            console.log('Copy this JSON to data/admin-membership-info.json:');
+            console.log(JSON.stringify(settings, null, 2));
+        }
+
+        // Initialize
+        if (checkAuth()) {
+            loadAllData();
+            loadPaymentSettings();
+        }
+    </script>
 </body>
 </html>
